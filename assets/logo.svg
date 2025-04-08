@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 150">
+  <!-- Clean white background -->
+  <rect x="0" y="0" width="300" height="150" fill="white" />
+  
+  <!-- L-shaped mark representing both "L" for Lexicon/Legal and a digital corner -->
+  <path d="M50 40 L50 90 L75 90" stroke="#2980b9" stroke-width="4" stroke-linecap="round" fill="none" />
+  
+  <!-- Digital dots connecting to the L shape, suggesting technology -->
+  <circle cx="85" cy="90" r="3" fill="#2980b9" />
+  <circle cx="95" cy="90" r="3" fill="#2980b9" />
+  <circle cx="50" cy="50" r="3" fill="#2980b9" />
+  <circle cx="50" cy="60" r="3" fill="#2980b9" />
+  
+  <!-- Removed the three horizontal bars -->
+  
+  <!-- Modern, clean typography -->
+  <text x="95" y="70" font-family="Arial, sans-serif" font-weight="bold" font-size="28" fill="#2c3e50">LEXINCO</text>
+  
+  <!-- Tagline -->
+  <!-- <text x="105" y="110" font-family="Arial, sans-serif" font-size="12" fill="#7f8c8d">LEGAL INTELLIGENCE</text> -->
+</svg>

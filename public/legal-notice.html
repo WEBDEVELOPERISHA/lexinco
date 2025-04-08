@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal Notice Generator | LegalEase</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/landing.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container"style="display:flex;justify-content:space-between">
+            <a href="index.html" class="logo">
+                <img src="/assets/logo.svg" alt="" width="200">
+            </a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="index.html#features">Features</a>
+                <a href="index.html#how-it-works">Help</a>
+                <!-- <a href="index.html" class="btn primary">Back to Home</a> -->
+                <a href="login.html" class="btn secondary">Login</a>
+                <a href="#" class="btn secondary" onclick="logout()">Logout</a>
+            </div>
+            <button class="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="generator-container">
+        <div class="container">
+            <div class="generator-header">
+                <h1>Legal Notice Generator</h1>
+                <p>Fill in the details below to generate your professional legal notice</p>
+            </div>
+
+            <!-- Progress Steps -->
+            <div class="progress-steps">
+                <div class="step active" data-step="1">
+                    <div class="step-number">1</div>
+                    <div class="step-label">Client Details</div>
+                </div>
+                <div class="step" data-step="2">
+                    <div class="step-number">2</div>
+                    <div class="step-label">Recipient Info</div>
+                </div>
+                <div class="step" data-step="3">
+                    <div class="step-number">3</div>
+                    <div class="step-label">Dispute Details</div>
+                </div>
+                <div class="step" data-step="4">
+                    <div class="step-number">4</div>
+                    <div class="step-label">Review & Generate</div>
+                </div>
+            </div>
+
+            <!-- Form Container -->
+            <form id="noticeForm" class="notice-form">
+                <!-- Step 1: Client Details -->
+                <div class="form-step active" data-step="1">
+                    <div class="form-section">
+                        <h2><i class="fas fa-user"></i> Your Details</h2>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="senderName" class="required">Full Name / Business Name</label>
+                                <input type="text" id="senderName" required>
+                                <div class="help-text">Enter your legal name or registered business name</div>
+                            </div>
+                            <div class="form-group">
+                                <label for="senderContact" class="required">Contact Number</label>
+                                <input type="tel" id="senderContact" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="senderAddress" class="required">Complete Address</label>
+                            <textarea id="senderAddress" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="senderEmail" class="required">Email Address</label>
+                            <input type="email" id="senderEmail" required>
+                        </div>
+                    </div>
+                    <div class="form-navigation">
+                        <button type="button" class="btn next-step" onclick="nextStep()">Next <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Recipient Details -->
+                <div class="form-step" data-step="2">
+                    <div class="form-section">
+                        <h2><i class="fas fa-users"></i> Recipient Details</h2>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="recipientName" class="required">Full Name / Business Name</label>
+                                <input type="text" id="recipientName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="recipientContact">Contact Number</label>
+                                <input type="tel" id="recipientContact">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="recipientAddress" class="required">Complete Address</label>
+                            <textarea id="recipientAddress" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="recipientEmail">Email Address</label>
+                            <input type="email" id="recipientEmail">
+                        </div>
+                    </div>
+                    <div class="form-navigation">
+                        <button type="button" class="btn prev-step" onclick="prevStep()"><i class="fas fa-arrow-left"></i> Previous</button>
+                        <button type="button" class="btn next-step" onclick="nextStep()">Next <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Dispute Details -->
+                <!-- Step 3: Dispute Details -->
+<div class="form-step" data-step="3">
+    <div class="form-section">
+        <h2><i class="fas fa-balance-scale"></i> Dispute Information</h2>
+        <div class="form-group">
+            <label for="relationshipType" class="required">Nature of Relationship</label>
+            <select id="relationshipType" required>
+                <option value="">Select relationship type</option>
+                <option value="consumer-business">Consumer-Business</option>
+                <option value="employer-employee">Employer-Employee</option>
+                <option value="lender-borrower">Lender-Borrower</option>
+                <option value="landlord-tenant">Landlord-Tenant</option>
+                <option value="business-partner">Business Partners</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="transactionDate" class="required">Date of Transaction/Engagement</label>
+                <input type="date" id="transactionDate" required>
+            </div>
+            <div class="form-group">
+                <label for="transactionPlace">Place of Transaction/Engagement</label>
+                <input type="text" id="transactionPlace">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="contractDetails" class="required">Contract/Agreement Details</label>
+            <textarea id="contractDetails" required placeholder="Include contract reference numbers, terms, etc."></textarea>
+        </div>
+        <div class="form-group">
+            <label for="issueDescription" class="required">Description of Issue</label>
+            <textarea id="issueDescription" required placeholder="Describe the issue you're facing in detail"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="keyEvents" class="required">Key Events Timeline</label>
+            <textarea id="keyEvents" required placeholder="List important events with dates that led to the dispute"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="damagesSuffered" class="required">Loss or Damages Suffered</label>
+            <textarea id="damagesSuffered" required placeholder="Describe monetary losses, mental agony, defamation, etc."></textarea>
+        </div>
+        <!-- New Fields: Country and Tone -->
+        <div class="form-row">
+            <div class="form-group">
+                <label for="country" class="required">Country</label>
+                <select id="country" required>
+                    <option value="">Select country</option>
+                    <option value="India">India</option>
+                    <option value="USA">USA</option>
+                    <option value="UK">UK</option>
+                    <option value="Australia">Australia</option>
+                    <option value="Canada">Canada</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="tone" class="required">Tone of Notice</label>
+                <select id="tone" required>
+                    <option value="">Select tone</option>
+                    <option value="Polite">Polite</option>
+                    <option value="Formal">Formal</option>
+                    <option value="Aggressive">Aggressive</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="form-navigation">
+        <button type="button" class="btn prev-step" onclick="prevStep()"><i class="fas fa-arrow-left"></i> Previous</button>
+        <button type="button" class="btn next-step" onclick="nextStep()">Next <i class="fas fa-arrow-right"></i></button>
+    </div>
+</div>
+
+                <!-- Step 4: Review & Generate -->
+                <div class="form-step" data-step="4">
+                    <div class="form-section">
+                        <h2><i class="fas fa-check-circle"></i> Review & Generate</h2>
+                        <div class="review-section">
+                            <h3>Legal Grounds & Demands</h3>
+                            <div class="form-group">
+                                <label for="lawsViolated" class="required">Laws Violated</label>
+                                <textarea id="lawsViolated" required placeholder="List laws that apply to your case (e.g., Consumer Protection Act, Indian Contract Act)"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="specificDemand" class="required">Specific Demand</label>
+                                <textarea id="specificDemand" required placeholder="What exactly are you demanding? (refund, compensation, service rectification, apology, etc.)"></textarea>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="compensationAmount">Compensation Amount (if applicable)</label>
+                                    <input type="text" id="compensationAmount" placeholder="Enter amount in ₹">
+                                </div>
+                                <div class="form-group">
+                                    <label for="complianceTimeframe" class="required">Timeframe for Compliance</label>
+                                    <select id="complianceTimeframe" required>
+                                        <option value="7 days">7 days</option>
+                                        <option value="10 days">10 days</option>
+                                        <option value="15 days" selected>15 days</option>
+                                        <option value="30 days">30 days</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="signature-section">
+                            <h3>Your Signature</h3>
+                            <div class="form-group">
+                                <label>Please sign below:</label>
+                                <canvas id="signature-pad" class="signature-pad"></canvas>
+                                <button type="button" class="btn clear-signature" onclick="clearSignature()">
+                                    <i class="fas fa-eraser"></i> Clear Signature
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="confirmDetails" required>
+                                <label for="confirmDetails">I confirm that all the information provided is accurate to the best of my knowledge</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-navigation">
+                        <button type="button" class="btn prev-step" onclick="prevStep()"><i class="fas fa-arrow-left"></i> Previous</button>
+                        <button type="submit" class="btn primary">
+                            <i class="fas fa-file-contract"></i> Generate Legal Notice
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- Notice Preview Modal -->
+<section id="noticePage" class="notice-page" style="display: none;">
+    <div class="container">
+        <div class="notice-header">
+            <h1>Generated Legal Notice</h1>
+            <div class="notice-actions">
+                <button class="btn primary" onclick="showForm()">
+                    <i class="fas fa-edit"></i> Edit Notice
+                </button>
+                <button class="btn primary" id="payNowBtn" onclick="initiatePaymentAndSend()">
+    <i class="fas fa-credit-card"></i> Pay Now
+</button>
+<!-- Add this to the notice page section -->
+<div id="paymentDetails" class="payment-details"></div>
+
+<!-- Update buttons -->
+<button class="btn" onclick="generatePDF()" id="downloadBtn" disabled>
+    <i class="fas fa-download"></i> Download PDF
+</button>
+<button class="btn primary" id="sendNoticeBtn" onclick="sendEmail()" disabled>
+    <i class="fas fa-paper-plane"></i> Send Notice
+</button>
+<button class="btn primary" id="shareWhatsappBtn" onclick="shareViaWhatsapp()" disabled>
+                    <i class="fab fa-whatsapp"></i> Share via WhatsApp
+                </button>
+            </div>
+        </div>
+        <div id="legalNotice" class="legal-notice-content"></div>
+    </div>
+</section>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p>Generating your legal notice...</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="index.html" class="logo">
+                        <img src="/assets/logo.svg" alt="Lexinco Logo">
+                       
+                    </a>
+                    <p>Making legal documentation accessible and efficient.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="legal-notice.html">Generator</a></li>
+                        <li><a href="index.html#features">Features</a></li>
+                        <li><a href="index.html#how-it-works">How It Works</a></li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h4>Need Help?</h4>
+                    <ul>
+                        <li><i class="fas fa-envelope"></i> support@legalease.com</li>
+                       
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Lexinco. All rights reserved.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.3/purify.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+<script src="https://smtpjs.com/v3/smtp.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="js/app.js"></script>
+    <script>
+        // Initialize Razorpay when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+          // Check if Razorpay is loaded
+          if (typeof Razorpay === 'undefined') {
+            console.error('Razorpay not loaded!');
+            // You might want to show an error to users here
+          }
+        });
+      </script>
+      <!-- <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Step 1: Client Details
+            document.getElementById("senderName").value = "John Doe & Co.";
+            document.getElementById("senderContact").value = "9876543210";
+            document.getElementById("senderAddress").value = "123, Business Avenue, Mumbai, India";
+            document.getElementById("senderEmail").value = "john.doe@example.com";
+    
+            // Step 2: Recipient Details
+            document.getElementById("recipientName").value = "XYZ Pvt Ltd.";
+            document.getElementById("recipientContact").value = "9123456789";
+            document.getElementById("recipientAddress").value = "456, Corporate Street, Delhi, India";
+            document.getElementById("recipientEmail").value = "contact@xyz.com";
+    
+            // Step 3: Dispute Details
+            document.getElementById("relationshipType").value = "business-partner";
+            document.getElementById("transactionDate").value = "2024-01-15";
+            document.getElementById("transactionPlace").value = "Delhi, India";
+            document.getElementById("contractDetails").value = "Contract No. 1234, signed on 15 Jan 2024.";
+            document.getElementById("issueDescription").value = "The company failed to deliver the agreed services despite multiple follow-ups.";
+            document.getElementById("keyEvents").value = "15 Jan 2024: Agreement signed\n10 Feb 2024: First reminder sent\n25 Feb 2024: Legal notice considered";
+            document.getElementById("damagesSuffered").value = "Financial loss of ₹50,000 due to breach of contract.";
+    
+            // Step 4: Review & Generate
+            document.getElementById("lawsViolated").value = "Breach of Contract - Indian Contract Act, 1872.";
+            document.getElementById("specificDemand").value = "Refund of ₹50,000 and compensation for inconvenience.";
+            document.getElementById("compensationAmount").value = "₹50,000";
+            document.getElementById("complianceTimeframe").value = "15 days";
+        });
+    </script> -->
+    <script>
+        // Check authentication
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!sessionStorage.getItem('isLoggedIn')) {
+                window.location.href = 'login.html';
+            }
+        });
+        </script>
+    <script>
+        function logout() {
+            sessionStorage.removeItem('isLoggedIn');
+            window.location.href = 'index.html';
+        }
+        </script>
+</body>
+</html>
