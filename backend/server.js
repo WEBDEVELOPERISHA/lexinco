@@ -8,19 +8,20 @@ const fs = require('fs');
 const Razorpay = require('razorpay');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
-require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 const axios = require('axios');
+
 const app = express();
 
 // Middleware
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: ['http://localhost:3000', 'https://lexinco-frontend.onrender.com'],
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(bodyParser.json());
 
-// Serve static files (relative to backend folder)
+// Serve static files
 app.use(express.static(path.join(__dirname, '..', 'public')));
 app.use('/assets', express.static(path.join(__dirname, '..', 'assets')));
 app.use('/css', express.static(path.join(__dirname, '..', 'public', 'css')));
@@ -41,13 +42,17 @@ function writeDB(data) {
     fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
 }
 
-// Initialize Razorpay with environment variables only (no fallbacks in production)
+// Debug environment variables
+console.log('RAZORPAY_KEY_ID:', process.env.RAZORPAY_KEY_ID);
+if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+    throw new Error('Razorpay credentials are missing. Check your .env file.');
+}
+
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
     key_secret: process.env.RAZORPAY_KEY_SECRET
 });
 
-// Email setup (GoDaddy SMTP)
 const transporter = nodemailer.createTransport({
     host: 'smtpout.secureserver.net',
     port: 465,
@@ -56,26 +61,18 @@ const transporter = nodemailer.createTransport({
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASSWORD
     },
-    tls: {
-        rejectUnauthorized: false
-    }
+    tls: { rejectUnauthorized: false }
 });
 
-// Generate OTP
 function generateOTP() {
     return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// Multer setup for file uploads
 const uploadDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir);
-}
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
 const upload = multer({ dest: uploadDir });
 
 // API Endpoints
-
-// Redirect root URL to index.html or legal-notice.html
 app.get('/', (req, res) => {
     const indexPath = path.join(__dirname, '..', 'public', 'index.html');
     if (fs.existsSync(indexPath)) {
@@ -85,68 +82,96 @@ app.get('/', (req, res) => {
     }
 });
 
-// New endpoint to provide Razorpay key ID to client
 app.get('/api/config', (req, res) => {
-    res.json({
-        razorpayKeyId: process.env.RAZORPAY_KEY_ID
-    });
+    res.json({ razorpayKeyId: process.env.RAZORPAY_KEY_ID });
 });
-// Add this new endpoint before other API endpoints
+
 app.post('/api/generate-notice', async (req, res) => {
     const formData = req.body;
-    const todayDate = new Date().toLocaleDateString('en-IN', {
+    const todayDate = new Date().toLocaleDateString('en-US', { // Changed to en-US for consistency
         day: 'numeric',
         month: 'long',
         year: 'numeric'
     });
 
-    const prompt = `You are a legal assistant. Draft a legal notice for a user in ${formData.dispute.country} who is facing the following issue:
+    const prompt = `
+You are a senior legal assistant with over 20 years of experience in civil and contractual disputes, tasked with drafting a **comprehensive, jurisdiction-specific legal notice** on behalf of a client. The notice must adhere to the legal standards and practices of ${formData.dispute.country}.
 
-- Dispute type: ${formData.dispute.relationship}
-- Recipient: ${formData.recipient.name}
-- Description: ${formData.dispute.issueDescription}
-- Resolution demanded: ${formData.dispute.specificDemand}${formData.dispute.compensation ? ` amounting to ₹${formData.dispute.compensation}` : ''}
-- Tone: ${formData.dispute.tone}
+**Objective:**  
+- Draft a formal legal notice that is **a minimum of 4 A4 pages long (approximately 1200–1500 words)**, exhaustive, and detailed.  
+- Use a **${formData.dispute.tone} tone** and ensure it is suitable for court submission or dispute resolution authorities in ${formData.dispute.country}.  
+- Base the notice **solely on the provided facts**—do not invent or alter any details (e.g., names, dates, figures).  
+- Include **relevant laws, statutes, or legal principles** from ${formData.dispute.country} to strengthen the notice.  
 
-Make the notice sound like it's from a real person, based on the legal style commonly used in ${formData.dispute.country}. Mention relevant laws if available, but do not give legal advice. End with a clear call to action and timeline for response.
+---
 
-Additional Details:
-- Client Name: ${formData.client.name}
-- Client Address: ${formData.client.address}
-- Client Contact: ${formData.client.contact}
-- Client Email: ${formData.client.email}
-- Recipient Address: ${formData.recipient.address}
-- Recipient Contact: ${formData.recipient.contact}
-- Recipient Email: ${formData.recipient.email}
-- Transaction Date: ${formData.dispute.transactionDate}
-- Transaction Place: ${formData.dispute.transactionPlace}
-- Contract Details: ${formData.dispute.contractDetails}
-- Key Events Timeline: ${formData.dispute.keyEvents}
-- Damages Suffered: ${formData.dispute.damages}
-- Laws Violated: ${formData.dispute.lawsViolated}
-- Timeframe for Compliance: ${formData.dispute.timeframe}
+**Dispute Details:**  
+- **Dispute Type:** ${formData.dispute.relationship}  
+- **Country:** ${formData.dispute.country}  
+- **Transaction Date:** ${formData.dispute.transactionDate}  
+- **Transaction Place:** ${formData.dispute.transactionPlace}  
+- **Contract Details:** ${formData.dispute.contractDetails}  
+- **Key Events Timeline:** ${formData.dispute.keyEvents}  
+- **Description of Dispute:** ${formData.dispute.issueDescription}  
+- **Damages Suffered:** ${formData.dispute.damages}  
+- **Laws Violated:** ${formData.dispute.lawsViolated}  
+- **Specific Resolution Demanded:** ${formData.dispute.specificDemand}${formData.dispute.compensation ? ` amounting to $${formData.dispute.compensation} (USD)` : ''}  
 
-Structure the notice like this:
+---
 
+**Client Details (Sender):**  
+- **Name:** ${formData.client.name}  
+- **Address:** ${formData.client.address}  
+- **Contact:** ${formData.client.contact}  
+- **Email:** ${formData.client.email}  
+
+**Recipient Details (Respondent):**  
+- **Name:** ${formData.recipient.name}  
+- **Address:** ${formData.recipient.address}  
+- **Contact:** ${formData.recipient.contact}  
+- **Email:** ${formData.recipient.email}  
+
+---
+
+**Formatting & Content Requirements:**  
+- Structure the notice with the following sections, each thoroughly detailed:  
+  1. **Introduction and Identification of Parties** (200–300 words): Introduce the sender, respondent, and purpose of the notice.  
+  2. **Detailed Background and Factual Matrix** (300–400 words): Provide an exhaustive factual background of the dispute.  
+  3. **Timeline of Events** (200–300 words): List key events in chronological order with precise details.  
+  4. **Legal Violations & Statutory References** (300–400 words): Cite specific laws from ${formData.dispute.country} and explain violations.  
+  5. **Damages and Hardships Faced** (200–300 words): Detail financial, emotional, or other impacts on the sender.  
+  6. **Legal Consequences of Non-Compliance** (200–300 words): Outline potential legal actions if the demand is unmet.  
+  7. **Demand for Relief and Compliance Timeline** (200–300 words): Specify the resolution and deadline clearly.  
+  8. **Conclusion and Final Intimation** (100–200 words): Summarize and issue a final call to action.  
+- Ensure logical flow, professional legal language, and exhaustive elaboration in every section.  
+- Use numbered paragraphs where applicable for clarity and formality.  
+
+---
+
+**Output Format:**  
 To,  
-[Recipient's Full Address]  
-Subject: [Brief Subject with Legal Charges if any]  
+[Recipient's Full Name]  
+[Recipient’s Full Address]  
+
+Subject: Legal Notice Regarding ${formData.dispute.relationship} – Immediate Action Required  
 
 Dated: ${todayDate}  
 
-[Content of the Legal Notice]  
+[Full content of the legal notice here, meeting the 1200–1500 word requirement]  
 
 From,  
-[Client's Full Name and Address]  
+${formData.client.name}  
+${formData.client.address}  
 
-Signed: [This notice is digitally signed by the client]`;
+Signed: This notice is digitally signed by the client  
+`;
 
     try {
         const response = await axios.post('https://api.openai.com/v1/chat/completions', {
             model: "gpt-4",
             messages: [{ role: "user", content: prompt }],
             temperature: 0.3,
-            max_tokens: 2500
+            max_tokens: 4096 // Increased to handle longer output
         }, {
             headers: {
                 'Content-Type': 'application/json',
