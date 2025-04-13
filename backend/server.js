@@ -452,7 +452,4 @@ app.get('/test-db', (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
-    if (!fs.existsSync(DB_PATH)) {
-        writeDB({ users: [], notices: [], otps: [], files: [] });
-    }
 });
