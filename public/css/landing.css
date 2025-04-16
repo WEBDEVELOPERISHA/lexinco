@@ -388,9 +388,43 @@ body {
 }
 
 /* Responsive Design */
+/* Responsive Design */
 @media (max-width: 768px) {
     .nav-links {
         display: none;
+        /* Hidden by default */
+        flex-direction: column;
+        /* Stack links vertically */
+        position: absolute;
+        top: 100%;
+        /* Position below navbar */
+        left: 0;
+        width: 100%;
+        /* Full width */
+        background-color: var(--white);
+        box-shadow: var(--shadow);
+        padding: 20px;
+        text-align: center;
+        z-index: 999;
+        
+    }
+
+    .nav-links.active {
+        display: flex;
+        /* Show when toggled */
+    }
+
+    .nav-links a {
+        margin: 10px 0;
+        /* Vertical spacing */
+        font-size: 1.2rem;
+    }
+
+    .nav-links .btn {
+        margin: 10px 0;
+        width: 100%;
+        /* Full-width buttons */
+        text-align: center;
     }
 
     .mobile-menu-btn {
