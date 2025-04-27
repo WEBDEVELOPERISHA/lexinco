@@ -325,6 +325,81 @@ app.post('/api/send-invoice', async (req, res) => {
         res.status(500).json({ error: 'Failed to send invoice' });
     }
 });
+app.post('/api/send-notice', upload.single('pdf'), async (req, res) => {
+    const { toEmail, fromEmail, senderName } = req.body;
+    const pdfFile = req.file;
+
+    // Validate inputs
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!toEmail || !emailRegex.test(toEmail)) {
+        return res.status(400).json({ error: 'Invalid recipient email address' });
+    }
+    if (!fromEmail || !emailRegex.test(fromEmail)) {
+        return res.status(400).json({ error: 'Invalid sender email address' });
+    }
+    if (!senderName) {
+        return res.status(400).json({ error: 'Sender name is required' });
+    }
+    if (!pdfFile) {
+        return res.status(400).json({ error: 'PDF file is required' });
+    }
+
+    try {
+        // Email body (HTML and plain text)
+        const emailHtml = `
+            <p>Dear Recipient,</p>
+            <p>Please find attached the legal notice from ${senderName}.</p>
+            <p>For any inquiries, please reply to this email.</p>
+            <p>Best regards,<br>Lexinco Team</p>
+            <hr>
+            <p style="font-size: 10pt; color: #666;">
+                Sent by Lexinco<br>
+                Email: support@lexinco.com<br>
+                Website: https://lexinco.com
+            </p>
+        `;
+        const emailText = `
+            Dear Recipient,
+            Please find attached the legal notice from ${senderName}.
+            For any inquiries, please reply to this email.
+            Best regards,
+            Lexinco Team
+            ---
+            Sent by Lexinco
+            Email: support@lexinco.com
+            Website: https://lexinco.com
+        `;
+
+        // Send email with PDF attachment
+        await transporter.sendMail({
+            from: `"Lexinco Legal Notice" <${process.env.EMAIL_USER}>`,
+            replyTo: `"${senderName}" <${fromEmail}>`,
+            to: toEmail,
+            subject: 'Legal Notice',
+            html: emailHtml,
+            text: emailText,
+            attachments: [
+                {
+                    filename: 'legal_notice.pdf',
+                    path: pdfFile.path,
+                    contentType: 'application/pdf'
+                }
+            ]
+        });
+
+        // Clean up temporary file
+        fs.unlinkSync(pdfFile.path);
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Send Notice Error:', error);
+        // Clean up file if it exists
+        if (pdfFile && fs.existsSync(pdfFile.path)) {
+            fs.unlinkSync(pdfFile.path);
+        }
+        res.status(500).json({ error: 'Failed to send notice' });
+    }
+});
 
 // Create Razorpay Order
 app.post('/api/create-order', async (req, res) => {

@@ -6,6 +6,7 @@
     <title>Legal Notice Generator | Lexinco</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/landing.css">
+    <link rel="stylesheet" href="css/whatsapp.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,7 +15,7 @@
 <body>
     <!-- Navigation -->
     <nav class="navbar">
-        <div class="container"style="display:flex;justify-content:space-between">
+        <div class="container" style="display:flex;justify-content:space-between">
             <a href="index.html" class="logo">
                 <img src="/assets/logo.svg" alt="" width="200">
             </a>
@@ -22,7 +23,6 @@
                 <a href="index.html">Home</a>
                 <a href="index.html#features">Features</a>
                 <a href="index.html#how-it-works">Help</a>
-                <!-- <a href="index.html" class="btn primary">Back to Home</a> -->
                 <a href="login.html" class="btn secondary">Login</a>
                 <a href="#" class="btn secondary" onclick="logout()">Logout</a>
             </div>
@@ -121,78 +121,76 @@
                 </div>
 
                 <!-- Step 3: Dispute Details -->
-                <!-- Step 3: Dispute Details -->
-<div class="form-step" data-step="3">
-    <div class="form-section">
-        <h2><i class="fas fa-balance-scale"></i> Dispute Information</h2>
-        <div class="form-group">
-            <label for="relationshipType" class="required">Nature of Relationship</label>
-            <select id="relationshipType" required>
-                <option value="">Select relationship type</option>
-                <option value="consumer-business">Consumer-Business</option>
-                <option value="employer-employee">Employer-Employee</option>
-                <option value="lender-borrower">Lender-Borrower</option>
-                <option value="landlord-tenant">Landlord-Tenant</option>
-                <option value="business-partner">Business Partners</option>
-                <option value="other">Other</option>
-            </select>
-        </div>
-        <div class="form-row">
-            <div class="form-group">
-                <label for="transactionDate" class="required">Date of Transaction/Engagement</label>
-                <input type="date" id="transactionDate" required>
-            </div>
-            <div class="form-group">
-                <label for="transactionPlace">Place of Transaction/Engagement</label>
-                <input type="text" id="transactionPlace">
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="contractDetails" class="required">Contract/Agreement Details</label>
-            <textarea id="contractDetails" required placeholder="Include contract reference numbers, terms, etc."></textarea>
-        </div>
-        <div class="form-group">
-            <label for="issueDescription" class="required">Description of Issue</label>
-            <textarea id="issueDescription" required placeholder="Describe the issue you're facing in detail"></textarea>
-        </div>
-        <div class="form-group">
-            <label for="keyEvents" class="required">Key Events Timeline</label>
-            <textarea id="keyEvents" required placeholder="List important events with dates that led to the dispute"></textarea>
-        </div>
-        <div class="form-group">
-            <label for="damagesSuffered" class="required">Loss or Damages Suffered</label>
-            <textarea id="damagesSuffered" required placeholder="Describe monetary losses, mental agony, defamation, etc."></textarea>
-        </div>
-        <!-- New Fields: Country and Tone -->
-        <div class="form-row">
-            <div class="form-group">
-                <label for="country" class="required">Country</label>
-                <select id="country" required>
-                    <option value="">Select country</option>
-                    <option value="India">India</option>
-                    <option value="USA">USA</option>
-                    <option value="UK">UK</option>
-                    <option value="Australia">Australia</option>
-                    <option value="Canada">Canada</option>
-                    <option value="Other">Other</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="tone" class="required">Tone of Notice</label>
-                <select id="tone" required>
-                    <option value="">Select tone</option>
-                    <option value="Polite">Polite</option>
-                    <option value="Formal">Formal</option>
-                    <option value="Aggressive">Aggressive</option>
-                </select>
-            </div>
-        </div>
-    </div>
-    <div class="form-navigation">
-        <button type="button" class="btn prev-step" onclick="prevStep()"><i class="fas fa-arrow-left"></i> Previous</button>
-        <button type="button" class="btn next-step" onclick="nextStep()">Next <i class="fas fa-arrow-right"></i></button>
-    </div>
-</div>
+                <div class="form-step" data-step="3">
+                    <div class="form-section">
+                        <h2><i class="fas fa-balance-scale"></i> Dispute Information</h2>
+                        <div class="form-group">
+                            <label for="relationshipType" class="required">Nature of Relationship</label>
+                            <select id="relationshipType" required>
+                                <option value="">Select relationship type</option>
+                                <option value="consumer-business">Consumer-Business</option>
+                                <option value="employer-employee">Employer-Employee</option>
+                                <option value="lender-borrower">Lender-Borrower</option>
+                                <option value="landlord-tenant">Landlord-Tenant</option>
+                                <option value="business-partner">Business Partners</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="transactionDate" class="required">Date of Transaction/Engagement</label>
+                                <input type="date" id="transactionDate" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="transactionPlace">Place of Transaction/Engagement</label>
+                                <input type="text" id="transactionPlace">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="contractDetails" class="required">Contract/Agreement Details</label>
+                            <textarea id="contractDetails" required placeholder="Include contract reference numbers, terms, etc."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="issueDescription" class="required">Description of Issue</label>
+                            <textarea id="issueDescription" required placeholder="Describe the issue you're facing in detail"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="keyEvents" class="required">Key Events Timeline</label>
+                            <textarea id="keyEvents" required placeholder="List important events with dates that led to the dispute"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="damagesSuffered" class="required">Loss or Damages Suffered</label>
+                            <textarea id="damagesSuffered" required placeholder="Describe monetary losses, mental agony, defamation, etc."></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="country" class="required">Country</label>
+                                <select id="country" required>
+                                    <option value="">Select country</option>
+                                    <option value="India">India</option>
+                                    <option value="USA">USA</option>
+                                    <option value="UK">UK</option>
+                                    <option value="Australia">Australia</option>
+                                    <option value="Canada">Canada</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="tone" class="required">Tone of Notice</label>
+                                <select id="tone" required>
+                                    <option value="">Select tone</option>
+                                    <option value="Polite">Polite</option>
+                                    <option value="Formal">Formal</option>
+                                    <option value="Aggressive">Aggressive</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-navigation">
+                        <button type="button" class="btn prev-step" onclick="prevStep()"><i class="fas fa-arrow-left"></i> Previous</button>
+                        <button type="button" class="btn next-step" onclick="nextStep()">Next <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
 
                 <!-- Step 4: Review & Generate -->
                 <div class="form-step" data-step="4">
@@ -242,6 +240,10 @@
                                 <input type="checkbox" id="confirmDetails" required>
                                 <label for="confirmDetails">I confirm that all the information provided is accurate to the best of my knowledge</label>
                             </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="privacyPolicy" required>
+                                <label for="privacyPolicy">I consent to Lexinco collecting and processing my data as outlined in the <a href="/privacy-policy.html" target="_blank">Privacy Policy</a>. I understand that Lexinco is not a law firm and does not provide legal advice or legal services.</label>
+                            </div>
                         </div>
                     </div>
                     <div class="form-navigation">
@@ -256,35 +258,32 @@
     </main>
 
     <!-- Notice Preview Modal -->
-<section id="noticePage" class="notice-page" style="display: none;">
-    <div class="container">
-        <div class="notice-header">
-            <h1>Generated Legal Notice</h1>
-            <div class="notice-actions">
-                <button class="btn primary" onclick="showForm()">
-                    <i class="fas fa-edit"></i> Edit Notice
-                </button>
-                <button class="btn primary" id="payNowBtn" onclick="initiatePaymentAndSend()">
-    <i class="fas fa-credit-card"></i> Pay Now
-</button>
-<!-- Add this to the notice page section -->
-<div id="paymentDetails" class="payment-details"></div>
-
-<!-- Update buttons -->
-<button class="btn" onclick="generatePDF()" id="downloadBtn" disabled>
-    <i class="fas fa-download"></i> Download PDF
-</button>
-<button class="btn primary" id="sendNoticeBtn" onclick="sendEmail()" disabled>
-    <i class="fas fa-paper-plane"></i> Send Notice
-</button>
-<button class="btn primary" id="shareWhatsappBtn" onclick="shareViaWhatsapp()" disabled>
-                    <i class="fab fa-whatsapp"></i> Share via WhatsApp
-                </button>
+    <section id="noticePage" class="notice-page" style="display: none;">
+        <div class="container">
+            <div class="notice-header">
+                <h1>Generated Legal Notice</h1>
+                <div class="notice-actions">
+                    <button class="btn primary" onclick="showForm()">
+                        <i class="fas fa-edit"></i> Edit Notice
+                    </button>
+                    <button class="btn primary" id="payNowBtn" onclick="initiatePaymentAndSend()" disabled>
+                        <i class="fas fa-credit-card"></i> Pay Now
+                    </button>
+                    <div id="paymentDetails" class="payment-details"></div>
+                    <button class="btn" onclick="generatePDF()" id="downloadBtn">
+                        <i class="fas fa-download"></i> Download PDF
+                    </button>
+                    <button class="btn primary" id="sendNoticeBtn" onclick="sendEmail()">
+                        <i class="fas fa-paper-plane"></i> Send Notice
+                    </button>
+                    <button class="btn primary" id="shareWhatsappBtn" onclick="shareViaWhatsapp()">
+                        <i class="fab fa-whatsapp"></i> Share via WhatsApp
+                    </button>
+                </div>
             </div>
+            <div id="legalNotice" class="legal-notice-content"></div>
         </div>
-        <div id="legalNotice" class="legal-notice-content"></div>
-    </div>
-</section>
+    </section>
 
     <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
@@ -301,7 +300,6 @@
                 <div class="footer-brand">
                     <a href="index.html" class="logo">
                         <img src="/assets/logo.svg" alt="Lexinco Logo">
-                       
                     </a>
                     <p>Making legal documentation accessible and efficient.</p>
                 </div>
@@ -318,12 +316,11 @@
                     <h4>Need Help?</h4>
                     <ul>
                         <li><i class="fas fa-envelope"></i> support@lexinco.com</li>
-                       
                     </ul>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2025 Lexinco. All rights reserved.</p>
+                <p>© 2025 Lexinco. All rights reserved.</p>
                 <div class="social-links">
                     <a href="#"><i class="fab fa-twitter"></i></a>
                     <a href="#"><i class="fab fa-linkedin"></i></a>
@@ -333,54 +330,27 @@
         </div>
     </footer>
 
+    <!-- WhatsApp Help Button -->
+    <a href="https://wa.me/+1234567890?text=Hello,%20I%20need%20assistance%20with%20Lexinco's%20legal%20notice%20generator." class="whatsapp-help" target="_blank">
+        <i class="fab fa-whatsapp"></i> May I Help You?
+    </a>
+
     <!-- Scripts -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.3/purify.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
-<script src="https://smtpjs.com/v3/smtp.js"></script>
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<script src="js/app.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.3/purify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+    <script src="https://smtpjs.com/v3/smtp.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="js/app.js"></script>
     <script>
         // Initialize Razorpay when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
-          // Check if Razorpay is loaded
-          if (typeof Razorpay === 'undefined') {
-            console.error('Razorpay not loaded!');
-            // You might want to show an error to users here
-          }
+            if (typeof Razorpay === 'undefined') {
+                console.error('Razorpay not loaded!');
+            }
         });
-      </script>
-      <!-- <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            // Step 1: Client Details
-            document.getElementById("senderName").value = "John Doe & Co.";
-            document.getElementById("senderContact").value = "9876543210";
-            document.getElementById("senderAddress").value = "123, Business Avenue, Mumbai, India";
-            document.getElementById("senderEmail").value = "john.doe@example.com";
-    
-            // Step 2: Recipient Details
-            document.getElementById("recipientName").value = "XYZ Pvt Ltd.";
-            document.getElementById("recipientContact").value = "9123456789";
-            document.getElementById("recipientAddress").value = "456, Corporate Street, Delhi, India";
-            document.getElementById("recipientEmail").value = "contact@xyz.com";
-    
-            // Step 3: Dispute Details
-            document.getElementById("relationshipType").value = "business-partner";
-            document.getElementById("transactionDate").value = "2024-01-15";
-            document.getElementById("transactionPlace").value = "Delhi, India";
-            document.getElementById("contractDetails").value = "Contract No. 1234, signed on 15 Jan 2024.";
-            document.getElementById("issueDescription").value = "The company failed to deliver the agreed services despite multiple follow-ups.";
-            document.getElementById("keyEvents").value = "15 Jan 2024: Agreement signed\n10 Feb 2024: First reminder sent\n25 Feb 2024: Legal notice considered";
-            document.getElementById("damagesSuffered").value = "Financial loss of ₹50,000 due to breach of contract.";
-    
-            // Step 4: Review & Generate
-            document.getElementById("lawsViolated").value = "Breach of Contract - Indian Contract Act, 1872.";
-            document.getElementById("specificDemand").value = "Refund of ₹50,000 and compensation for inconvenience.";
-            document.getElementById("compensationAmount").value = "₹50,000";
-            document.getElementById("complianceTimeframe").value = "15 days";
-        });
-    </script> -->
+    </script>
     <script>
         // Check authentication
         document.addEventListener('DOMContentLoaded', function() {
@@ -388,12 +358,12 @@
                 window.location.href = 'login.html';
             }
         });
-        </script>
+    </script>
     <script>
         function logout() {
             sessionStorage.removeItem('isLoggedIn');
             window.location.href = 'index.html';
         }
-        </script>
+    </script>
 </body>
 </html>

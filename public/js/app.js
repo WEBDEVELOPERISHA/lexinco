@@ -1,5 +1,6 @@
 const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 const BASE_URL = isLocal ? 'http://localhost:3000' : '';
+let savedSenderName = '';
 
 const config = {};
 const form = document.getElementById('noticeForm');
@@ -17,21 +18,10 @@ let paymentDetails = null;
 let signaturePad = null;
 let razorpayKeyId = null;
 
-async function loadConfig() {
-    try {
-        const response = await fetch(`${BASE_URL}/api/config`);
-        const data = await response.json();
-        razorpayKeyId = data.razorpayKeyId;
-    } catch (error) {
-        console.error('Error loading config:', error);
-        alert('Failed to load configuration. Please refresh the page.');
-    }
-}
-
 // Fetch configuration from server
 async function loadConfig() {
     try {
-        const response = await fetch('/api/config');
+        const response = await fetch(`${BASE_URL}/api/config`);
         const data = await response.json();
         razorpayKeyId = data.razorpayKeyId;
     } catch (error) {
@@ -117,14 +107,8 @@ async function loadNoticeDetails(noticeId) {
             formContainer.style.display = 'none';
             noticePage.style.display = 'block';
 
-            if (notice.payment?.status === 'completed') {
-                updateUIAfterPayment(true, {
-                    orderId: notice.payment.orderId,
-                    paymentId: notice.payment.paymentId
-                });
-            } else {
-                updateUIAfterPayment(false);
-            }
+            // Enable buttons regardless of payment status
+            updateUIAfterPayment(true);
         } else {
             alert('Notice content not found');
             showForm();
@@ -202,7 +186,7 @@ form.addEventListener('submit', async function (e) {
     await generateLegalNotice();
 });
 
-// Handle Payment and Send
+// Handle Payment and Send (kept for future use)
 async function initiatePaymentAndSend() {
     try {
         showLoading(true);
@@ -238,7 +222,7 @@ function validateAllSteps() {
     return true;
 }
 
-// Payment Handling
+// Payment Handling (kept for future use)
 async function handlePayment() {
     try {
         showLoading(true);
@@ -258,7 +242,7 @@ async function handlePayment() {
         const options = {
             key: razorpayKeyId,
             amount: orderData.amount,
-            currency: 'INR', // Change to USD for U.S. testing if using a different gateway
+            currency: 'INR',
             order_id: orderData.id,
             name: 'Lexinco Legal Notice',
             description: 'Payment for legal notice delivery',
@@ -371,29 +355,17 @@ function updateUIAfterPayment(success, response = null) {
     const paymentDetailsDiv = document.getElementById('paymentDetails');
     const payNowBtn = document.getElementById('payNowBtn');
 
-    if (success) {
-        paymentDetails = response;
-        paymentDetailsDiv.innerHTML = `
-            <p>Order ID: ${response.orderId}</p>
-            <p>Payment ID: ${response.paymentId}</p>
-        `;
-        downloadBtn.disabled = false;
-        sendBtn.disabled = false;
-        shareWhatsappBtn.disabled = false;
-        sendBtn.innerHTML = '<i class="fas fa-check"></i> Payment Completed';
-        if (payNowBtn) payNowBtn.style.display = 'none';
-    } else {
-        downloadBtn.disabled = true;
-        sendBtn.disabled = true;
-        shareWhatsappBtn.disabled = true;
-        sendBtn.innerHTML = '<i class="fas fa-times"></i> Payment Failed - Try Again';
-        paymentDetailsDiv.innerHTML = '<p>Payment pending</p>';
-        if (payNowBtn) payNowBtn.style.display = 'block';
-    }
+    // Enable buttons regardless of payment
+    downloadBtn.disabled = false;
+    sendBtn.disabled = false;
+    shareWhatsappBtn.disabled = false;
+    paymentDetailsDiv.innerHTML = '<p>Payment not required</p>';
+    sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Notice';
+    if (payNowBtn) payNowBtn.disabled = true;
     showLoading(false);
 }
 
-// Generate Legal Notice (moved to server)
+// Generate Legal Notice
 async function generateLegalNotice() {
     showLoading(true);
     try {
@@ -428,6 +400,8 @@ async function generateLegalNotice() {
             },
             signature: signatureData
         };
+        savedSenderName = formData.client.name;
+        sessionStorage.setItem('senderName', formData.client.name);
 
         const response = await fetch(`${BASE_URL}/api/generate-notice`, {
             method: 'POST',
@@ -438,9 +412,41 @@ async function generateLegalNotice() {
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || 'Failed to generate notice');
 
-        const noticeContent = `
+        // Sanitize and format the server response
+        let noticeContent = data.content
+            .replace(/[^\x20-\x7E\n]/g, '') // Remove non-printable characters
+            .replace(/\n{2,}/g, '\n\n') // Normalize multiple newlines
+            .replace(/\n/g, '<br>') // Convert newlines to HTML breaks
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Markdown bold
+            .replace(/\*-(.*?)\*\*/g, '<strong>$1</strong>') // Fix incorrect Markdown
+            .replace(/\+\+(.*?)\+\+/g, '<strong>$1</strong>') // Fix ++ syntax
+            .replace(/"{2,}(.*?)"{2,}/g, '<strong>$1</strong>') // Fix double quotes
+            .replace(/\b\d{4}(,\s*\d{4})*\b/g, '') // Remove year sequences
+            .replace(/(Timeline of Events\s*){2,}/g, 'Timeline of Events'); // Remove duplicate section titles
+
+        // Ensure proper "To" and "Subject" formatting
+        const recipientName = formData.recipient.name.replace(/['"$\\]/g, ''); // Remove problematic characters
+        const recipientAddress = formData.recipient.address.replace(/['"$\\]/g, '');
+        const currentDate = new Date().toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        noticeContent = `
+            To,<br>
+            ${recipientName}<br>
+            ${recipientAddress}<br>
+            <br>
+            Subject: <strong>Legal Notice Regarding Breach of Partnership Agreement - Immediate Action Required</strong><br>
+            <br>
+            Dated: ${currentDate}<br>
+            <br>
+            ${noticeContent}
+        `;
+
+        const finalContent = `
             <div class="legal-notice" style="font-family: Times, serif; font-size: 12pt; line-height: 1.5;">
-                ${data.content.replace(/\n/g, '<br>')}
+                ${noticeContent}
                 ${formData.signature ? `
                     <div class="esignature" style="margin-top: 30px;">
                         <p><strong>Digitally signed by:</strong></p>
@@ -449,13 +455,16 @@ async function generateLegalNotice() {
                     </div>` : ''}
             </div>`;
 
-        legalNoticeDiv.innerHTML = noticeContent;
+        legalNoticeDiv.innerHTML = finalContent;
         formContainer.style.display = 'none';
         noticePage.style.display = 'block';
 
         const noticeId = await saveNoticeToServer();
         currentNoticeId = noticeId;
         window.history.pushState({}, '', `?id=${currentNoticeId}`);
+
+        // Enable buttons after notice generation
+        updateUIAfterPayment(true);
     } catch (error) {
         alert(`Error generating notice: ${error.message}`);
         console.error('Error:', error);
@@ -471,57 +480,86 @@ function showForm() {
     showStep(1);
 }
 
-// PDF Generation (Optimized)
+// PDF Generation
 async function generatePDFBlob() {
-    if (!paymentDetails) throw new Error('Please complete payment first!');
     if (typeof window.jspdf === 'undefined') throw new Error('jsPDF library not loaded.');
+    if (typeof html2canvas === 'undefined') throw new Error('html2canvas library not loaded.');
 
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
     const marginLeft = 20;
-    const marginTop = 20;
+    const marginTop = 30; // moved slightly down for header
     const pageWidth = 210;
     const pageHeight = 297;
-    const maxHeightPerPage = pageHeight - marginTop - 30;
+    const headerHeight = 10;
+    const footerHeight = 20;
+    const maxHeightPerPage = pageHeight - marginTop - footerHeight;
 
     const clonedDiv = legalNoticeDiv.cloneNode(true);
-    clonedDiv.style.background = '#ffffff';
+    clonedDiv.style.position = 'fixed';
+    clonedDiv.style.top = '0';
+    clonedDiv.style.left = '0';
+    clonedDiv.style.width = `${pageWidth - 2 * marginLeft}mm`;
+    clonedDiv.style.minHeight = 'auto';
+    clonedDiv.style.backgroundColor = '#ffffff';
     clonedDiv.style.color = '#000000';
     clonedDiv.style.boxShadow = 'none';
-    clonedDiv.style.padding = '0';
-    clonedDiv.style.margin = '0';
-    clonedDiv.style.width = `${pageWidth - 2 * marginLeft}mm`;
-    clonedDiv.style.position = 'absolute';
-    clonedDiv.style.left = '-9999px';
+    clonedDiv.style.padding = '10px';
+    clonedDiv.style.zIndex = '-1';
+    clonedDiv.style.overflow = 'visible';
     document.body.appendChild(clonedDiv);
 
+    const scale = 3;
     const canvas = await html2canvas(clonedDiv, {
-        scale: 2, // Higher scale for better quality
+        scale: scale,
         useCORS: true,
-        logging: false
+        allowTaint: true,
+        logging: false,
+        windowWidth: clonedDiv.scrollWidth,
+        windowHeight: clonedDiv.scrollHeight,
+        backgroundColor: '#ffffff'
     });
-    const imgData = canvas.toDataURL('image/jpeg', 0.95); // High-quality JPEG
     document.body.removeChild(clonedDiv);
 
     const imgWidth = pageWidth - 2 * marginLeft;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    let heightLeft = imgHeight;
-    let position = marginTop;
+    const mmPerPx = imgWidth / canvas.width;
+    const pageHeightMm = maxHeightPerPage;
+    const pageHeightPx = pageHeightMm / mmPerPx;
+    let heightLeftPx = canvas.height;
+    let yOffsetPx = 0;
+    let pageCount = 0;
 
-    // Add content page by page without repeating
-    while (heightLeft > 0) {
-        const currentHeight = Math.min(heightLeft, maxHeightPerPage);
-        doc.addImage(imgData, 'JPEG', marginLeft, position, imgWidth, imgHeight, undefined, 'FAST');
+    while (heightLeftPx > 0) {
+        pageCount++;
+        const renderHeightPx = Math.min(pageHeightPx, heightLeftPx);
+        const renderHeightMm = renderHeightPx * mmPerPx;
+
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = canvas.width;
+        tempCanvas.height = renderHeightPx;
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCtx.fillStyle = '#ffffff';
+        tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+        tempCtx.drawImage(canvas, 0, -yOffsetPx);
+
+        const imgData = tempCanvas.toDataURL('image/jpeg', 0.95);
+
+        // Content
+        doc.addImage(imgData, 'JPEG', marginLeft, marginTop, imgWidth, renderHeightMm, undefined, 'FAST');
+
+        // Footer
         doc.setLineWidth(0.5);
-        doc.line(marginLeft, pageHeight - 20, pageWidth - marginLeft, pageHeight - 20);
+        doc.line(marginLeft, pageHeight - footerHeight, pageWidth - marginLeft, pageHeight - footerHeight);
         doc.setFontSize(8);
-        doc.text(`Generated by lexinco.com - Page ${doc.internal.getNumberOfPages()}`, marginLeft, pageHeight - 10);
+        doc.setTextColor(150);
+        doc.text(`Generated by lexinco.com - Page ${pageCount}`, marginLeft, pageHeight - 10);
 
-        heightLeft -= maxHeightPerPage;
-        if (heightLeft > 0) {
+        heightLeftPx -= pageHeightPx;
+        yOffsetPx += renderHeightPx;
+
+        if (heightLeftPx > 0) {
             doc.addPage();
-            position = marginTop - (imgHeight - heightLeft);
         }
     }
 
@@ -560,7 +598,7 @@ async function generateInvoicePDF(paymentResponse) {
     doc.text("Payment Receipt", marginLeft, marginTop);
     doc.setFontSize(12);
     doc.text(`Client: ${document.getElementById('senderName').value}`, marginLeft, marginTop + 10);
-    doc.text("Amount: ₹500", marginLeft, marginTop + 20); // Update to dynamic currency if needed
+    doc.text("Amount: ₹500", marginLeft, marginTop + 20);
     doc.text(`Payment ID: ${paymentResponse.razorpay_payment_id}`, marginLeft, marginTop + 30);
     doc.text(`Order ID: ${paymentResponse.razorpay_order_id}`, marginLeft, marginTop + 40);
     doc.text(`Date: ${new Date().toLocaleDateString('en-US')}`, marginLeft, marginTop + 50);
@@ -573,29 +611,77 @@ async function generateInvoicePDF(paymentResponse) {
 }
 
 // Email Functionality
-function sendEmail() {
-    const noticeContent = legalNoticeDiv.textContent;
-    const recipientEmail = document.getElementById('recipientEmail').value || prompt("Enter recipient's email:");
+async function sendEmail() {
+    let recipientEmail = document.getElementById('recipientEmail').value;
+    let senderEmail = document.getElementById('senderEmail').value;
 
-    if (recipientEmail) {
-        showLoading(true);
-        Email.send({
-            SecureToken: config.EMAILJS_TOKEN,
-            To: recipientEmail,
-            From: "adv.shalinitripathi@example.com",
-            Subject: "Legal Notice from " + document.getElementById('senderName').value,
-            Body: noticeContent
-        }).then(
-            () => {
-                showLoading(false);
-                alert("Notice sent successfully!");
-            }
-        ).catch(
-            error => {
-                showLoading(false);
-                alert("Failed to send email: " + error.message);
-            }
-        );
+    if (!recipientEmail) {
+        recipientEmail = prompt("Enter recipient's email:");
+    }
+    if (!senderEmail) {
+        senderEmail = prompt("Enter your email (from which to send the notice):");
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!recipientEmail || !emailRegex.test(recipientEmail)) {
+        alert("Please enter a valid recipient email address.");
+        return;
+    }
+    if (!senderEmail || !emailRegex.test(senderEmail)) {
+        alert("Please enter a valid sender email address.");
+        return;
+    }
+
+    if (!currentNoticeId) {
+        alert("Notice ID is missing. Please regenerate the notice.");
+        return;
+    }
+
+    showLoading(true);
+    try {
+        // Fetch notice details from server
+        const noticeResponse = await fetch(`/api/get-notice/${currentNoticeId}`);
+        if (!noticeResponse.ok) {
+            throw new Error('Failed to fetch notice details');
+        }
+        const notice = await noticeResponse.json();
+        const senderName = notice.client?.name;
+        if (!senderName) {
+            throw new Error('Sender name not found in notice data');
+        }
+
+        // Generate PDF blob
+        const pdfBlob = await generatePDFBlob();
+        const pdfFile = new File([pdfBlob], 'legal_notice.pdf', { type: 'application/pdf' });
+
+        // Create FormData to send PDF and metadata
+        const formData = new FormData();
+        formData.append('pdf', pdfFile);
+        formData.append('toEmail', recipientEmail);
+        formData.append('fromEmail', senderEmail);
+        formData.append('senderName', senderName);
+
+        // Send email with PDF
+        const response = await fetch('/api/send-notice', {
+            method: 'POST',
+            body: formData // FormData handles multipart/form-data automatically
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Server error: ${response.status} - ${errorText}`);
+        }
+
+        const data = await response.json();
+        if (data.success) {
+            alert("Notice sent successfully as a PDF attachment! Please check the recipient's inbox.");
+        } else {
+            alert("Failed to send notice: " + data.error);
+        }
+    } catch (error) {
+        alert("Error sending notice: " + error.message);
+    } finally {
+        showLoading(false);
     }
 }
 

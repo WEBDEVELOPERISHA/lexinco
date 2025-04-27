@@ -93,6 +93,7 @@
     color: var(--primary-color);
     font-weight: 500;
 }
+
 .letterhead {
     display: flex;
     justify-content: space-between;
@@ -114,7 +115,8 @@
 }
 
 .justice-icon img {
-    width: 80px; /* Adjust size as needed */
+    width: 80px;
+    /* Adjust size as needed */
     height: auto;
     margin-bottom: 5px;
 }
@@ -212,6 +214,7 @@ textarea {
     color: var(--text-light);
     margin-top: 5px;
 }
+
 /* Updated Letterhead Styles */
 .letterhead {
     display: flex;
@@ -277,6 +280,66 @@ textarea {
     padding-top: 20px;
     border-top: 1px solid #ddd;
     font-size: 12px;
+}
+
+.privacy-policy-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.privacy-policy-header h1 {
+    font-size: 2.5rem;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.privacy-policy-header p {
+    font-size: 1rem;
+    color: #666;
+}
+
+.privacy-policy-content {
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+.privacy-policy-content h2 {
+    font-size: 1.5rem;
+    color: #333;
+    margin-top: 30px;
+    margin-bottom: 15px;
+}
+
+.privacy-policy-content p {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 15px;
+}
+
+.privacy-policy-content ul {
+    list-style: disc;
+    margin-left: 20px;
+    margin-bottom: 15px;
+}
+
+.privacy-policy-content ul li {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+.privacy-policy-content a {
+    color: #007bff;
+    text-decoration: underline;
+}
+
+.privacy-policy-content a:hover {
+    color: #0056b3;
+}
+
+.privacy-policy-container {
+    padding: 120px 0 60px;
 }
 
 .disclaimer {
@@ -364,6 +427,7 @@ textarea {
     font-family: 'Times New Roman', serif;
     line-height: 1.8;
 }
+
 .legal-notice {
     font-family: 'Times New Roman', serif;
     line-height: 1.6;
@@ -398,6 +462,7 @@ textarea {
     color: #666;
     margin-top: 20px;
 }
+
 /* Signature Section Styles */
 .signature-container {
     display: flex;
@@ -405,7 +470,8 @@ textarea {
     margin: 40px 0 30px;
 }
 
-.client-signature, .advocate-signature {
+.client-signature,
+.advocate-signature {
     width: 45%;
     text-align: center;
 }
@@ -492,6 +558,7 @@ textarea {
         width: 100%;
     }
 }
+
 /* Logo and image styling */
 .logo img {
     max-height: 40px;
