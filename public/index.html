@@ -14,22 +14,34 @@
 <body>
     <!-- Navigation -->
     <nav class="navbar">
-    <div class="container" style="display:flex;justify-content:space-between">
-        <a href="index.html" class="logo">
-            <img src="/assets/logo.svg" alt="" width="200">
-        </a>
-        <div class="nav-links" id="navLinks">
-            <a href="#features">Features</a>
-            <a href="#how-it-works">How It Works</a>
-            <a href="#testimonials">Testimonials</a>
-            <a href="login.html" class="btn secondary">Login</a>
-            <a href="legal-notice.html" class="btn primary">Generate Notice</a>
+        <div class="container" style="display:flex;justify-content:space-between">
+            <a href="index.html" class="logo">
+                <img src="/assets/logo.svg" alt="Lexinco Logo">
+            </a>
+            <div class="nav-links" id="navLinks">
+                <a href="#features">Features</a>
+                <a href="#how-it-works">How It Works</a>
+                <a href="#testimonials">Testimonials</a>
+                <a href="login.html" class="btn secondary">Login</a>
+                <a href="legal-notice.html" class="btn primary">Generate Notice</a>
+            </div>
+            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle navigation">
+                <i class="fas fa-bars"></i>
+            </button>
         </div>
-       <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle navigation">
-    <i class="fas fa-bars"></i>
-</button>
+    </nav>
+
+    <!-- Banner Modal -->
+    <div class="modal" id="offerModal">
+        <div class="modal-content">
+            <button class="modal-close" id="closeModal" aria-label="Close modal">
+                <i class="fas fa-times"></i>
+            </button>
+            <h3>Limited Time Offer!</h3>
+            <p>Get a Professional Legal Notice for FREE! Plus, enjoy our AI-powered drafting tools.</p>
+            <a href="legal-notice.html" class="btn primary">Claim Free Notice Now</a>
+        </div>
     </div>
-</nav>
 
     <!-- Hero Section -->
     <section class="hero">
@@ -124,7 +136,7 @@
                     <div class="testimonial-content">
                         <p>"Lexinco saved me hours of work. The notice was perfectly formatted and legally sound."</p>
                     </div>
-                    <div class="testimonial-author">
+                    <div class="証-author">
                         <div class="author-info">
                             <h4>Rajesh Kumar</h4>
                             <p>Small Business Owner</p>
@@ -151,7 +163,6 @@
         <div class="container">
             <h2>Ready to Create Your Legal Notice?</h2>
             <p>Get started now and save time with our professional legal notice generator.</p>
-            <Brushstroke></i>
             <a href="legal-notice.html" class="btn primary">Generate Notice Now</a>
         </div>
     </section>
@@ -163,7 +174,6 @@
                 <div class="footer-brand">
                     <a href="index.html" class="logo">
                         <img src="/assets/logo.svg" alt="">
-                        
                     </a>
                     <p>Making legal documentation accessible and efficient.</p>
                 </div>
@@ -180,7 +190,6 @@
                     <h4>Contact Us</h4>
                     <ul>
                         <li><i class="fas fa-envelope"></i> support@lexinco.com</li>
-                        
                     </ul>
                 </div>
             </div>
