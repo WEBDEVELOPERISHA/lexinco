@@ -114,7 +114,6 @@ You are a senior legal assistant with over 20 years of experience in civil and c
 - **Key Events Timeline:** ${formData.dispute.keyEvents}  
 - **Description of Dispute:** ${formData.dispute.issueDescription}  
 - **Damages Suffered:** ${formData.dispute.damages}  
-- **Laws Violated:** ${formData.dispute.lawsViolated}  
 - **Specific Resolution Demanded:** ${formData.dispute.specificDemand}${formData.dispute.compensation ? ` amounting to $${formData.dispute.compensation} (USD)` : ''}  
 
 ---
