@@ -429,22 +429,26 @@ app.post('/api/create-order', async (req, res) => {
 // Save Legal Notice
 app.post('/api/save-notice', async (req, res) => {
     const formData = req.body;
-    const userId = req.headers['user-id']; // In real app, use proper auth
+    const userId = req.headers['user-id'] || 'anonymous'; // Fallback for missing user-id
 
     try {
         const db = readDB();
+        db.notices = db.notices || []; // Ensure notices array exists
         const newNotice = {
             id: Date.now(),
             userId,
             ...formData,
             createdAt: new Date().toISOString()
         };
+        console.log('Saving notice ID:', newNotice.id, 'User ID:', userId);
         db.notices.push(newNotice);
+        console.log('Notices before save:', db.notices.length - 1);
         writeDB(db);
+        console.log('Notices after save:', db.notices.length);
         res.json({ success: true, noticeId: newNotice.id });
     } catch (error) {
-        console.error('Save Notice Error:', error);
-        res.status(500).json({ error: 'Failed to save notice' });
+        console.error('Save Notice Error:', error.message);
+        res.status(500).json({ error: 'Failed to save notice', details: error.message });
     }
 });
 

@@ -17,6 +17,56 @@ let currentNoticeId = null;
 let paymentDetails = null;
 let signaturePad = null;
 let razorpayKeyId = null;
+const svgLetterhead = `
+<svg width="800" height="200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <!-- Border bottom -->
+  <line x1="20" y1="190" x2="780" y2="190" stroke="#000000" stroke-width="2"/>
+  <!-- Advocate Name -->
+  <text x="50%" y="50" font-size="24" font-weight="bold" text-anchor="middle" fill="#000000">
+    Adv. Shalini L Tripathi
+  </text>
+  <!-- Qualification -->
+  <text x="50%" y="75" font-size="16" text-anchor="middle" fill="#333333">
+    B.Com, LLB
+  </text>
+  <!-- Contact Details -->
+  <text x="50%" y="105" font-size="14" text-anchor="middle" fill="#000000">
+    Contact: 9552446231 | Email: info@lexinco.com
+  </text>
+  <!-- Address -->
+  <text x="50%" y="125" font-size="14" text-anchor="middle" fill="#000000">
+    204, Poonam Aster, Poonam Nagar, Virar West, Palghar 401303
+  </text>
+  <!-- License Number -->
+  <text x="50%" y="150" font-size="14" text-anchor="middle" fill="#000000">
+    License No: MAH/9337/2024
+  </text>
+</svg>`;
+
+// Convert SVG to PNG data URL
+async function svgToDataUrl(svgStr) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 800;
+    canvas.height = 200;
+    const ctx = canvas.getContext('2d');
+
+    const img = new Image();
+    const svgBlob = new Blob([svgStr], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(svgBlob);
+
+    await new Promise(resolve => {
+        img.onload = () => {
+            ctx.drawImage(img, 0, 0);
+            URL.revokeObjectURL(url);
+            resolve();
+        };
+        img.src = url;
+    });
+
+    return canvas.toDataURL('image/png');
+}
 
 // Fetch configuration from server
 async function loadConfig() {
@@ -325,11 +375,9 @@ async function saveNoticeToServer() {
             issueDescription: document.getElementById('issueDescription').value,
             keyEvents: document.getElementById('keyEvents').value,
             damages: document.getElementById('damagesSuffered').value,
-            lawsViolated: document.getElementById('lawsViolated').value,
             specificDemand: document.getElementById('specificDemand').value,
             compensation: document.getElementById('compensationAmount').value,
             timeframe: document.getElementById('complianceTimeframe').value,
-            country: document.getElementById('country').value,
             tone: document.getElementById('tone').value
         },
         signature: signatureData,
@@ -390,18 +438,15 @@ async function generateLegalNotice() {
                 contractDetails: document.getElementById('contractDetails').value,
                 issueDescription: document.getElementById('issueDescription').value,
                 keyEvents: document.getElementById('keyEvents').value,
-                damages: document.getElementById('damagesSuffered').value,
-                specificDemand: document.getElementById('specificDemand').value,
-                compensation: document.getElementById('compensationAmount').value,
-                timeframe: document.getElementById('complianceTimeframe').value,
-                country: document.getElementById('country').value,
-                tone: document.getElementById('tone').value
+                damages: document.getElementById('damagesSuffered').value
             },
             signature: signatureData
         };
+
         savedSenderName = formData.client.name;
         sessionStorage.setItem('senderName', formData.client.name);
 
+        // Generate notice via OpenAI API
         const response = await fetch(`${BASE_URL}/api/generate-notice`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -411,53 +456,28 @@ async function generateLegalNotice() {
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || 'Failed to generate notice');
 
-        // Sanitize and format the server response
-        let noticeContent = data.content
-            .replace(/[^\x20-\x7E\n]/g, '') // Remove non-printable characters
-            .replace(/\n{2,}/g, '\n\n') // Normalize multiple newlines
-            .replace(/\n/g, '<br>') // Convert newlines to HTML breaks
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Markdown bold
-            .replace(/\*-(.*?)\*\*/g, '<strong>$1</strong>') // Fix incorrect Markdown
-            .replace(/\+\+(.*?)\+\+/g, '<strong>$1</strong>') // Fix ++ syntax
-            .replace(/"{2,}(.*?)"{2,}/g, '<strong>$1</strong>') // Fix double quotes
-            .replace(/\b\d{4}(,\s*\d{4})*\b/g, '') // Remove year sequences
-            .replace(/(Timeline of Events\s*){2,}/g, 'Timeline of Events'); // Remove duplicate section titles
+        // Process and display notice content with letterhead
+        let noticeContent = data.content;
+        // Add signature if present
+        if (signatureData) {
+            noticeContent += `
+                <p style="margin-top: 20px;">Signed: This notice is digitally signed by the client, ${formData.client.name}.</p>
+                <img src="${signatureData}" style="max-width: 200px; height: auto;" alt="Signature">
+            `;
+        }
 
-        // Ensure proper "To" and "Subject" formatting
-        const recipientName = formData.recipient.name.replace(/['"$\\]/g, ''); // Remove problematic characters
-        const recipientAddress = formData.recipient.address.replace(/['"$\\]/g, '');
-        const currentDate = new Date().toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
-        noticeContent = `
-            To,<br>
-            ${recipientName}<br>
-            ${recipientAddress}<br>
-            <br>
-            Subject: <strong>Legal Notice Regarding Breach of Partnership Agreement - Immediate Action Required</strong><br>
-            <br>
-            Dated: ${currentDate}<br>
-            <br>
+        // Prepend letterhead
+        const letterheadDataUrl = await svgToDataUrl(svgLetterhead);
+        const finalContent = `
+            <img src="${letterheadDataUrl}" style="width: 100%; max-width: 650px; display: block; margin-bottom: 20px;" alt="Letterhead">
             ${noticeContent}
         `;
-
-        const finalContent = `
-            <div class="legal-notice" style="font-family: Times, serif; font-size: 12pt; line-height: 1.5;">
-                ${noticeContent}
-                ${formData.signature ? `
-                    <div class="esignature" style="margin-top: 30px;">
-                        <p><strong>Digitally signed by:</strong></p>
-                        <img src="${formData.signature}" alt="Client Signature" style="max-height: 100px; margin-top: 10px;">
-                        <p>${formData.client.name}</p>
-                    </div>` : ''}
-            </div>`;
-
         legalNoticeDiv.innerHTML = finalContent;
+
         formContainer.style.display = 'none';
         noticePage.style.display = 'block';
 
+        // Save notice to server
         const noticeId = await saveNoticeToServer();
         currentNoticeId = noticeId;
         window.history.pushState({}, '', `?id=${currentNoticeId}`);
@@ -482,76 +502,99 @@ function showForm() {
 // PDF Generation
 async function generatePDFBlob() {
     if (typeof window.jspdf === 'undefined') throw new Error('jsPDF library not loaded.');
-    if (typeof html2canvas === 'undefined') throw new Error('html2canvas library not loaded.');
 
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
+    // SVG letterhead
+    const svgLetterhead = `
+    <svg width="800" height="200" xmlns="http://www.w3.org/2000/svg">
+      <!-- Background -->
+      <rect width="100%" height="100%" fill="#ffffff"/>
+      <!-- Border bottom -->
+      <line x1="20" y1="190" x2="780" y2="190" stroke="#000000" stroke-width="2"/>
+      <!-- Advocate Name -->
+      <text x="50%" y="50" font-size="24" font-weight="bold" text-anchor="middle" fill="#000000">
+        Adv. Shalini L Tripathi
+      </text>
+      <!-- Qualification -->
+      <text x="50%" y="75" font-size="16" text-anchor="middle" fill="#333333">
+        B.Com, LLB
+      </text>
+      <!-- Contact Details -->
+      <text x="50%" y="105" font-size="14" text-anchor="middle" fill="#000000">
+        Contact: 9552446231 | Email: info@lexinco.com
+      </text>
+      <!-- Address -->
+      <text x="50%" y="125" font-size="14" text-anchor="middle" fill="#000000">
+        204, Poonam Aster, Poonam Nagar, Virar West, Palghar 401303
+      </text>
+      <!-- License Number -->
+      <text x="50%" y="150" font-size="14" text-anchor="middle" fill="#000000">
+        License No: MAH/9337/2024
+      </text>
+    </svg>`;
+
+    // Convert SVG to PNG data URL
+    async function svgToDataUrl(svgStr) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 800;
+        canvas.height = 200;
+        const ctx = canvas.getContext('2d');
+
+        const img = new Image();
+        const svgBlob = new Blob([svgStr], { type: 'image/svg+xml' });
+        const url = URL.createObjectURL(svgBlob);
+
+        await new Promise(resolve => {
+            img.onload = () => {
+                ctx.drawImage(img, 0, 0);
+                URL.revokeObjectURL(url);
+                resolve();
+            };
+            img.src = url;
+        });
+
+        return canvas.toDataURL('image/png');
+    }
+
+    const letterheadDataUrl = await svgToDataUrl(svgLetterhead);
+
+    // Letterhead dimensions in PDF (scaled to fit page width)
+    const pageWidth = 210; // A4 width in mm
     const marginLeft = 20;
-    const marginTop = 30;
-    const pageWidth = 210;
-    const pageHeight = 297;
-    const footerHeight = 20;
-    const maxHeightPerPage = pageHeight - marginTop - footerHeight;
+    const letterheadWidth = pageWidth - 2 * marginLeft; // 190mm
+    const letterheadHeight = (200 * letterheadWidth) / 800; // Maintain aspect ratio (47.5mm)
+    const contentTopMargin = 10 + letterheadHeight; // 10mm gap below letterhead
 
-    const clonedDiv = legalNoticeDiv.cloneNode(true);
-    clonedDiv.style.position = 'fixed';
-    clonedDiv.style.top = '0';
-    clonedDiv.style.left = '0';
-    clonedDiv.style.width = `${pageWidth - 2 * marginLeft}mm`;
-    clonedDiv.style.backgroundColor = '#ffffff';
-    clonedDiv.style.padding = '10px';
-    clonedDiv.style.zIndex = '-1';
-    clonedDiv.style.overflow = 'visible';
-    document.body.appendChild(clonedDiv);
-
-    const scale = 3;
-    const canvas = await html2canvas(clonedDiv, {
-        scale,
-        useCORS: true,
-        allowTaint: true,
-        windowWidth: clonedDiv.scrollWidth,
-        windowHeight: clonedDiv.scrollHeight,
-        backgroundColor: '#ffffff'
+    // Render HTML content to PDF with automatic pagination
+    await doc.html(legalNoticeDiv, {
+        x: marginLeft,
+        y: contentTopMargin, // Start content below letterhead
+        width: letterheadWidth,
+        windowWidth: 650 // Approximate pixel width for scaling
     });
-    document.body.removeChild(clonedDiv);
 
-    const imgWidth = pageWidth - 2 * marginLeft;
-    const mmPerPx = imgWidth / canvas.width;
-    const pageHeightMm = maxHeightPerPage;
-    const pageHeightPx = pageHeightMm / mmPerPx;
-
-    let yOffsetPx = 0;
-    let heightLeftPx = canvas.height;
-    let pageCount = 0;
-
-    while (heightLeftPx > 0) {
-        pageCount++;
-        const renderHeightPx = Math.min(pageHeightPx, heightLeftPx);
-        const renderHeightMm = renderHeightPx * mmPerPx;
-
-        const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = canvas.width;
-        tempCanvas.height = renderHeightPx;
-        const tempCtx = tempCanvas.getContext('2d');
-        tempCtx.fillStyle = '#ffffff';
-        tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-        tempCtx.drawImage(canvas, 0, -yOffsetPx);
-
-        const imgData = tempCanvas.toDataURL('image/jpeg', 0.95);
-
-        doc.addImage(imgData, 'JPEG', marginLeft, marginTop, imgWidth, renderHeightMm, undefined, 'FAST');
-
-        // Footer (line removed, only text retained)
-        doc.setFontSize(8);
-        doc.setTextColor(150);
-        doc.text(`Generated by lexinco.com - Page ${pageCount}`, marginLeft, pageHeight - 10);
-
-        yOffsetPx += renderHeightPx;
-        heightLeftPx -= renderHeightPx;
-
-        if (heightLeftPx > 0) {
-            doc.addPage();
+    // Add letterhead and footer to each page
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        // Add letterhead at the top
+        doc.addImage(
+            letterheadDataUrl,
+            'PNG',
+            marginLeft,
+            10, // Top margin
+            letterheadWidth,
+            letterheadHeight,
+            undefined,
+            'FAST'
+        );
+        // Add footer only on the last page
+        if (i === pageCount) {
+            doc.setFontSize(8);
+            doc.setTextColor(150);
+            doc.text(`Generated by lexinco.com - Page ${pageCount}`, marginLeft, 287);
         }
     }
 
