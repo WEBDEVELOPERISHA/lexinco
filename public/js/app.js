@@ -13,8 +13,6 @@ const formContainer = document.querySelector('.notice-form');
 const noticePage = document.getElementById('noticePage');
 const letterheadBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABQAAAACACAYAAAAa4jRQAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAXEgAAFxIBZ5/SUgAAABl0RVh0Q3JlYXRpb24gVGltZQAwNS8xNy8yNVQxMDozMDo1OVrLB0sAABVpSURBVHic7d1rtF3Vdcfx99/DFgJBEBJSSjVKWkx9SSV9QpRYpS3tQuWTW7b9KQ9xWU5VNIl2U7KdqfMNpZKqSK10EeqVRPpQ8OQjRzJvKXJf7mDMzex29d+ZOdjJlnZsZ6N/cv/M7Zs2ZkZma1O+f//nV9Uu4IABAgQIECBAgAABAwL+AhoUurWFaT74AAAAASUVORK5CYII=';
 
-
-
 let currentStep = 0;
 let currentNoticeId = null;
 let signaturePad = null;
@@ -151,9 +149,14 @@ async function loadNoticeDetails(noticeId) {
         if (notice && notice.content) {
             legalNoticeDiv.innerHTML = notice.content;
             currentNoticeId = noticeId;
+            savedSenderName = notice.client.name;  // Set sender name from notice data
             formContainer.style.display = 'none';
             noticePage.style.display = 'block';
-            updateUIAfterPayment(true);
+            if (notice.payment && notice.payment.status === 'completed') {
+                updateUIAfterPayment(true);
+            } else {
+                updateUIAfterPayment(false);
+            }
         } else {
             alert('Notice content not found');
             showForm();
@@ -267,7 +270,6 @@ async function generateLegalNotice() {
         savedSenderName = formData.client.name;
         sessionStorage.setItem('senderName', formData.client.name);
 
-        // Construct notice content with proper formatting
         const currentDate = new Date().toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
@@ -341,7 +343,8 @@ async function generateLegalNotice() {
         currentNoticeId = noticeId;
         window.history.pushState({}, '', `?id=${currentNoticeId}`);
 
-        updateUIAfterPayment(true);
+        // Initially disable actions until payment is made
+        updateUIAfterPayment(false);
     } catch (error) {
         alert(`Error generating notice: ${error.message}`);
         console.error('Error:', error);
@@ -364,23 +367,124 @@ async function saveNoticeToServer(formData, content) {
 }
 
 // Update UI after payment
-function updateUIAfterPayment(success) {
+function updateUIAfterPayment(isPaid) {
     const downloadBtn = document.getElementById('downloadBtn');
     const sendBtn = document.getElementById('sendNoticeBtn');
     const shareWhatsappBtn = document.getElementById('shareWhatsappBtn');
-    const paymentDetailsDiv = document.getElementById('paymentDetails');
     const payNowBtn = document.getElementById('payNowBtn');
+    const paymentDetailsDiv = document.getElementById('paymentDetails');
 
-    downloadBtn.disabled = false;
-    sendBtn.disabled = false;
-    shareWhatsappBtn.disabled = false;
-    paymentDetailsDiv.innerHTML = '<p>Payment not required</p>';
-    sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Notice';
-    if (payNowBtn) payNowBtn.disabled = true;
-    showLoading(false);
+    if (isPaid) {
+        downloadBtn.disabled = false;
+        sendBtn.disabled = false;
+        shareWhatsappBtn.disabled = false;
+        payNowBtn.style.display = 'none'; // Hide Pay Now button
+        paymentDetailsDiv.innerHTML = '<p>Payment completed</p>';
+    } else {
+        downloadBtn.disabled = true;
+        sendBtn.disabled = true;
+        shareWhatsappBtn.disabled = true;
+        payNowBtn.style.display = 'inline-block'; // Show Pay Now button
+        payNowBtn.disabled = false;
+        paymentDetailsDiv.innerHTML = '<p>Payment required to access features</p>';
+    }
 }
 
-// PDF Generation
+// Initiate Payment
+async function initiatePayment() {
+    try {
+        showLoading(true);
+
+        // Create order
+        const orderResponse = await fetch(`${BASE_URL}/api/create-order`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ noticeId: currentNoticeId })
+        });
+
+        if (!orderResponse.ok) {
+            const error = await orderResponse.json();
+            throw new Error(error.error || 'Failed to create payment order');
+        }
+
+        const orderData = await orderResponse.json();
+
+        // Razorpay options
+        const options = {
+            key: razorpayKeyId,
+            amount: orderData.amount,
+            currency: 'INR',
+            order_id: orderData.id,
+            name: 'Lexinco Legal Notice',
+            description: 'Payment for legal notice delivery',
+            prefill: {
+                name: document.getElementById('senderName').value,
+                email: document.getElementById('senderEmail').value,
+                contact: document.getElementById('senderContact').value
+            },
+            handler: async function (response) {
+                try {
+                    // Update payment status on server
+                    const updateResponse = await fetch(`${BASE_URL}/api/update-payment`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            noticeId: currentNoticeId,
+                            status: 'completed',
+                            paymentId: response.razorpay_payment_id,
+                            orderId: response.razorpay_order_id
+                        })
+                    });
+
+                    if (!updateResponse.ok) throw new Error('Failed to update payment status');
+
+                    // Enable features
+                    updateUIAfterPayment(true);
+                } catch (error) {
+                    console.error('Payment success handler error:', error);
+                    alert('Error processing payment: ' + error.message);
+                } finally {
+                    showLoading(false);
+                }
+            }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.on('payment.failed', function (response) {
+            alert('Payment failed: ' + response.error.description);
+            showLoading(false);
+        });
+        rzp.open();
+    } catch (error) {
+        console.error('Payment error:', error);
+        showLoading(false);
+        alert('Payment initialization failed: ' + error.message);
+    }
+}
+
+// Bind the Pay Now button
+document.getElementById('payNowBtn').addEventListener('click', initiatePayment);
+
+async function getLawyerSignatureBase64(imageUrl) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.src = imageUrl;
+
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            const base64 = canvas.toDataURL('image/jpeg');
+            resolve(base64);
+        };
+
+        img.onerror = () => reject(new Error(`Could not load image: ${imageUrl}`));
+    });
+}
+
 async function generatePDFBlob() {
     if (typeof window.jspdf === 'undefined') throw new Error('jsPDF library not loaded.');
     if (typeof html2canvas === 'undefined') throw new Error('html2canvas library not loaded.');
@@ -396,7 +500,6 @@ async function generatePDFBlob() {
     const headerHeight = 50;
     const maxHeightPerPage = pageHeight - marginTop - footerHeight - headerHeight;
 
-    // STEP 1: Convert SVG to base64 PNG using canvas
     const svgString = `
       <svg width="800" height="200" xmlns="http://www.w3.org/2000/svg">
         <rect width="100%" height="100%" fill="#ffffff"/>
@@ -412,7 +515,6 @@ async function generatePDFBlob() {
     const svgUrl = URL.createObjectURL(svgBlob);
     const img = new Image();
     img.src = svgUrl;
-
     await new Promise((resolve) => { img.onload = resolve; });
 
     const canvasHeader = document.createElement('canvas');
@@ -425,7 +527,8 @@ async function generatePDFBlob() {
     const letterheadBase64 = canvasHeader.toDataURL('image/png');
     URL.revokeObjectURL(svgUrl);
 
-    // STEP 2: Capture the legal notice content
+    const lawyerSignatureBase64 = await getLawyerSignatureBase64('/signature (2).jpeg');
+
     const clonedDiv = legalNoticeDiv.cloneNode(true);
     clonedDiv.style.position = 'fixed';
     clonedDiv.style.top = '0';
@@ -453,65 +556,69 @@ async function generatePDFBlob() {
     const pageHeightPx = maxHeightPerPage / mmPerPx;
 
     let yOffsetPx = 0;
-    let heightLeftPx = canvas.height;
     let pageCount = 0;
     const overlap = 15;
+    const totalHeight = canvas.height;
 
-    while (yOffsetPx < canvas.height) {
+    while (yOffsetPx < totalHeight) {
         pageCount++;
-
         const isFirstPage = pageCount === 1;
+        const isLastPage = (totalHeight - yOffsetPx) <= pageHeightPx;
 
-        const renderHeightPx = Math.min(pageHeightPx, canvas.height - yOffsetPx);
+        let renderHeightPx = Math.min(pageHeightPx, totalHeight - yOffsetPx);
+        if (isLastPage) renderHeightPx = totalHeight - yOffsetPx;
+
         const renderHeightMm = renderHeightPx * mmPerPx;
 
-        // Create temp canvas
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = canvas.width;
-        tempCanvas.height = renderHeightPx + 10; // Extra padding
-
+        tempCanvas.height = renderHeightPx + (pageCount > 1 && !isLastPage ? overlap : 0);
         const tempCtx = tempCanvas.getContext('2d');
         tempCtx.fillStyle = '#ffffff';
         tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+        tempCtx.drawImage(canvas, 0, -(yOffsetPx - (pageCount > 1 && !isLastPage ? overlap : 0)));
 
-        tempCtx.drawImage(canvas, 0, -yOffsetPx);
+        const imgData = tempCanvas.toDataURL('image/jpeg', 0.95);
 
-        const imgData = tempCanvas.toDataURL('image/jpeg', 1.0);
-
-        // Letterhead (first page)
-        const letterheadHeight = 40;
         if (isFirstPage) {
+            const letterheadHeight = 40;
             doc.addImage(letterheadBase64, 'PNG', marginLeft, 10, imgWidth, letterheadHeight);
         }
 
-        const contentTopOffset = isFirstPage ? 10 + letterheadHeight + 5 : marginTop;
+        const contentTopOffset = isFirstPage ? 10 + headerHeight + 5 : marginTop;
+        doc.addImage(imgData, 'JPEG', marginLeft, contentTopOffset, imgWidth, renderHeightMm, undefined, 'FAST');
 
-        doc.addImage(
-            imgData,
-            'JPEG',
-            marginLeft,
-            contentTopOffset,
-            imgWidth,
-            renderHeightMm,
-            undefined,
-            'FAST'
-        );
+        const footerText = `Generated by `;
+        const websiteText = `lexinco.com`;
+        const pageText = ` - Page ${pageCount}`;
 
-        // Footer
         doc.setFontSize(8);
         doc.setTextColor(150);
-        doc.text(`Generated by lexinco.com - Page ${pageCount}`, marginLeft, pageHeight - 10);
+        doc.text(footerText, marginLeft, pageHeight - 10);
+
+        const linkX = marginLeft + doc.getTextWidth(footerText);
+        doc.setTextColor(0, 0, 255);
+        doc.textWithLink(websiteText, linkX, pageHeight - 10, { url: 'https://lexinco.com' });
+
+        const pageX = linkX + doc.getTextWidth(websiteText);
+        doc.setTextColor(150);
+        doc.text(pageText, pageX, pageHeight - 10);
 
         yOffsetPx += renderHeightPx;
-
-        if (yOffsetPx < canvas.height) {
+        if (yOffsetPx < totalHeight) {
             doc.addPage();
         }
     }
-    
-    
-    
-    
+
+    const signatureWidth = 40;
+    const signatureHeight = 15;
+    const signatureX = pageWidth - marginLeft - signatureWidth;
+    const signatureY = pageHeight - 50;
+
+    doc.addImage(lawyerSignatureBase64, 'JPEG', signatureX, signatureY, signatureWidth, signatureHeight);
+    doc.setFontSize(12);
+    doc.setTextColor(0);
+    doc.text("Adv. Shalini L Tripathi", signatureX, signatureY + signatureHeight + 6);
 
     return doc.output('blob');
 }
@@ -534,16 +641,29 @@ function generatePDF() {
         });
 }
 
-// Email Functionality
 async function sendEmail() {
     let recipientEmail = document.getElementById('recipientEmail').value;
     let senderEmail = document.getElementById('senderEmail').value;
 
-    if (!recipientEmail || !senderEmail) {
-        alert('Recipient and sender email addresses are required.');
-        return;
+    // Prompt for recipient email if missing
+    if (!recipientEmail) {
+        recipientEmail = prompt("Please enter the recipient's email address:");
+        if (!recipientEmail) {
+            alert('Recipient email is required.');
+            return;
+        }
     }
 
+    // Prompt for sender email if missing
+    if (!senderEmail) {
+        senderEmail = prompt("Please enter the sender's email address:");
+        if (!senderEmail) {
+            alert('Sender email is required.');
+            return;
+        }
+    }
+
+    // Validate email formats
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(recipientEmail)) {
         alert('Please enter a valid recipient email address.');
@@ -554,6 +674,7 @@ async function sendEmail() {
         return;
     }
 
+    // Ensure notice ID exists
     if (!currentNoticeId) {
         alert('Notice ID is missing. Please regenerate the notice.');
         return;
@@ -588,7 +709,6 @@ async function sendEmail() {
     }
 }
 
-// Share via WhatsApp
 async function shareViaWhatsapp() {
     showLoading(true);
     try {
