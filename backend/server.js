@@ -369,11 +369,12 @@ app.post('/api/send-notice', upload.single('pdf'), async (req, res) => {
             Website: https://lexinco.com
         `;
 
-        // Send email with PDF attachment
+        // Send email with PDF attachment and CC to sender
         await transporter.sendMail({
             from: `"Lexinco Legal Notice" <${process.env.EMAIL_USER}>`,
             replyTo: `"${senderName}" <${fromEmail}>`,
             to: toEmail,
+            cc: fromEmail,  // CC the sender's email
             subject: 'Legal Notice',
             html: emailHtml,
             text: emailText,
