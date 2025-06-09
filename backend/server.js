@@ -1,17 +1,25 @@
 const express = require('express');
-const path = require('path');
-const cors = require('cors');
-const Razorpay = require('razorpay');
 const nodemailer = require('nodemailer');
+const bcrypt = require('bcrypt');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const path = require('path');
+const fs = require('fs');
+const Razorpay = require('razorpay');
+const multer = require('multer');
+const { v4: uuidv4 } = require('uuid');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
+const axios = require('axios');
 
 const app = express();
 
 // Middleware
 app.use(cors({
-    origin: ['http://localhost:3000', 'https://lexinco-dbd9de732777.herokuapp.com', 'https://lexinco.com', 'https://www.lexinco.com'],
+    origin: ['http://localhost:3000', 'https://lexinco.herokuapp.com'],
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
+app.use(bodyParser.json());
 
 // Serve static files
 app.use(express.static(path.join(__dirname, '..', 'public')));
@@ -80,7 +88,7 @@ app.get('/api/config', (req, res) => {
 
 app.post('/api/generate-notice', async (req, res) => {
     const formData = req.body;
-    const todayDate = new Date().toLocaleDateString('en-US', {
+    const todayDate = new Date().toLocaleDateString('en-US', { // Changed to en-US for consistency
         day: 'numeric',
         month: 'long',
         year: 'numeric'
@@ -162,7 +170,7 @@ Signed: This notice is digitally signed by the client
             model: "gpt-4",
             messages: [{ role: "user", content: prompt }],
             temperature: 0.3,
-            max_tokens: 4096
+            max_tokens: 4096 // Increased to handle longer output
         }, {
             headers: {
                 'Content-Type': 'application/json',
@@ -177,7 +185,6 @@ Signed: This notice is digitally signed by the client
         res.status(500).json({ error: error.response?.data?.error?.message || 'Failed to generate notice' });
     }
 });
-
 // Send OTP
 app.post('/api/send-otp', async (req, res) => {
     const { email } = req.body;
@@ -278,13 +285,6 @@ app.post('/api/login', async (req, res) => {
 app.get('/api/get-notice/:id', (req, res) => {
     const db = readDB();
     const notice = db.notices.find(n => n.id == req.params.id);
-    if (notice && notice.status === 'under_review') {
-        const currentTime = Date.now();
-        if (currentTime >= notice.review_end_time) {
-            notice.status = 'ready';
-            writeDB(db);
-        }
-    }
     res.json(notice || {});
 });
 
@@ -301,11 +301,6 @@ app.post('/api/update-payment', (req, res) => {
             orderId,
             updatedAt: new Date().toISOString()
         };
-        if (status === 'completed') {
-            notice.status = 'under_review';
-            notice.review_start_time = Date.now();
-            notice.review_end_time = Date.now() + 30 * 60 * 1000; // 30 minutes later
-        }
         writeDB(db);
         res.json({ success: true });
     } else {
@@ -329,11 +324,11 @@ app.post('/api/send-invoice', async (req, res) => {
         res.status(500).json({ error: 'Failed to send invoice' });
     }
 });
-
 app.post('/api/send-notice', upload.single('pdf'), async (req, res) => {
     const { toEmail, fromEmail, senderName } = req.body;
     const pdfFile = req.file;
 
+    // Validate inputs
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!toEmail || !emailRegex.test(toEmail)) {
         return res.status(400).json({ error: 'Invalid recipient email address' });
@@ -349,6 +344,7 @@ app.post('/api/send-notice', upload.single('pdf'), async (req, res) => {
     }
 
     try {
+        // Email body (HTML and plain text)
         const emailHtml = `
             <p>Dear Recipient,</p>
             <p>Please find attached the legal notice from ${senderName}.</p>
@@ -373,11 +369,12 @@ app.post('/api/send-notice', upload.single('pdf'), async (req, res) => {
             Website: https://lexinco.com
         `;
 
+        // Send email with PDF attachment and CC to sender
         await transporter.sendMail({
             from: `"Lexinco Legal Notice" <${process.env.EMAIL_USER}>`,
             replyTo: `"${senderName}" <${fromEmail}>`,
             to: toEmail,
-            cc: fromEmail,
+            cc: fromEmail,  // CC the sender's email
             subject: 'Legal Notice',
             html: emailHtml,
             text: emailText,
@@ -390,30 +387,17 @@ app.post('/api/send-notice', upload.single('pdf'), async (req, res) => {
             ]
         });
 
+        // Clean up temporary file
         fs.unlinkSync(pdfFile.path);
 
         res.json({ success: true });
     } catch (error) {
         console.error('Send Notice Error:', error);
+        // Clean up file if it exists
         if (pdfFile && fs.existsSync(pdfFile.path)) {
             fs.unlinkSync(pdfFile.path);
         }
         res.status(500).json({ error: 'Failed to send notice' });
-    }
-});
-
-app.post('/api/proxy/consultation', async (req, res) => {
-    try {
-        const googleAppsScriptUrl = 'https://script.google.com/macros/s/AKfycbwdK6PlLge2f0ocZeve83K-ugdm23P5OozMSLhlnyV7_KdLJh1s-JEVmoVDRgxNgr_LbQ/exec';
-        const response = await axios.post(googleAppsScriptUrl, req.body, {
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        res.json(response.data);
-    } catch (error) {
-        console.error('Proxy Error:', error.response ? error.response.data : error.message);
-        res.status(500).json({ error: 'Failed to submit consultation request' });
     }
 });
 
@@ -446,11 +430,11 @@ app.post('/api/create-order', async (req, res) => {
 // Save Legal Notice
 app.post('/api/save-notice', async (req, res) => {
     const formData = req.body;
-    const userId = req.headers['user-id'] || 'anonymous';
+    const userId = req.headers['user-id'] || 'anonymous'; // Fallback for missing user-id
 
     try {
         const db = readDB();
-        db.notices = db.notices || [];
+        db.notices = db.notices || []; // Ensure notices array exists
         const newNotice = {
             id: Date.now(),
             userId,
@@ -540,6 +524,20 @@ app.get('/test-db', (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).send('DB access failed');
+    }
+});
+app.post('/api/proxy/consultation', async (req, res) => {
+    try {
+        const googleAppsScriptUrl = 'https://script.google.com/macros/s/AKfycbwdK6PlLge2f0ocZeve83K-ugdm23P5OozMSLhlnyV7_KdLJh1s-JEVmoVDRgxNgr_LbQ/exec';
+        const response = await axios.post(googleAppsScriptUrl, req.body, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        res.json(response.data);
+    } catch (error) {
+        console.error('Proxy Error:', error.response ? error.response.data : error.message);
+        res.status(500).json({ error: 'Failed to submit consultation request' });
     }
 });
 
