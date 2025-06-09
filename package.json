@@ -5,7 +5,8 @@
     "start": "node backend/server.js"
   },
   "dependencies": {
+    "cors": "^2.x.x",
     "express": "^4.x.x",
-    "cors": "^2.x.x"
+    "razorpay": "^2.9.6"
   }
 }
