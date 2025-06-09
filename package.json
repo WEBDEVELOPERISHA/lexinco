@@ -5,9 +5,15 @@
     "start": "node backend/server.js"
   },
   "dependencies": {
+    "axios": "^1.7.7",
+    "bcrypt": "^6.0.0",
+    "body-parser": "^1.20.2",
     "cors": "^2.x.x",
+    "dotenv": "^16.0.3",
     "express": "^4.x.x",
+    "multer": "^1.4.5-lts.1",
     "nodemailer": "^7.0.3",
-    "razorpay": "^2.9.6"
+    "razorpay": "^2.9.6",
+    "uuid": "^10.0.0"
   }
 }
