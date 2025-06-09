@@ -12,11 +12,56 @@ const legalNoticeDiv = document.getElementById('legalNotice');
 const formContainer = document.querySelector('.notice-form');
 const noticePage = document.getElementById('noticePage');
 const letterheadBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABQAAAACACAYAAAAa4jRQAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAXEgAAFxIBZ5/SUgAAABl0RVh0Q3JlYXRpb24gVGltZQAwNS8xNy8yNVQxMDozMDo1OVrLB0sAABVpSURBVHic7d1rtF3Vdcfx99/DFgJBEBJSSjVKWkx9SSV9QpRYpS3tQuWTW7b9KQ9xWU5VNIl2U7KdqfMNpZKqSK10EeqVRPpQ8OQjRzJvKXJf7mDMzex29d+ZOdjJlnZsZ6N/cv/M7Zs2ZkZma1O+f//nV9Uu4IABAgQIECBAgAABAwL+AhoUurWFaT74AAAAASUVORK5CYII=';
+const letterheadBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABQAAAACACAYAAAAa4jRQAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAXEgAAFxIBZ5/SUgAAABl0RVh0Q3JlYXRpb24gVGltZQAwNS8xNy8yNVQxMDozMDo1OVrLB0sAABVpSURBVHic7d1rtF3Vdcfx99/DFgJBEBJSSjVKWkx9SSV9QpRYpS3tQuWTW7b9KQ9xWU5VNIl2U7KdqfMNpZKqSK10EeqVRPpQ8OQjRzJvKXJf7mDMzex29d+ZOdjJlnZsZ6N/cv/M7Zs2ZkZma1O+f//nV9Uu4IABAgQIECBAgAABAwL+AhoUurWFaT74AAAAASUVORK5CYII=';
 
 let currentStep = 0;
 let currentNoticeId = null;
 let signaturePad = null;
 let razorpayKeyId = null;
+
+const svgLetterhead = `
+<svg width="800" height="200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <line x1="20" y1="190" x2="780" y2="190" stroke="#000000" stroke-width="2"/>
+  <text x="50%" y="50" font-size="24" font-family="Times New Roman, serif" font-weight="bold" text-anchor="middle" fill="#000000">
+    Adv. Shalini L Tripathi
+  </text>
+  <text x="50%" y="75" font-size="16" font-family="Times New Roman, serif" text-anchor="middle" fill="#333333">
+    B.Com, LLB
+  </text>
+  <text x="50%" y="105" font-size="14" font-family="Times New Roman, serif" text-anchor="middle" fill="#000000">
+    Contact: 9552446231 | Email: info@lexinco.com
+  </text>
+  <text x="50%" y="125" font-size="14" font-family="Times New Roman, serif" text-anchor="middle" fill="#000000">
+    204, Poonam Aster, Poonam Nagar, Virar West, Palghar 401303
+  </text>
+  <text x="50%" y="150" font-size="14" font-family="Times New Roman, serif" text-anchor="middle" fill="#000000">
+    License No: MAH/9337/2024
+  </text>
+</svg>`;
+
+// Convert SVG to PNG data URL
+async function svgToDataUrl(svgStr) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 800;
+    canvas.height = 200;
+    const ctx = canvas.getContext('2d');
+
+    const img = new Image();
+    const svgBlob = new Blob([svgStr], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(svgBlob);
+
+    await new Promise(resolve => {
+        img.onload = () => {
+            ctx.drawImage(img, 0, 0);
+            URL.revokeObjectURL(url);
+            resolve();
+        };
+        img.src = url;
+    });
+
+    return canvas.toDataURL('image/png');
+}
 
 const svgLetterhead = `
 <svg width="800" height="200" xmlns="http://www.w3.org/2000/svg">
@@ -141,6 +186,7 @@ function startTimer(endTime) {
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', async function () {
     await loadConfig();
+    await loadConfig();
     initializeSignaturePad();
 
     document.querySelectorAll('.progress-steps .step').forEach((step, index) => {
@@ -156,6 +202,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             if (currentStep === 3) {
                 setTimeout(initializeSignaturePad, 100);
             }
+            nextStep();
             nextStep();
         });
     });
@@ -580,6 +627,37 @@ async function generatePDFBlob() {
     URL.revokeObjectURL(svgUrl);
 
     const lawyerSignatureBase64 = await getLawyerSignatureBase64('/signature (2).jpeg');
+    const headerHeight = 50;
+    const maxHeightPerPage = pageHeight - marginTop - footerHeight - headerHeight;
+
+    const svgString = `
+      <svg width="800" height="200" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100%" height="100%" fill="#ffffff"/>
+        <line x1="20" y1="190" x2="780" y2="190" stroke="#000000" stroke-width="2"/>
+        <text x="50%" y="50" font-size="24" font-weight="bold" text-anchor="middle" fill="#000000">Adv. Shalini L Tripathi</text>
+        <text x="50%" y="75" font-size="16" text-anchor="middle" fill="#333333">B.Com, LLB</text>
+        <text x="50%" y="105" font-size="14" text-anchor="middle" fill="#000000">Contact: 9552446231 | Email: info@lexinco.com</text>
+        <text x="50%" y="125" font-size="14" text-anchor="middle" fill="#000000">204, Poonam Aster, Poonam Nagar, Virar West, Palghar 401303</text>
+        <text x="50%" y="150" font-size="14" text-anchor="middle" fill="#000000">License No: MAH/9337/2024</text>
+      </svg>
+    `;
+    const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+    const svgUrl = URL.createObjectURL(svgBlob);
+    const img = new Image();
+    img.src = svgUrl;
+    await new Promise((resolve) => { img.onload = resolve; });
+
+    const canvasHeader = document.createElement('canvas');
+    canvasHeader.width = img.width;
+    canvasHeader.height = img.height;
+    const ctxHeader = canvasHeader.getContext('2d');
+    ctxHeader.fillStyle = '#ffffff';
+    ctxHeader.fillRect(0, 0, canvasHeader.width, canvasHeader.height);
+    ctxHeader.drawImage(img, 0, 0);
+    const letterheadBase64 = canvasHeader.toDataURL('image/png');
+    URL.revokeObjectURL(svgUrl);
+
+    const lawyerSignatureBase64 = await getLawyerSignatureBase64('/signature (2).jpeg');
 
     const clonedDiv = legalNoticeDiv.cloneNode(true);
     clonedDiv.style.position = 'fixed';
@@ -606,14 +684,24 @@ async function generatePDFBlob() {
     const imgWidth = pageWidth - 2 * marginLeft;
     const mmPerPx = imgWidth / canvas.width;
     const pageHeightPx = maxHeightPerPage / mmPerPx;
+    const pageHeightPx = maxHeightPerPage / mmPerPx;
 
     let yOffsetPx = 0;
     let pageCount = 0;
     const overlap = 15;
     const totalHeight = canvas.height;
+    const overlap = 15;
+    const totalHeight = canvas.height;
 
     while (yOffsetPx < totalHeight) {
+    while (yOffsetPx < totalHeight) {
         pageCount++;
+        const isFirstPage = pageCount === 1;
+        const isLastPage = (totalHeight - yOffsetPx) <= pageHeightPx;
+
+        let renderHeightPx = Math.min(pageHeightPx, totalHeight - yOffsetPx);
+        if (isLastPage) renderHeightPx = totalHeight - yOffsetPx;
+
         const isFirstPage = pageCount === 1;
         const isLastPage = (totalHeight - yOffsetPx) <= pageHeightPx;
 
@@ -625,9 +713,11 @@ async function generatePDFBlob() {
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = canvas.width;
         tempCanvas.height = renderHeightPx + (pageCount > 1 && !isLastPage ? overlap : 0);
+        tempCanvas.height = renderHeightPx + (pageCount > 1 && !isLastPage ? overlap : 0);
         const tempCtx = tempCanvas.getContext('2d');
         tempCtx.fillStyle = '#ffffff';
         tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+        tempCtx.drawImage(canvas, 0, -(yOffsetPx - (pageCount > 1 && !isLastPage ? overlap : 0)));
         tempCtx.drawImage(canvas, 0, -(yOffsetPx - (pageCount > 1 && !isLastPage ? overlap : 0)));
 
         const imgData = tempCanvas.toDataURL('image/jpeg', 0.95);
@@ -639,6 +729,17 @@ async function generatePDFBlob() {
 
         const contentTopOffset = isFirstPage ? 10 + headerHeight + 5 : marginTop;
         doc.addImage(imgData, 'JPEG', marginLeft, contentTopOffset, imgWidth, renderHeightMm, undefined, 'FAST');
+        if (isFirstPage) {
+            const letterheadHeight = 40;
+            doc.addImage(letterheadBase64, 'PNG', marginLeft, 10, imgWidth, letterheadHeight);
+        }
+
+        const contentTopOffset = isFirstPage ? 10 + headerHeight + 5 : marginTop;
+        doc.addImage(imgData, 'JPEG', marginLeft, contentTopOffset, imgWidth, renderHeightMm, undefined, 'FAST');
+
+        const footerText = `Generated by `;
+        const websiteText = `lexinco.com`;
+        const pageText = ` - Page ${pageCount}`;
 
         const footerText = `Generated by `;
         const websiteText = `lexinco.com`;
@@ -655,12 +756,32 @@ async function generatePDFBlob() {
         const pageX = linkX + doc.getTextWidth(websiteText);
         doc.setTextColor(150);
         doc.text(pageText, pageX, pageHeight - 10);
+        doc.text(footerText, marginLeft, pageHeight - 10);
+
+        const linkX = marginLeft + doc.getTextWidth(footerText);
+        doc.setTextColor(0, 0, 255);
+        doc.textWithLink(websiteText, linkX, pageHeight - 10, { url: 'https://lexinco.com' });
+
+        const pageX = linkX + doc.getTextWidth(websiteText);
+        doc.setTextColor(150);
+        doc.text(pageText, pageX, pageHeight - 10);
 
         yOffsetPx += renderHeightPx;
+        if (yOffsetPx < totalHeight) {
         if (yOffsetPx < totalHeight) {
             doc.addPage();
         }
     }
+
+    const signatureWidth = 40;
+    const signatureHeight = 15;
+    const signatureX = pageWidth - marginLeft - signatureWidth;
+    const signatureY = pageHeight - 50;
+
+    doc.addImage(lawyerSignatureBase64, 'JPEG', signatureX, signatureY, signatureWidth, signatureHeight);
+    doc.setFontSize(12);
+    doc.setTextColor(0);
+    doc.text("Adv. Shalini L Tripathi", signatureX, signatureY + signatureHeight + 6);
 
     const signatureWidth = 40;
     const signatureHeight = 15;
@@ -697,6 +818,7 @@ async function sendEmail() {
     let recipientEmail = document.getElementById('recipientEmail').value;
     let senderEmail = document.getElementById('senderEmail').value;
 
+    // Prompt for recipient email if missing
     if (!recipientEmail) {
         recipientEmail = prompt("Please enter the recipient's email address:");
         if (!recipientEmail) {
@@ -716,14 +838,20 @@ async function sendEmail() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(recipientEmail)) {
         alert('Please enter a valid recipient email address.');
+    if (!emailRegex.test(recipientEmail)) {
+        alert('Please enter a valid recipient email address.');
         return;
     }
+    if (!emailRegex.test(senderEmail)) {
+        alert('Please enter a valid sender email address.');
     if (!emailRegex.test(senderEmail)) {
         alert('Please enter a valid sender email address.');
         return;
     }
 
+    // Ensure notice ID exists
     if (!currentNoticeId) {
+        alert('Notice ID is missing. Please regenerate the notice.');
         alert('Notice ID is missing. Please regenerate the notice.');
         return;
     }
@@ -738,19 +866,24 @@ async function sendEmail() {
         formData.append('toEmail', recipientEmail);
         formData.append('fromEmail', senderEmail);
         formData.append('senderName', savedSenderName);
+        formData.append('senderName', savedSenderName);
 
         const response = await fetch('/api/send-notice', {
             method: 'POST',
+            body: formData
             body: formData
         });
 
         const data = await response.json();
         if (data.success) {
             alert('Notice sent successfully as a PDF attachment!');
+            alert('Notice sent successfully as a PDF attachment!');
         } else {
+            alert('Failed to send notice: ' + data.error);
             alert('Failed to send notice: ' + data.error);
         }
     } catch (error) {
+        alert('Error sending notice: ' + error.message);
         alert('Error sending notice: ' + error.message);
     } finally {
         showLoading(false);
@@ -762,6 +895,7 @@ async function shareViaWhatsapp() {
     try {
         const blob = await generatePDFBlob();
         const file = new File([blob], 'legal_notice.pdf', { type: 'application/pdf' });
+        const message = `Legal notice from ${savedSenderName}. Please review the attached PDF.`;
         const message = `Legal notice from ${savedSenderName}. Please review the attached PDF.`;
 
         if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -783,6 +917,7 @@ async function shareViaWhatsapp() {
             if (!uploadData.success || !uploadData.url) throw new Error('Invalid response from server');
 
             const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${message}\nDownload the PDF here: ${uploadData.url}`)}`;
+            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${message}\nDownload the PDF here: ${uploadData.url}`)}`;
             window.open(whatsappUrl, '_blank');
         }
     } catch (error) {
@@ -791,6 +926,13 @@ async function shareViaWhatsapp() {
     } finally {
         showLoading(false);
     }
+}
+
+// Show form function
+function showForm() {
+    noticePage.style.display = 'none';
+    formContainer.style.display = 'block';
+    showStep(1);
 }
 
 // Show form function

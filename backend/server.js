@@ -1,25 +1,15 @@
 const express = require('express');
-const nodemailer = require('nodemailer');
-const bcrypt = require('bcrypt');
-const cors = require('cors');
-const bodyParser = require('body-parser');
 const path = require('path');
-const fs = require('fs');
-const Razorpay = require('razorpay');
-const multer = require('multer');
-const { v4: uuidv4 } = require('uuid');
-require('dotenv').config({ path: path.join(__dirname, '.env') });
-const axios = require('axios');
+const cors = require('cors');
 
 const app = express();
 
 // Middleware
 app.use(cors({
-    origin: ['http://localhost:3000', 'https://lexinco.herokuapp.com'],
+    origin: ['http://localhost:3000', 'https://lexinco-dbd9de732777.herokuapp.com', 'https://lexinco.com', 'https://www.lexinco.com'],
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
-app.use(bodyParser.json());
 
 // Serve static files
 app.use(express.static(path.join(__dirname, '..', 'public')));
