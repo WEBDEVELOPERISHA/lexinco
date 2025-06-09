@@ -15,7 +15,12 @@ const app = express();
 
 // Middleware
 app.use(cors({
-    origin: ['http://localhost:3000', 'https://lexinco.herokuapp.com'],
+    origin: [
+        'http://localhost:3000',
+        'https://lexinco.herokuapp.com',
+        'https://lexinco-dbd9de732777.herokuapp.com',
+        'https://www.lexinco.com'
+    ],
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
