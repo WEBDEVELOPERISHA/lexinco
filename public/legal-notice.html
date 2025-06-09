@@ -11,6 +11,52 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 500px;
+            text-align: center;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: #000;
+        }
+        /* Signature Pad Styles */
+        .signature-pad {
+            width: 100%;
+            height: 200px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #fff;
+            touch-action: none; /* Prevent scrolling on touch devices */
+        }
+        .signature-section {
+            margin-top: 20px;
+        }
+        .clear-signature {
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation -->
@@ -20,11 +66,11 @@
                 <img src="/assets/logo.svg" alt="" width="200">
             </a>
             <div class="nav-links">
-                <a href="index.html">Home</a>
                 <a href="index.html#features">Features</a>
-                <a href="index.html#how-it-works">Help</a>
-                <a href="login.html" class="btn secondary">Login</a>
-                <a href="#" class="btn secondary" onclick="logout()">Logout</a>
+                <a href="index.html#how-it-works">How It Works</a>
+                <a href="index.html#testimonials">Testimonials</a>
+                <a href="signup.html" class="btn secondary">Sign Up</a>
+                <a href="legal-notice.html" class="btn primary">Generate Notice</a>
             </div>
             <button class="mobile-menu-btn">
                 <i class="fas fa-bars"></i>
@@ -162,28 +208,14 @@
                             <label for="damagesSuffered" class="required">Loss or Damages Suffered</label>
                             <textarea id="damagesSuffered" required placeholder="Describe monetary losses, mental agony, defamation, etc."></textarea>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="country" class="required">Country</label>
-                                <select id="country" required>
-                                    <option value="">Select country</option>
-                                    <option value="India">India</option>
-                                    <option value="USA">USA</option>
-                                    <option value="UK">UK</option>
-                                    <option value="Australia">Australia</option>
-                                    <option value="Canada">Canada</option>
-                                    <option value="Other">Other</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="tone" class="required">Tone of Notice</label>
-                                <select id="tone" required>
-                                    <option value="">Select tone</option>
-                                    <option value="Polite">Polite</option>
-                                    <option value="Formal">Formal</option>
-                                    <option value="Aggressive">Aggressive</option>
-                                </select>
-                            </div>
+                        <div class="form-group">
+                            <label for="tone" class="required">Tone of Notice</label>
+                            <select id="tone" required>
+                                <option value="">Select tone</option>
+                                <option value="Polite">Polite</option>
+                                <option value="Formal">Formal</option>
+                                <option value="Aggressive">Aggressive</option>
+                            </select>
                         </div>
                     </div>
                     <div class="form-navigation">
@@ -197,11 +229,6 @@
                     <div class="form-section">
                         <h2><i class="fas fa-check-circle"></i> Review & Generate</h2>
                         <div class="review-section">
-                            <!--<h3>Legal Grounds & Demands</h3>-->
-                            <!-- <div class="form-group">
-                                <label for="lawsViolated" class="required">Laws Violated</label>
-                                <textarea id="lawsViolated" required placeholder="List laws that apply to your case "></textarea>
-                            </div> -->
                             <div class="form-group">
                                 <label for="specificDemand" class="required">Specific Demand</label>
                                 <textarea id="specificDemand" required placeholder="What exactly are you demanding? (refund, compensation, service rectification, apology, etc.)"></textarea>
@@ -223,7 +250,6 @@
                                 </div>
                             </div>
                         </div>
-                        
                         <div class="signature-section">
                             <h3>Your Signature</h3>
                             <div class="form-group">
@@ -234,7 +260,6 @@
                                 </button>
                             </div>
                         </div>
-                        
                         <div class="form-group">
                             <div class="checkbox-group">
                                 <input type="checkbox" id="confirmDetails" required>
@@ -266,24 +291,33 @@
                     <button class="btn primary" onclick="showForm()">
                         <i class="fas fa-edit"></i> Edit Notice
                     </button>
-                    <button class="btn primary" id="payNowBtn" onclick="initiatePaymentAndSend()" disabled>
+                    <button class="btn primary" id="payNowBtn" onclick="initiatePayment()">
                         <i class="fas fa-credit-card"></i> Pay Now
                     </button>
                     <div id="paymentDetails" class="payment-details"></div>
-                    <button class="btn" onclick="generatePDF()" id="downloadBtn">
+                    <button class="btn" onclick="generatePDF()" id="downloadBtn" disabled>
                         <i class="fas fa-download"></i> Download PDF
                     </button>
-                    <button class="btn primary" id="sendNoticeBtn" onclick="sendEmail()">
+                    <button class="btn primary" id="sendNoticeBtn" onclick="sendEmail()" disabled>
                         <i class="fas fa-paper-plane"></i> Send Notice
                     </button>
-                    <button class="btn primary" id="shareWhatsappBtn" onclick="shareViaWhatsapp()">
+                    <button class="btn primary" id="shareWhatsappBtn" onclick="shareViaWhatsapp()" disabled>
                         <i class="fab fa-whatsapp"></i> Share via WhatsApp
                     </button>
+                    <div id="timerDisplay" style="display: none;">Notice will be ready in <span id="countdown"></span></div>
                 </div>
             </div>
             <div id="legalNotice" class="legal-notice-content"></div>
         </div>
     </section>
+
+    <!-- Review Modal -->
+    <div class="modal" id="reviewModal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeReviewModal()">×</span>
+            <p>Your notice is under review. You will be able to download it after 30 minutes.</p>
+        </div>
+    </div>
 
     <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
@@ -336,26 +370,37 @@
     </a>
 
     <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.2.0/dist/signature_pad.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.3/purify.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
     <script src="https://smtpjs.com/v3/smtp.js"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="js/app.js"></script>
     <script>
-        // Initialize Razorpay when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
-            if (typeof Razorpay === 'undefined') {
-                console.error('Razorpay not loaded!');
+            if (!sessionStorage.getItem('isLoggedIn')) {
+                window.location.href = 'login.html';
+            } else {
+                const urlParams = new URLSearchParams(window.location.search);
+                let noticeId = urlParams.get('id');
+                if (!noticeId) {
+                    noticeId = localStorage.getItem('lastNoticeId');
+                    if (noticeId) {
+                        window.location.href = `legal-notice.html?id=${noticeId}`;
+                    }
+                }
             }
         });
     </script>
     <script>
-        // Check authentication
         document.addEventListener('DOMContentLoaded', function() {
-            if (!sessionStorage.getItem('isLoggedIn')) {
-                window.location.href = 'login.html';
+            if (typeof Razorpay === 'undefined') {
+                console.error('Razorpay not loaded!');
+            }
+            if (typeof SignaturePad === 'undefined') {
+                console.error('SignaturePad not loaded!');
+                alert('Signature functionality is unavailable. Please try refreshing the page.');
             }
         });
     </script>

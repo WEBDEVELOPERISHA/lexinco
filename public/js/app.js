@@ -11,12 +11,56 @@ const loadingOverlay = document.getElementById('loadingOverlay');
 const legalNoticeDiv = document.getElementById('legalNotice');
 const formContainer = document.querySelector('.notice-form');
 const noticePage = document.getElementById('noticePage');
+const letterheadBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABQAAAACACAYAAAAa4jRQAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAXEgAAFxIBZ5/SUgAAABl0RVh0Q3JlYXRpb24gVGltZQAwNS8xNy8yNVQxMDozMDo1OVrLB0sAABVpSURBVHic7d1rtF3Vdcfx99/DFgJBEBJSSjVKWkx9SSV9QpRYpS3tQuWTW7b9KQ9xWU5VNIl2U7KdqfMNpZKqSK10EeqVRPpQ8OQjRzJvKXJf7mDMzex29d+ZOdjJlnZsZ6N/cv/M7Zs2ZkZma1O+f//nV9Uu4IABAgQIECBAgAABAwL+AhoUurWFaT74AAAAASUVORK5CYII=';
 
 let currentStep = 0;
 let currentNoticeId = null;
-let paymentDetails = null;
 let signaturePad = null;
 let razorpayKeyId = null;
+
+const svgLetterhead = `
+<svg width="800" height="200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <line x1="20" y1="190" x2="780" y2="190" stroke="#000000" stroke-width="2"/>
+  <text x="50%" y="50" font-size="24" font-family="Times New Roman, serif" font-weight="bold" text-anchor="middle" fill="#000000">
+    Adv. Shalini L Tripathi
+  </text>
+  <text x="50%" y="75" font-size="16" font-family="Times New Roman, serif" text-anchor="middle" fill="#333333">
+    B.Com, LLB
+  </text>
+  <text x="50%" y="105" font-size="14" font-family="Times New Roman, serif" text-anchor="middle" fill="#000000">
+    Contact: 9552446231 | Email: info@lexinco.com
+  </text>
+  <text x="50%" y="125" font-size="14" font-family="Times New Roman, serif" text-anchor="middle" fill="#000000">
+    204, Poonam Aster, Poonam Nagar, Virar West, Palghar 401303
+  </text>
+  <text x="50%" y="150" font-size="14" font-family="Times New Roman, serif" text-anchor="middle" fill="#000000">
+    License No: MAH/9337/2024
+  </text>
+</svg>`;
+
+// Convert SVG to PNG data URL
+async function svgToDataUrl(svgStr) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 800;
+    canvas.height = 200;
+    const ctx = canvas.getContext('2d');
+
+    const img = new Image();
+    const svgBlob = new Blob([svgStr], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(svgBlob);
+
+    await new Promise(resolve => {
+        img.onload = () => {
+            ctx.drawImage(img, 0, 0);
+            URL.revokeObjectURL(url);
+            resolve();
+        };
+        img.src = url;
+    });
+
+    return canvas.toDataURL('image/png');
+}
 
 // Fetch configuration from server
 async function loadConfig() {
@@ -64,9 +108,39 @@ function handleCanvasResize() {
     signaturePad.fromData(oldData);
 }
 
+// Show Review Modal
+function showReviewModal() {
+    document.getElementById('reviewModal').style.display = 'block';
+}
+
+// Close Review Modal
+function closeReviewModal() {
+    document.getElementById('reviewModal').style.display = 'none';
+}
+
+// Start Timer for Review Period
+function startTimer(endTime) {
+    const countdownElement = document.getElementById('countdown');
+    const interval = setInterval(() => {
+        const now = Date.now();
+        const remaining = endTime - now;
+        if (remaining <= 0) {
+            clearInterval(interval);
+            document.getElementById('timerDisplay').style.display = 'none';
+            document.getElementById('downloadBtn').disabled = false;
+            document.getElementById('sendNoticeBtn').disabled = false;
+            document.getElementById('shareWhatsappBtn').disabled = false;
+        } else {
+            const minutes = Math.floor(remaining / 60000);
+            const seconds = Math.floor((remaining % 60000) / 1000);
+            countdownElement.textContent = `${minutes}m ${seconds}s`;
+        }
+    }, 1000);
+}
+
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', async function () {
-    await loadConfig(); // Load Razorpay key
+    await loadConfig();
     initializeSignaturePad();
 
     document.querySelectorAll('.progress-steps .step').forEach((step, index) => {
@@ -82,6 +156,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             if (currentStep === 3) {
                 setTimeout(initializeSignaturePad, 100);
             }
+            nextStep();
         });
     });
 
@@ -90,7 +165,12 @@ document.addEventListener('DOMContentLoaded', async function () {
     if (noticeId) {
         loadNoticeDetails(noticeId);
     } else {
-        showForm();
+        const lastNoticeId = localStorage.getItem('lastNoticeId');
+        if (lastNoticeId) {
+            window.location.href = `legal-notice.html?id=${lastNoticeId}`;
+        } else {
+            showForm();
+        }
     }
 });
 
@@ -104,11 +184,36 @@ async function loadNoticeDetails(noticeId) {
         if (notice && notice.content) {
             legalNoticeDiv.innerHTML = notice.content;
             currentNoticeId = noticeId;
+            savedSenderName = notice.client.name;
             formContainer.style.display = 'none';
             noticePage.style.display = 'block';
 
-            // Enable buttons regardless of payment status
-            updateUIAfterPayment(true);
+            const payNowBtn = document.getElementById('payNowBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const sendBtn = document.getElementById('sendNoticeBtn');
+            const shareWhatsappBtn = document.getElementById('shareWhatsappBtn');
+            const timerDisplay = document.getElementById('timerDisplay');
+
+            if (notice.status === 'pending') {
+                payNowBtn.style.display = 'block';
+                downloadBtn.disabled = true;
+                sendBtn.disabled = true;
+                shareWhatsappBtn.disabled = true;
+                timerDisplay.style.display = 'none';
+            } else if (notice.status === 'under_review') {
+                payNowBtn.style.display = 'none';
+                downloadBtn.disabled = true;
+                sendBtn.disabled = true;
+                shareWhatsappBtn.disabled = true;
+                timerDisplay.style.display = 'block';
+                startTimer(notice.review_end_time);
+            } else if (notice.status === 'ready') {
+                payNowBtn.style.display = 'none';
+                downloadBtn.disabled = false;
+                sendBtn.disabled = false;
+                shareWhatsappBtn.disabled = false;
+                timerDisplay.style.display = 'none';
+            }
         } else {
             alert('Notice content not found');
             showForm();
@@ -186,185 +291,6 @@ form.addEventListener('submit', async function (e) {
     await generateLegalNotice();
 });
 
-// Handle Payment and Send (kept for future use)
-async function initiatePaymentAndSend() {
-    try {
-        showLoading(true);
-
-        if (noticePage.style.display === 'block' && currentNoticeId) {
-            await handlePayment();
-        } else {
-            if (!validateAllSteps()) {
-                showLoading(false);
-                return;
-            }
-
-            const noticeId = await saveNoticeToServer();
-            currentNoticeId = noticeId;
-            window.history.pushState({}, '', `?id=${currentNoticeId}`);
-            await handlePayment();
-        }
-    } catch (error) {
-        console.error('Payment initiation error:', error);
-        alert('Error: ' + error.message);
-        showLoading(false);
-    }
-}
-
-// Validate all steps
-function validateAllSteps() {
-    for (let i = 0; i < steps.length; i++) {
-        if (!validateStep(i)) {
-            showStep(i + 1);
-            return false;
-        }
-    }
-    return true;
-}
-
-// Payment Handling (kept for future use)
-async function handlePayment() {
-    try {
-        showLoading(true);
-        const orderResponse = await fetch(`${BASE_URL}/api/create-order`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ noticeId: currentNoticeId })
-        });
-
-        if (!orderResponse.ok) {
-            const error = await orderResponse.json();
-            throw new Error(error.error || 'Failed to create payment order');
-        }
-
-        const orderData = await orderResponse.json();
-
-        const options = {
-            key: razorpayKeyId,
-            amount: orderData.amount,
-            currency: 'INR',
-            order_id: orderData.id,
-            name: 'Lexinco Legal Notice',
-            description: 'Payment for legal notice delivery',
-            prefill: {
-                name: document.getElementById('senderName').value,
-                email: document.getElementById('senderEmail').value,
-                contact: document.getElementById('senderContact').value
-            },
-            handler: async function (response) {
-                try {
-                    await fetch(`${BASE_URL}/api/update-payment`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            noticeId: currentNoticeId,
-                            status: 'completed',
-                            paymentId: response.razorpay_payment_id,
-                            orderId: response.razorpay_order_id
-                        })
-                    });
-
-                    updateUIAfterPayment(true, {
-                        orderId: response.razorpay_order_id,
-                        paymentId: response.razorpay_payment_id
-                    });
-
-                    generatePDF();
-                    const invoiceBlob = await generateInvoicePDF(response);
-                    const invoiceUrl = URL.createObjectURL(invoiceBlob);
-                    const a = document.createElement('a');
-                    a.href = invoiceUrl;
-                    a.download = 'payment_receipt.pdf';
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(invoiceUrl);
-
-                    sendEmail();
-                    sendInvoiceEmail(response);
-                } catch (error) {
-                    console.error('Payment success handler error:', error);
-                    alert('Error processing payment: ' + error.message);
-                }
-            }
-        };
-
-        const rzp = new Razorpay(options);
-        rzp.on('payment.failed', async function (response) {
-            // ... (unchanged)
-        });
-        rzp.open();
-    } catch (error) {
-        console.error('Payment error:', error);
-        showLoading(false);
-        alert('Payment initialization failed: ' + error.message);
-    }
-}
-
-async function saveNoticeToServer() {
-    const signatureData = signaturePad && !signaturePad.isEmpty() ? signaturePad.toDataURL() : null;
-
-    const formData = {
-        client: {
-            name: document.getElementById('senderName').value,
-            address: document.getElementById('senderAddress').value,
-            contact: document.getElementById('senderContact').value,
-            email: document.getElementById('senderEmail').value
-        },
-        recipient: {
-            name: document.getElementById('recipientName').value,
-            address: document.getElementById('recipientAddress').value,
-            contact: document.getElementById('recipientContact').value,
-            email: document.getElementById('recipientEmail').value
-        },
-        dispute: {
-            relationship: document.getElementById('relationshipType').value,
-            transactionDate: document.getElementById('transactionDate').value,
-            transactionPlace: document.getElementById('transactionPlace').value,
-            contractDetails: document.getElementById('contractDetails').value,
-            issueDescription: document.getElementById('issueDescription').value,
-            keyEvents: document.getElementById('keyEvents').value,
-            damages: document.getElementById('damagesSuffered').value,
-            lawsViolated: document.getElementById('lawsViolated').value,
-            specificDemand: document.getElementById('specificDemand').value,
-            compensation: document.getElementById('compensationAmount').value,
-            timeframe: document.getElementById('complianceTimeframe').value,
-            country: document.getElementById('country').value,
-            tone: document.getElementById('tone').value
-        },
-        signature: signatureData,
-        content: legalNoticeDiv.innerHTML || '',
-        status: 'pending'
-    };
-
-    const response = await fetch('/api/save-notice', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-    });
-
-    const data = await response.json();
-    if (!response.ok || !data.success) throw new Error('Failed to save notice');
-    return data.noticeId;
-}
-
-function updateUIAfterPayment(success, response = null) {
-    const downloadBtn = document.getElementById('downloadBtn');
-    const sendBtn = document.getElementById('sendNoticeBtn');
-    const shareWhatsappBtn = document.getElementById('shareWhatsappBtn');
-    const paymentDetailsDiv = document.getElementById('paymentDetails');
-    const payNowBtn = document.getElementById('payNowBtn');
-
-    // Enable buttons regardless of payment
-    downloadBtn.disabled = false;
-    sendBtn.disabled = false;
-    shareWhatsappBtn.disabled = false;
-    paymentDetailsDiv.innerHTML = '<p>Payment not required</p>';
-    sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Notice';
-    if (payNowBtn) payNowBtn.disabled = true;
-    showLoading(false);
-}
-
 // Generate Legal Notice
 async function generateLegalNotice() {
     showLoading(true);
@@ -394,7 +320,6 @@ async function generateLegalNotice() {
                 specificDemand: document.getElementById('specificDemand').value,
                 compensation: document.getElementById('compensationAmount').value,
                 timeframe: document.getElementById('complianceTimeframe').value,
-                country: document.getElementById('country').value,
                 tone: document.getElementById('tone').value
             },
             signature: signatureData
@@ -402,68 +327,79 @@ async function generateLegalNotice() {
         savedSenderName = formData.client.name;
         sessionStorage.setItem('senderName', formData.client.name);
 
-        const response = await fetch(`${BASE_URL}/api/generate-notice`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(formData)
-        });
-
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || 'Failed to generate notice');
-
-        // Sanitize and format the server response
-        let noticeContent = data.content
-            .replace(/[^\x20-\x7E\n]/g, '') // Remove non-printable characters
-            .replace(/\n{2,}/g, '\n\n') // Normalize multiple newlines
-            .replace(/\n/g, '<br>') // Convert newlines to HTML breaks
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Markdown bold
-            .replace(/\*-(.*?)\*\*/g, '<strong>$1</strong>') // Fix incorrect Markdown
-            .replace(/\+\+(.*?)\+\+/g, '<strong>$1</strong>') // Fix ++ syntax
-            .replace(/"{2,}(.*?)"{2,}/g, '<strong>$1</strong>') // Fix double quotes
-            .replace(/\b\d{4}(,\s*\d{4})*\b/g, '') // Remove year sequences
-            .replace(/(Timeline of Events\s*){2,}/g, 'Timeline of Events'); // Remove duplicate section titles
-
-        // Ensure proper "To" and "Subject" formatting
-        const recipientName = formData.recipient.name.replace(/['"$\\]/g, ''); // Remove problematic characters
-        const recipientAddress = formData.recipient.address.replace(/['"$\\]/g, '');
         const currentDate = new Date().toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
             day: 'numeric'
         });
-        noticeContent = `
-            To,<br>
-            ${recipientName}<br>
-            ${recipientAddress}<br>
-            <br>
-            Subject: <strong>Legal Notice Regarding Breach of Partnership Agreement - Immediate Action Required</strong><br>
-            <br>
-            Dated: ${currentDate}<br>
-            <br>
-            ${noticeContent}
-        `;
 
-        const finalContent = `
-            <div class="legal-notice" style="font-family: Times, serif; font-size: 12pt; line-height: 1.5;">
-                ${noticeContent}
+        const noticeContent = `
+            <div class="legal-notice" style="font-family: 'Times New Roman', Times, serif; font-size: 12pt; line-height: 1.5; color: #000;">
+                <div style="margin-bottom: 20px;">
+                    To,<br>
+                    ${formData.recipient.name}<br>
+                    ${formData.recipient.address}<br>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    Subject: <strong>Legal Notice Regarding Breach of Consumer Agreement</strong><br>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    Dated: ${currentDate}<br>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <strong>1. Introduction and Identification of Parties</strong><br>
+                    I, Adv. Shalini L Tripathi, legal representative of ${formData.client.name}, ${formData.client.address}, hereby issue this notice to ${formData.recipient.name}, situated at ${formData.recipient.address}. This notice addresses a serious consumer-business dispute arising from your company's breach of contractual obligations.
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <strong>2. Detailed Background and Factual Matrix</strong><br>
+                    On ${formData.dispute.transactionDate}, my client engaged in a transaction with your company for ${formData.dispute.contractDetails}. The terms stipulated delivery within ${formData.dispute.timeframe} and a product free of defects. However, ${formData.dispute.issueDescription}.
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <strong>3. Timeline of Events</strong><br>
+                    ${formData.dispute.keyEvents.replace(/\n/g, '<br>')}<br>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <strong>4. Legal Violations & Statutory References</strong><br>
+                    Your company's actions constitute a breach of contract under the Indian Contract Act, 1872. Additionally, your failure to address my client's complaints violates the Consumer Protection Act, 2019, specifically regarding the right to a refund or replacement for defective goods.
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <strong>5. Damages and Hardships Faced</strong><br>
+                    Due to your negligence, my client has suffered damages amounting to ₹${formData.dispute.compensation}. The mental distress and inconvenience caused by your unresponsiveness further aggravate the hardship faced by my client.
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <strong>6. Legal Consequences of Non-Compliance</strong><br>
+                    Failure to comply with the demands herein within ${formData.dispute.timeframe} will compel my client to initiate legal proceedings, including filing a complaint with the Consumer Court, seeking compensation for damages suffered.
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <strong>7. Demand for Relief and Compliance Timeframe</strong><br>
+                    My client demands ${formData.dispute.specificDemand} within ${formData.dispute.timeframe} from the date of receipt of this notice. Additionally, compensation of ₹${formData.dispute.compensation} is sought for the distress and inconvenience caused.
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <strong>8. Conclusion and Final Intimation</strong><br>
+                    This notice serves as a final intimation to rectify the breach within the stipulated timeframe. Failure to comply will result in legal action without further notice.
+                </div>
+                <div style="margin-top: 30px;">
+                    From,<br>
+                    ${formData.client.name}<br>
+                    ${formData.client.address}<br>
+                </div>
                 ${formData.signature ? `
                     <div class="esignature" style="margin-top: 30px;">
                         <p><strong>Digitally signed by:</strong></p>
                         <img src="${formData.signature}" alt="Client Signature" style="max-height: 100px; margin-top: 10px;">
                         <p>${formData.client.name}</p>
                     </div>` : ''}
-            </div>`;
+            </div>
+        `;
 
-        legalNoticeDiv.innerHTML = finalContent;
+        legalNoticeDiv.innerHTML = noticeContent;
         formContainer.style.display = 'none';
         noticePage.style.display = 'block';
 
-        const noticeId = await saveNoticeToServer();
+        const noticeId = await saveNoticeToServer(formData, noticeContent);
         currentNoticeId = noticeId;
+        localStorage.setItem('lastNoticeId', noticeId); // Store noticeId in local storage
         window.history.pushState({}, '', `?id=${currentNoticeId}`);
-
-        // Enable buttons after notice generation
-        updateUIAfterPayment(true);
     } catch (error) {
         alert(`Error generating notice: ${error.message}`);
         console.error('Error:', error);
@@ -472,14 +408,135 @@ async function generateLegalNotice() {
     }
 }
 
-// Show form function
-function showForm() {
-    noticePage.style.display = 'none';
-    formContainer.style.display = 'block';
-    showStep(1);
+// Save notice to server
+async function saveNoticeToServer(formData, content) {
+    const response = await fetch('/api/save-notice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...formData, content, status: 'pending' })
+    });
+
+    const data = await response.json();
+    if (!response.ok || !data.success) throw new Error('Failed to save notice');
+    return data.noticeId;
 }
 
-// PDF Generation
+// Update UI after payment (not used directly, replaced by loadNoticeDetails logic)
+function updateUIAfterPayment(isPaid) {
+    const downloadBtn = document.getElementById('downloadBtn');
+    const sendBtn = document.getElementById('sendNoticeBtn');
+    const shareWhatsappBtn = document.getElementById('shareWhatsappBtn');
+    const payNowBtn = document.getElementById('payNowBtn');
+    const paymentDetailsDiv = document.getElementById('paymentDetails');
+
+    if (isPaid) {
+        downloadBtn.disabled = false;
+        sendBtn.disabled = false;
+        shareWhatsappBtn.disabled = false;
+        payNowBtn.style.display = 'none';
+        paymentDetailsDiv.innerHTML = '<p>Payment completed</p>';
+    } else {
+        downloadBtn.disabled = true;
+        sendBtn.disabled = true;
+        shareWhatsappBtn.disabled = true;
+        payNowBtn.style.display = 'inline-block';
+        payNowBtn.disabled = false;
+        paymentDetailsDiv.innerHTML = '<p>Payment required to access features</p>';
+    }
+}
+
+// Initiate Payment
+async function initiatePayment() {
+    try {
+        showLoading(true);
+        const orderResponse = await fetch(`${BASE_URL}/api/create-order`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ noticeId: currentNoticeId })
+        });
+
+        if (!orderResponse.ok) {
+            const error = await orderResponse.json();
+            throw new Error(error.error || 'Failed to create payment order');
+        }
+
+        const orderData = await orderResponse.json();
+
+        const options = {
+            key: razorpayKeyId,
+            amount: orderData.amount,
+            currency: 'INR',
+            order_id: orderData.id,
+            name: 'Lexinco Legal Notice',
+            description: 'Payment for legal notice delivery',
+            prefill: {
+                name: document.getElementById('senderName').value,
+                email: document.getElementById('senderEmail').value,
+                contact: document.getElementById('senderContact').value
+            },
+            handler: async function (response) {
+                try {
+                    const updateResponse = await fetch(`${BASE_URL}/api/update-payment`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            noticeId: currentNoticeId,
+                            status: 'completed',
+                            paymentId: response.razorpay_payment_id,
+                            orderId: response.razorpay_order_id
+                        })
+                    });
+
+                    if (!updateResponse.ok) throw new Error('Failed to update payment status');
+
+                    localStorage.setItem('lastNoticeId', currentNoticeId); // Store noticeId in local storage
+                    showReviewModal();
+                    loadNoticeDetails(currentNoticeId);
+                } catch (error) {
+                    console.error('Payment success handler error:', error);
+                    alert('Error processing payment: ' + error.message);
+                } finally {
+                    showLoading(false);
+                }
+            }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.on('payment.failed', function (response) {
+            alert('Payment failed: ' + response.error.description);
+            showLoading(false);
+        });
+        rzp.open();
+    } catch (error) {
+        console.error('Payment error:', error);
+        showLoading(false);
+        alert('Payment initialization failed: ' + error.message);
+    }
+}
+
+// Bind the Pay Now button
+document.getElementById('payNowBtn').addEventListener('click', initiatePayment);
+
+async function getLawyerSignatureBase64(imageUrl) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.src = imageUrl;
+
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            const base64 = canvas.toDataURL('image/jpeg');
+            resolve(base64);
+        };
+
+        img.onerror = () => reject(new Error(`Could not load image: ${imageUrl}`));
+    });
+}
+
 async function generatePDFBlob() {
     if (typeof window.jspdf === 'undefined') throw new Error('jsPDF library not loaded.');
     if (typeof html2canvas === 'undefined') throw new Error('html2canvas library not loaded.');
@@ -492,7 +549,37 @@ async function generatePDFBlob() {
     const pageWidth = 210;
     const pageHeight = 297;
     const footerHeight = 20;
-    const maxHeightPerPage = pageHeight - marginTop - footerHeight;
+    const headerHeight = 50;
+    const maxHeightPerPage = pageHeight - marginTop - footerHeight - headerHeight;
+
+    const svgString = `
+      <svg width="800" height="200" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100%" height="100%" fill="#ffffff"/>
+        <line x1="20" y1="190" x2="780" y2="190" stroke="#000000" stroke-width="2"/>
+        <text x="50%" y="50" font-size="24" font-weight="bold" text-anchor="middle" fill="#000000">Adv. Shalini L Tripathi</text>
+        <text x="50%" y="75" font-size="16" text-anchor="middle" fill="#333333">B.Com, LLB</text>
+        <text x="50%" y="105" font-size="14" text-anchor="middle" fill="#000000">Contact: 9552446231 | Email: info@lexinco.com</text>
+        <text x="50%" y="125" font-size="14" text-anchor="middle" fill="#000000">204, Poonam Aster, Poonam Nagar, Virar West, Palghar 401303</text>
+        <text x="50%" y="150" font-size="14" text-anchor="middle" fill="#000000">License No: MAH/9337/2024</text>
+      </svg>
+    `;
+    const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+    const svgUrl = URL.createObjectURL(svgBlob);
+    const img = new Image();
+    img.src = svgUrl;
+    await new Promise((resolve) => { img.onload = resolve; });
+
+    const canvasHeader = document.createElement('canvas');
+    canvasHeader.width = img.width;
+    canvasHeader.height = img.height;
+    const ctxHeader = canvasHeader.getContext('2d');
+    ctxHeader.fillStyle = '#ffffff';
+    ctxHeader.fillRect(0, 0, canvasHeader.width, canvasHeader.height);
+    ctxHeader.drawImage(img, 0, 0);
+    const letterheadBase64 = canvasHeader.toDataURL('image/png');
+    URL.revokeObjectURL(svgUrl);
+
+    const lawyerSignatureBase64 = await getLawyerSignatureBase64('/signature (2).jpeg');
 
     const clonedDiv = legalNoticeDiv.cloneNode(true);
     clonedDiv.style.position = 'fixed';
@@ -518,46 +605,75 @@ async function generatePDFBlob() {
 
     const imgWidth = pageWidth - 2 * marginLeft;
     const mmPerPx = imgWidth / canvas.width;
-    const pageHeightMm = maxHeightPerPage;
-    const pageHeightPx = pageHeightMm / mmPerPx;
+    const pageHeightPx = maxHeightPerPage / mmPerPx;
 
     let yOffsetPx = 0;
-    let heightLeftPx = canvas.height;
     let pageCount = 0;
+    const overlap = 15;
+    const totalHeight = canvas.height;
 
-    while (heightLeftPx > 0) {
+    while (yOffsetPx < totalHeight) {
         pageCount++;
-        const renderHeightPx = Math.min(pageHeightPx, heightLeftPx);
+        const isFirstPage = pageCount === 1;
+        const isLastPage = (totalHeight - yOffsetPx) <= pageHeightPx;
+
+        let renderHeightPx = Math.min(pageHeightPx, totalHeight - yOffsetPx);
+        if (isLastPage) renderHeightPx = totalHeight - yOffsetPx;
+
         const renderHeightMm = renderHeightPx * mmPerPx;
 
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = canvas.width;
-        tempCanvas.height = renderHeightPx;
+        tempCanvas.height = renderHeightPx + (pageCount > 1 && !isLastPage ? overlap : 0);
         const tempCtx = tempCanvas.getContext('2d');
         tempCtx.fillStyle = '#ffffff';
         tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-        tempCtx.drawImage(canvas, 0, -yOffsetPx);
+        tempCtx.drawImage(canvas, 0, -(yOffsetPx - (pageCount > 1 && !isLastPage ? overlap : 0)));
 
         const imgData = tempCanvas.toDataURL('image/jpeg', 0.95);
 
-        doc.addImage(imgData, 'JPEG', marginLeft, marginTop, imgWidth, renderHeightMm, undefined, 'FAST');
+        if (isFirstPage) {
+            const letterheadHeight = 40;
+            doc.addImage(letterheadBase64, 'PNG', marginLeft, 10, imgWidth, letterheadHeight);
+        }
 
-        // Footer (line removed, only text retained)
+        const contentTopOffset = isFirstPage ? 10 + headerHeight + 5 : marginTop;
+        doc.addImage(imgData, 'JPEG', marginLeft, contentTopOffset, imgWidth, renderHeightMm, undefined, 'FAST');
+
+        const footerText = `Generated by `;
+        const websiteText = `lexinco.com`;
+        const pageText = ` - Page ${pageCount}`;
+
         doc.setFontSize(8);
         doc.setTextColor(150);
-        doc.text(`Generated by lexinco.com - Page ${pageCount}`, marginLeft, pageHeight - 10);
+        doc.text(footerText, marginLeft, pageHeight - 10);
+
+        const linkX = marginLeft + doc.getTextWidth(footerText);
+        doc.setTextColor(0, 0, 255);
+        doc.textWithLink(websiteText, linkX, pageHeight - 10, { url: 'https://lexinco.com' });
+
+        const pageX = linkX + doc.getTextWidth(websiteText);
+        doc.setTextColor(150);
+        doc.text(pageText, pageX, pageHeight - 10);
 
         yOffsetPx += renderHeightPx;
-        heightLeftPx -= renderHeightPx;
-
-        if (heightLeftPx > 0) {
+        if (yOffsetPx < totalHeight) {
             doc.addPage();
         }
     }
 
+    const signatureWidth = 40;
+    const signatureHeight = 15;
+    const signatureX = pageWidth - marginLeft - signatureWidth;
+    const signatureY = pageHeight - 50;
+
+    doc.addImage(lawyerSignatureBase64, 'JPEG', signatureX, signatureY, signatureWidth, signatureHeight);
+    doc.setFontSize(12);
+    doc.setTextColor(0);
+    doc.text("Adv. Shalini L Tripathi", signatureX, signatureY + signatureHeight + 6);
+
     return doc.output('blob');
 }
-
 
 function generatePDF() {
     generatePDFBlob()
@@ -577,135 +693,76 @@ function generatePDF() {
         });
 }
 
-async function generateInvoicePDF(paymentResponse) {
-    if (typeof window.jspdf === 'undefined') throw new Error('jsPDF library not loaded.');
-
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-
-    const marginLeft = 20;
-    const marginTop = 20;
-
-    doc.setFont("times", "normal");
-    doc.setFontSize(16);
-    doc.text("Payment Receipt", marginLeft, marginTop);
-    doc.setFontSize(12);
-    doc.text(`Client: ${document.getElementById('senderName').value}`, marginLeft, marginTop + 10);
-    doc.text("Amount: ₹500", marginLeft, marginTop + 20);
-    doc.text(`Payment ID: ${paymentResponse.razorpay_payment_id}`, marginLeft, marginTop + 30);
-    doc.text(`Order ID: ${paymentResponse.razorpay_order_id}`, marginLeft, marginTop + 40);
-    doc.text(`Date: ${new Date().toLocaleDateString('en-US')}`, marginLeft, marginTop + 50);
-    doc.setLineWidth(0.5);
-    doc.line(marginLeft, 267, 190, 267);
-    doc.setFontSize(8);
-    doc.text("Generated with the help of lexinco.com", marginLeft, 272);
-
-    return doc.output('blob');
-}
-
-// Email Functionality
 async function sendEmail() {
     let recipientEmail = document.getElementById('recipientEmail').value;
     let senderEmail = document.getElementById('senderEmail').value;
 
     if (!recipientEmail) {
-        recipientEmail = prompt("Enter recipient's email:");
+        recipientEmail = prompt("Please enter the recipient's email address:");
+        if (!recipientEmail) {
+            alert('Recipient email is required.');
+            return;
+        }
     }
+
     if (!senderEmail) {
-        senderEmail = prompt("Enter your email (from which to send the notice):");
+        senderEmail = prompt("Please enter the sender's email address:");
+        if (!senderEmail) {
+            alert('Sender email is required.');
+            return;
+        }
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!recipientEmail || !emailRegex.test(recipientEmail)) {
-        alert("Please enter a valid recipient email address.");
+    if (!emailRegex.test(recipientEmail)) {
+        alert('Please enter a valid recipient email address.');
         return;
     }
-    if (!senderEmail || !emailRegex.test(senderEmail)) {
-        alert("Please enter a valid sender email address.");
+    if (!emailRegex.test(senderEmail)) {
+        alert('Please enter a valid sender email address.');
         return;
     }
 
     if (!currentNoticeId) {
-        alert("Notice ID is missing. Please regenerate the notice.");
+        alert('Notice ID is missing. Please regenerate the notice.');
         return;
     }
 
     showLoading(true);
     try {
-        // Fetch notice details from server
-        const noticeResponse = await fetch(`/api/get-notice/${currentNoticeId}`);
-        if (!noticeResponse.ok) {
-            throw new Error('Failed to fetch notice details');
-        }
-        const notice = await noticeResponse.json();
-        const senderName = notice.client?.name;
-        if (!senderName) {
-            throw new Error('Sender name not found in notice data');
-        }
-
-        // Generate PDF blob
         const pdfBlob = await generatePDFBlob();
         const pdfFile = new File([pdfBlob], 'legal_notice.pdf', { type: 'application/pdf' });
 
-        // Create FormData to send PDF and metadata
         const formData = new FormData();
         formData.append('pdf', pdfFile);
         formData.append('toEmail', recipientEmail);
         formData.append('fromEmail', senderEmail);
-        formData.append('senderName', senderName);
+        formData.append('senderName', savedSenderName);
 
-        // Send email with PDF
         const response = await fetch('/api/send-notice', {
             method: 'POST',
-            body: formData // FormData handles multipart/form-data automatically
+            body: formData
         });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Server error: ${response.status} - ${errorText}`);
-        }
 
         const data = await response.json();
         if (data.success) {
-            alert("Notice sent successfully as a PDF attachment! Please check the recipient's inbox.");
+            alert('Notice sent successfully as a PDF attachment!');
         } else {
-            alert("Failed to send notice: " + data.error);
+            alert('Failed to send notice: ' + data.error);
         }
     } catch (error) {
-        alert("Error sending notice: " + error.message);
+        alert('Error sending notice: ' + error.message);
     } finally {
         showLoading(false);
     }
 }
 
-function sendInvoiceEmail(paymentResponse) {
-    const invoiceContent = `Payment Details:
-        Amount: ₹500
-        Payment ID: ${paymentResponse.razorpay_payment_id}
-        Date: ${new Date().toLocaleDateString('en-GB')}
-        Client: ${document.getElementById('senderName').value}`;
-
-    Email.send({
-        SecureToken: config.EMAILJS_TOKEN,
-        To: document.getElementById('senderEmail').value,
-        From: "info@lexinco.com",
-        Subject: "Payment Receipt - Lexinco",
-        Body: invoiceContent
-    }).then(() => {
-        console.log('Invoice email sent');
-    }).catch(error => {
-        console.error('Failed to send invoice email:', error);
-    });
-}
-
-// Share via WhatsApp
 async function shareViaWhatsapp() {
     showLoading(true);
     try {
         const blob = await generatePDFBlob();
         const file = new File([blob], 'legal_notice.pdf', { type: 'application/pdf' });
-        const senderName = document.getElementById('senderName').value;
-        const message = `Here is the legal notice from ${senderName}. Please review the attached PDF.`;
+        const message = `Legal notice from ${savedSenderName}. Please review the attached PDF.`;
 
         if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
             await navigator.share({
@@ -713,7 +770,6 @@ async function shareViaWhatsapp() {
                 files: [file],
                 title: 'Legal Notice'
             });
-            console.log('Shared successfully via WhatsApp');
         } else {
             const formData = new FormData();
             formData.append('pdf', blob, 'legal_notice.pdf');
@@ -723,13 +779,10 @@ async function shareViaWhatsapp() {
                 body: formData
             });
 
-            if (!uploadResponse.ok) throw new Error('Failed to upload PDF to server');
-
             const uploadData = await uploadResponse.json();
             if (!uploadData.success || !uploadData.url) throw new Error('Invalid response from server');
 
-            const pdfUrl = uploadData.url;
-            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${message}\nDownload the PDF here: ${pdfUrl}`)}`;
+            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${message}\nDownload the PDF here: ${uploadData.url}`)}`;
             window.open(whatsappUrl, '_blank');
         }
     } catch (error) {
@@ -738,6 +791,13 @@ async function shareViaWhatsapp() {
     } finally {
         showLoading(false);
     }
+}
+
+// Show form function
+function showForm() {
+    noticePage.style.display = 'none';
+    formContainer.style.display = 'block';
+    showStep(1);
 }
 
 // Loading State
