@@ -561,8 +561,8 @@ textarea {
 
 /* Logo and image styling */
 .logo img {
-    max-height: 40px;
-    width: auto;
+    /* max-height: 40px;
+    width: auto; */
 }
 
 .justice-icon img {
