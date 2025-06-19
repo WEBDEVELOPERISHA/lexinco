@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,12 +11,22 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZEHSS991MC"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-ZEHSS991MC');
+    </script>
 </head>
+
 <body>
     <!-- Navigation -->
     <nav class="navbar">
-        <div class="container"style="display:flex;justify-content:space-between">
+        <div class="container" style="display:flex;justify-content:space-between">
             <a href="index.html" class="logo">
                 <img src="/assets/logo.svg" alt="" width="200">
             </a>
@@ -38,7 +49,7 @@
             <div class="auth-card">
                 <h2>Create Your Account</h2>
                 <p class="auth-subtitle">Get started with Lexinco to create professional legal notices</p>
-                
+
                 <form class="auth-form" id="signup-form">
                     <div class="form-group">
                         <label for="name">Full Name</label>
@@ -55,29 +66,31 @@
                     </div>
                     <div class="form-group">
                         <label for="confirm-password">Confirm Password</label>
-                        <input type="password" id="confirm-password" name="confirm-password" required placeholder="Confirm your password">
+                        <input type="password" id="confirm-password" name="confirm-password" required
+                            placeholder="Confirm your password">
                     </div>
                     <button type="submit" class="btn primary full-width">Sign Up</button>
                 </form>
 
                 <div class="auth-footer">
                     <p>Already have an account? <a href="login.html">Log in</a></p>
-                    <p class="terms">By signing up, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></p>
+                    <p class="terms">By signing up, you agree to our <a href="#">Terms of Service</a> and <a
+                            href="#">Privacy Policy</a></p>
                 </div>
             </div>
             <!-- OTP Verification Section (Initially Hidden) -->
-<div class="auth-card" id="otp-verification" style="display: none;">
-    <h2>Verify Your Email</h2>
-    <p>We sent a 6-digit code to <span id="otp-email-display"></span></p>
-    <form class="auth-form" id="otp-form">
-        <div class="form-group">
-            <label for="otp">Enter OTP</label>
-            <input type="text" id="otp" name="otp" required placeholder="123456" maxlength="6">
-        </div>
-        <button type="submit" class="btn primary full-width">Verify & Continue</button>
-    </form>
-    <p class="resend-otp">Didn’t receive code? <a href="#" id="resend-otp-link">Resend</a></p>
-</div>
+            <div class="auth-card" id="otp-verification" style="display: none;">
+                <h2>Verify Your Email</h2>
+                <p>We sent a 6-digit code to <span id="otp-email-display"></span></p>
+                <form class="auth-form" id="otp-form">
+                    <div class="form-group">
+                        <label for="otp">Enter OTP</label>
+                        <input type="text" id="otp" name="otp" required placeholder="123456" maxlength="6">
+                    </div>
+                    <button type="submit" class="btn primary full-width">Verify & Continue</button>
+                </form>
+                <p class="resend-otp">Didn’t receive code? <a href="#" id="resend-otp-link">Resend</a></p>
+            </div>
     </section>
 
     <!-- Footer -->
@@ -87,7 +100,7 @@
                 <div class="footer-brand">
                     <a href="index.html" class="logo">
                         <img src="/assets/logo.svg" alt="">
-                        
+
                     </a>
                     <p>Making legal documentation accessible and efficient.</p>
                 </div>
@@ -119,10 +132,12 @@
     </footer>
 
     <!-- WhatsApp Help Button -->
-    <a href="https://wa.me/+918329186509?text=Hello,%20I%20need%20assistance%20with%20Lexinco's%20legal%20notice%20generator." class="whatsapp-help" target="_blank">
+    <a href="https://wa.me/+918329186509?text=Hello,%20I%20need%20assistance%20with%20Lexinco's%20legal%20notice%20generator."
+        class="whatsapp-help" target="_blank">
         <i class="fab fa-whatsapp"></i> May I Help You?
     </a>
 
     <script src="js/auth.js"></script>
 </body>
+
 </html>
