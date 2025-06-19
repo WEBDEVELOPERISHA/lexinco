@@ -455,25 +455,35 @@ app.post('/api/send-notice', upload.single('pdf'), async (req, res) => {
 app.post('/api/create-order', async (req, res) => {
     try {
         const { noticeId } = req.body;
+        if (!noticeId) {
+            return res.status(400).json({ error: 'Notice ID is required' });
+        }
         const amount = 150000; // 1500 INR in paise
+        const shortNoticeId = noticeId.slice(0, 8); // First 8 chars of UUID
+        const shortTimestamp = Date.now().toString().slice(-6); // Last 6 digits of timestamp
+        const receipt = `order_${shortNoticeId}_t${shortTimestamp}`; // e.g., order_123e4567_t842268
+        if (receipt.length > 40) {
+            console.warn('Receipt too long:', receipt);
+            return res.status(400).json({ error: 'Generated receipt exceeds 40 characters' });
+        }
         const options = {
             amount,
             currency: 'INR',
-            receipt: `order_${noticeId}_${Date.now()}`,
+            receipt,
             payment_capture: 1
         };
-
         const order = await razorpay.orders.create(options);
         res.json({
             id: order.id,
             amount: order.amount,
-            currency: order.currency
+            currency: order.currency,
+            receipt: order.receipt
         });
     } catch (error) {
         console.error('Razorpay error:', error);
         res.status(500).json({
             error: error.error?.description || 'Failed to create payment order',
-            details: error
+            details: error.message
         });
     }
 });
