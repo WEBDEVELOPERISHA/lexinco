@@ -47,17 +47,21 @@
     <section class="auth-section">
         <div class="container">
             <div class="auth-card">
-                <h2>Create Your Account</h2>
-                <p class="auth-subtitle">Get started with Lexinco to create professional legal notices</p>
-
+                <h2>Send a Legal Notice in Minutes</h2>
+                <div class="price">All-inclusive. Under ₹999.</div>
+                <div class="testimonial">“Lexinco made it so easy to take legal action without any hassle.”</div>
                 <form class="auth-form" id="signup-form">
                     <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required placeholder="Enter your full name">
+                        <label for="name">Your Name</label>
+                        <input type="text" id="name" name="name" required placeholder="Your Name">
                     </div>
                     <div class="form-group">
                         <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required placeholder="Enter your email">
+                        <input type="email" id="email" name="email" required placeholder="Email Address">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" required placeholder="Phone Number">
                     </div>
                     <div class="form-group">
                         <label for="password">Password</label>
@@ -69,9 +73,11 @@
                         <input type="password" id="confirm-password" name="confirm-password" required
                             placeholder="Confirm your password">
                     </div>
-                    <button type="submit" class="btn primary full-width">Sign Up</button>
+                    <button type="submit" class="btn primary full-width">Get Started</button>
                 </form>
-
+                <div class="disclaimer">
+                    *Lexinco is not a law firm and does not provide legal advice. All notices are reviewed by independent registered advocates.
+                </div>
                 <div class="auth-footer">
                     <p>Already have an account? <a href="login.html">Log in</a></p>
                     <p class="terms">By signing up, you agree to our <a href="#">Terms of Service</a> and <a
@@ -91,6 +97,7 @@
                 </form>
                 <p class="resend-otp">Didn’t receive code? <a href="#" id="resend-otp-link">Resend</a></p>
             </div>
+        </div>
     </section>
 
     <!-- Footer -->
@@ -100,7 +107,6 @@
                 <div class="footer-brand">
                     <a href="index.html" class="logo">
                         <img src="/assets/logo.svg" alt="">
-
                     </a>
                     <p>Making legal documentation accessible and efficient.</p>
                 </div>

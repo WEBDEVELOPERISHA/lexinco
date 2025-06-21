@@ -458,7 +458,7 @@ app.post('/api/create-order', async (req, res) => {
         if (!noticeId) {
             return res.status(400).json({ error: 'Notice ID is required' });
         }
-        const amount = 150000; // 1500 INR in paise
+        const amount = 99900;  // 1500 INR in paise
         const shortNoticeId = noticeId.slice(0, 8); // First 8 chars of UUID
         const shortTimestamp = Date.now().toString().slice(-6); // Last 6 digits of timestamp
         const receipt = `order_${shortNoticeId}_t${shortTimestamp}`; // e.g., order_123e4567_t842268
