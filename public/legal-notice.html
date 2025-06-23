@@ -11,14 +11,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZEHSS991MC"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
-
         gtag('config', 'G-ZEHSS991MC');
     </script>
     <style>
@@ -55,7 +53,6 @@
             color: #000;
         }
 
-        /* Signature Pad Styles */
         .signature-pad {
             width: 100%;
             height: 200px;
@@ -63,7 +60,6 @@
             border-radius: 4px;
             background-color: #fff;
             touch-action: none;
-            /* Prevent scrolling on touch devices */
         }
 
         .signature-section {
@@ -77,7 +73,6 @@
 </head>
 
 <body>
-    <!-- Navigation -->
     <nav class="navbar">
         <div class="container" style="display:flex;justify-content:space-between">
             <a href="index.html" class="logo">
@@ -87,7 +82,6 @@
                 <a href="index.html#features">Features</a>
                 <a href="index.html#how-it-works">How It Works</a>
                 <a href="index.html#testimonials">Testimonials</a>
-                <a href="signup.html" class="btn secondary">Sign Up</a>
                 <a href="legal-notice.html" class="btn primary">Generate Notice</a>
             </div>
             <button class="mobile-menu-btn">
@@ -96,7 +90,6 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
     <main class="generator-container">
         <div class="container">
             <div class="generator-header">
@@ -104,7 +97,6 @@
                 <p>Fill in the details below to generate your professional legal notice</p>
             </div>
 
-            <!-- Progress Steps -->
             <div class="progress-steps">
                 <div class="step active" data-step="1">
                     <div class="step-number">1</div>
@@ -118,15 +110,9 @@
                     <div class="step-number">3</div>
                     <div class="step-label">Dispute Details</div>
                 </div>
-                <div class="step" data-step="4">
-                    <div class="step-number">4</div>
-                    <div class="step-label">Review & Generate</div>
-                </div>
             </div>
 
-            <!-- Form Container -->
             <form id="noticeForm" class="notice-form">
-                <!-- Step 1: Client Details -->
                 <div class="form-step active" data-step="1">
                     <div class="form-section">
                         <h2><i class="fas fa-user"></i> Your Details</h2>
@@ -151,12 +137,10 @@
                         </div>
                     </div>
                     <div class="form-navigation">
-                        <button type="button" class="btn next-step" onclick="nextStep()">Next <i
-                                class="fas fa-arrow-right"></i></button>
+                        <button type="button" class="btn next-step" onclick="nextStep()">Next <i class="fas fa-arrow-right"></i></button>
                     </div>
                 </div>
 
-                <!-- Step 2: Recipient Details -->
                 <div class="form-step" data-step="2">
                     <div class="form-section">
                         <h2><i class="fas fa-users"></i> Recipient Details</h2>
@@ -180,14 +164,11 @@
                         </div>
                     </div>
                     <div class="form-navigation">
-                        <button type="button" class="btn prev-step" onclick="prevStep()"><i
-                                class="fas fa-arrow-left"></i> Previous</button>
-                        <button type="button" class="btn next-step" onclick="nextStep()">Next <i
-                                class="fas fa-arrow-right"></i></button>
+                        <button type="button" class="btn prev-step" onclick="prevStep()"><i class="fas fa-arrow-left"></i> Previous</button>
+                        <button type="button" class="btn next-step" onclick="nextStep()">Next <i class="fas fa-arrow-right"></i></button>
                     </div>
                 </div>
 
-                <!-- Step 3: Dispute Details -->
                 <div class="form-step" data-step="3">
                     <div class="form-section">
                         <h2><i class="fas fa-balance-scale"></i> Dispute Information</h2>
@@ -203,35 +184,17 @@
                                 <option value="other">Other</option>
                             </select>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="transactionDate" class="required">Date of Transaction/Engagement</label>
-                                <input type="date" id="transactionDate" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="transactionPlace">Place of Transaction/Engagement</label>
-                                <input type="text" id="transactionPlace">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="contractDetails" class="required">Contract/Agreement Details</label>
-                            <textarea id="contractDetails" required
-                                placeholder="Include contract reference numbers, terms, etc."></textarea>
-                        </div>
                         <div class="form-group">
                             <label for="issueDescription" class="required">Description of Issue</label>
-                            <textarea id="issueDescription" required
-                                placeholder="Describe the issue you're facing in detail"></textarea>
+                            <textarea id="issueDescription" required placeholder="Describe the issue you're facing in detail, including transaction date, place, and contract details if applicable."></textarea>
                         </div>
                         <div class="form-group">
                             <label for="keyEvents" class="required">Key Events Timeline</label>
-                            <textarea id="keyEvents" required
-                                placeholder="List important events with dates that led to the dispute"></textarea>
+                            <textarea id="keyEvents" required placeholder="List important events with dates that led to the dispute"></textarea>
                         </div>
                         <div class="form-group">
                             <label for="damagesSuffered" class="required">Loss or Damages Suffered</label>
-                            <textarea id="damagesSuffered" required
-                                placeholder="Describe monetary losses, mental agony, defamation, etc."></textarea>
+                            <textarea id="damagesSuffered" required placeholder="Describe monetary losses, mental agony, defamation, etc."></textarea>
                         </div>
                         <div class="form-group">
                             <label for="tone" class="required">Tone of Notice</label>
@@ -241,42 +204,6 @@
                                 <option value="Formal">Formal</option>
                                 <option value="Aggressive">Aggressive</option>
                             </select>
-                        </div>
-                    </div>
-                    <div class="form-navigation">
-                        <button type="button" class="btn prev-step" onclick="prevStep()"><i
-                                class="fas fa-arrow-left"></i> Previous</button>
-                        <button type="button" class="btn next-step" onclick="nextStep()">Next <i
-                                class="fas fa-arrow-right"></i></button>
-                    </div>
-                </div>
-
-                <!-- Step 4: Review & Generate -->
-                <div class="form-step" data-step="4">
-                    <div class="form-section">
-                        <h2><i class="fas fa-check-circle"></i> Review & Generate</h2>
-                        <div class="review-section">
-                            <div class="form-group">
-                                <label for="specificDemand" class="required">Specific Demand</label>
-                                <textarea id="specificDemand" required
-                                    placeholder="What exactly are you demanding? (refund, compensation, service rectification, apology, etc.)"></textarea>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="compensationAmount">Compensation Amount (if applicable)</label>
-                                    <input type="text" id="compensationAmount" placeholder="Enter amount in ₹">
-                                </div>
-                                <div class="form-group">
-                                    <label for="complianceTimeframe" class="required">Timeframe for Compliance</label>
-                                    <select id="complianceTimeframe" required>
-                                        <option value="7 days">7 days</option>
-                                        <option value="10 days">10 days</option>
-                                        <option value="15 days" selected>15 days</option>
-                                        <option value="30 days">30 days</option>
-                                        <option value="other">Other</option>
-                                    </select>
-                                </div>
-                            </div>
                         </div>
                         <div class="signature-section">
                             <h3>Your Signature</h3>
@@ -291,21 +218,16 @@
                         <div class="form-group">
                             <div class="checkbox-group">
                                 <input type="checkbox" id="confirmDetails" required>
-                                <label for="confirmDetails">I confirm that all the information provided is accurate to
-                                    the best of my knowledge</label>
+                                <label for="confirmDetails">I confirm that all the information provided is accurate to the best of my knowledge</label>
                             </div>
                             <div class="checkbox-group">
                                 <input type="checkbox" id="privacyPolicy" required>
-                                <label for="privacyPolicy">I consent to Lexinco collecting and processing my data as
-                                    outlined in the <a href="/privacy-policy.html" target="_blank">Privacy Policy</a>. I
-                                    understand that Lexinco is not a law firm and does not provide legal advice or legal
-                                    services.</label>
+                                <label for="privacyPolicy">I consent to Lexinco collecting and processing my data as outlined in the <a href="/privacy-policy.html" target="_blank">Privacy Policy</a>. I understand that Lexinco is not a law firm and does not provide legal advice or legal services.</label>
                             </div>
                         </div>
                     </div>
                     <div class="form-navigation">
-                        <button type="button" class="btn prev-step" onclick="prevStep()"><i
-                                class="fas fa-arrow-left"></i> Previous</button>
+                        <button type="button" class="btn prev-step" onclick="prevStep()"><i class="fas fa-arrow-left"></i> Previous</button>
                         <button type="submit" class="btn primary">
                             <i class="fas fa-file-contract"></i> Generate Legal Notice
                         </button>
@@ -315,7 +237,6 @@
         </div>
     </main>
 
-    <!-- Notice Preview Modal -->
     <section id="noticePage" class="notice-page" style="display: none;">
         <div class="container">
             <div class="notice-header">
@@ -324,36 +245,33 @@
                     <button class="btn primary" onclick="showForm()">
                         <i class="fas fa-edit"></i> Edit Notice
                     </button>
-                    <button class="btn primary" id="payNowBtn" onclick="initiatePayment()">
+                    <!-- <button class="btn primary" id="payNowBtn" onclick="initiatePayment()">
                         <i class="fas fa-credit-card"></i> Pay Now
-                    </button>
+                    </button> -->
                     <div id="paymentDetails" class="payment-details"></div>
-                    <button class="btn" onclick="generatePDF()" id="downloadBtn" disabled>
+                    <!-- <button class="btn" onclick="generatePDF()" id="downloadBtn" disabled>
                         <i class="fas fa-download"></i> Download PDF
-                    </button>
-                    <button class="btn primary" id="sendNoticeBtn" onclick="sendEmail()" disabled>
+                    </button> -->
+                    <!-- <button class="btn primary" id="sendNoticeBtn" onclick="sendEmail()" disabled>
                         <i class="fas fa-paper-plane"></i> Send Notice
-                    </button>
-                    <button class="btn primary" id="shareWhatsappBtn" onclick="shareViaWhatsapp()" disabled>
+                    </button> -->
+                    <!-- <button class="btn primary" id="shareWhatsappBtn" onclick="shareViaWhatsapp()" disabled>
                         <i class="fab fa-whatsapp"></i> Share via WhatsApp
-                    </button>
-                    <div id="timerDisplay" style="display: none;">Notice will be ready in <span id="countdown"></span>
-                    </div>
+                    </button> -->
+                    <div id="timerDisplay" style="display: none;">Notice will be ready in <span id="countdown"></span></div>
                 </div>
             </div>
             <div id="legalNotice" class="legal-notice-content"></div>
         </div>
     </section>
 
-    <!-- Review Modal -->
     <div class="modal" id="reviewModal" style="display: none;">
         <div class="modal-content">
             <span class="close" onclick="closeReviewModal()">×</span>
-            <p>Your notice is under review. You will be able to download it after 30 minutes.</p>
+            <p>The notice will be sent to your inbox in 30 minutes.</p>
         </div>
     </div>
 
-    <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-content">
             <div class="spinner"></div>
@@ -361,7 +279,6 @@
         </div>
     </div>
 
-    <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
@@ -398,13 +315,11 @@
         </div>
     </footer>
 
-    <!-- WhatsApp Help Button -->
     <a href="https://wa.me/+918329186509?text=Hello,%20I%20need%20assistance%20with%20Lexinco's%20legal%20notice%20generator."
         class="whatsapp-help" target="_blank">
         <i class="fab fa-whatsapp"></i> May I Help You?
     </a>
 
-    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.2.0/dist/signature_pad.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.3/purify.min.js"></script>
@@ -412,39 +327,6 @@
     <script src="https://smtpjs.com/v3/smtp.js"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="js/app.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            if (!sessionStorage.getItem('isLoggedIn')) {
-                window.location.href = 'login.html';
-            } else {
-                const urlParams = new URLSearchParams(window.location.search);
-                let noticeId = urlParams.get('id');
-                if (!noticeId) {
-                    noticeId = localStorage.getItem('lastNoticeId');
-                    if (noticeId) {
-                        window.location.href = `legal-notice.html?id=${noticeId}`;
-                    }
-                }
-            }
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            if (typeof Razorpay === 'undefined') {
-                console.error('Razorpay not loaded!');
-            }
-            if (typeof SignaturePad === 'undefined') {
-                console.error('SignaturePad not loaded!');
-                alert('Signature functionality is unavailable. Please try refreshing the page.');
-            }
-        });
-    </script>
-    <script>
-        function logout() {
-            sessionStorage.removeItem('isLoggedIn');
-            window.location.href = 'index.html';
-        }
-    </script>
 </body>
 
 </html>

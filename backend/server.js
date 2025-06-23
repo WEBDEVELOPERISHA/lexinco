@@ -4,17 +4,17 @@ const bcrypt = require('bcrypt');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
-const fs = require('fs'); // Added missing import
+const fs = require('fs');
 const Razorpay = require('razorpay');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 const { Pool } = require('pg');
 const axios = require('axios');
+const cron = require('node-cron');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const app = express();
 
-// Middleware
 app.use(cors({
     origin: [
         'http://localhost:3000',
@@ -27,20 +27,16 @@ app.use(cors({
 }));
 app.use(bodyParser.json());
 
-// Serve static files
 app.use(express.static(path.join(__dirname, '..', 'public')));
 app.use('/assets', express.static(path.join(__dirname, '..', 'assets')));
 app.use('/css', express.static(path.join(__dirname, '..', 'public', 'css')));
 app.use('/js', express.static(path.join(__dirname, '..', 'public', 'js')));
 
-// Postgres connection
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: process.env.DATABASE_URL.includes('localhost') ? false : { rejectUnauthorized: false }
 });
 
-// Razorpay setup
-console.log('RAZORPAY_KEY_ID:', process.env.RAZORPAY_KEY_ID);
 if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
     throw new Error('Razorpay credentials are missing. Check your .env file.');
 }
@@ -50,7 +46,6 @@ const razorpay = new Razorpay({
     key_secret: process.env.RAZORPAY_KEY_SECRET
 });
 
-// Nodemailer setup
 const transporter = nodemailer.createTransport({
     host: 'smtpout.secureserver.net',
     port: 465,
@@ -62,17 +57,44 @@ const transporter = nodemailer.createTransport({
     tls: { rejectUnauthorized: false }
 });
 
-// Multer setup
-const uploadDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
+const uploadDir = path.join(__dirname, 'Uploads');
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 const upload = multer({ dest: uploadDir });
 
-// Utility functions
 function generateOTP() {
     return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// API Endpoints
+cron.schedule('* * * * *', async () => {
+    try {
+        const now = new Date();
+        const result = await pool.query('SELECT * FROM notices WHERE status = $1 AND send_at <= $2', ['pending_send', now]);
+        for (const notice of result.rows) {
+            try {
+                await transporter.sendMail({
+                    from: `"Lexinco" <info@lexinco.com>`,
+                    to: notice.client_email,
+                    subject: 'Your Generated Legal Notice',
+                    text: `Dear ${notice.client_name},\n\nPlease find attached your generated legal notice.\n\nBest regards,\nLexinco Team`,
+                    attachments: [
+                        {
+                            filename: 'legal_notice.pdf',
+                            path: notice.pdf_path,
+                            contentType: 'application/pdf'
+                        }
+                    ]
+                });
+                await pool.query('UPDATE notices SET status = $1 WHERE notice_id = $2', ['sent', notice.notice_id]);
+                console.log(`Notice ${notice.notice_id} sent successfully to ${notice.client_email}`);
+            } catch (error) {
+                console.error(`Failed to send notice ${notice.notice_id}:`, error);
+            }
+        }
+    } catch (error) {
+        console.error('Cron job error:', error);
+    }
+});
+
 app.get('/', (req, res) => {
     const indexPath = path.join(__dirname, '..', 'public', 'index.html');
     if (fs.existsSync(indexPath)) {
@@ -95,28 +117,58 @@ app.post('/api/generate-notice', async (req, res) => {
     });
 
     const prompt = `
-You are a senior legal assistant with over 20 years of experience in civil and contractual disputes, tasked with drafting a **comprehensive, jurisdiction-specific legal notice** on behalf of a client. The notice must adhere to the legal standards and practices of ${formData.dispute.country}.
+You are a senior legal assistant with over 20 years of experience in civil and contractual disputes in India, tasked with drafting a **comprehensive, jurisdiction-specific legal notice** on behalf of a client. The notice must adhere to the legal standards and practices of India and follow the exact format provided below.
 
 **Objective:**  
 - Draft a formal legal notice that is **a minimum of 4 A4 pages long (approximately 1200–1500 words)**, exhaustive, and detailed.  
-- Use a **${formData.dispute.tone} tone** and ensure it is suitable for court submission or dispute resolution authorities in ${formData.dispute.country}.  
-- Base the notice **solely on the provided facts**—do not invent or alter any details (e.g., names, dates, figures).  
-- Include **relevant laws, statutes, or legal principles** from ${formData.dispute.country} to strengthen the notice.  
+- Use a **${formData.dispute.tone} tone** and ensure it is suitable for court submission or dispute resolution authorities in India.  
+- Base the notice **solely on the provided facts**—do not invent or alter any details (e.g., names, events).  
+- Include **relevant laws, statutes, or legal principles** from India (e.g., Indian Contract Act, 1872; Consumer Protection Act, 2019) to strengthen the notice.  
+- Follow the exact structure and style of the sample notice provided below, including header, numbered paragraphs, and closing signature block.
+
+**Sample Notice Format to Follow Exactly:**
+
+BY REGISTERED POST/EMAIL
+
+Date: ${todayDate}
+
+To,
+[Recipient Name]
+[Recipient Address]
+
+Subject: Legal Notice Regarding [Dispute Relationship] – Immediate Action Required
+
+Under the instructions and authority from my client [Client Name], residing at [Client Address], Mobile: [Client Contact], I hereby address you as follows:
+
+1. [Introduction to client’s background and business/relationship context, 200–300 words]
+2. [Detailed description of the issue, including transaction details if provided in issue description, 300–400 words]
+3. [Factual matrix of events leading to the dispute, 200–300 words]
+4. [Explanation of recipient’s obligations or assurances, 200–300 words]
+5. [Details of recipient’s failure to comply, 200–300 words]
+6. [Client’s efforts to resolve the issue, 200–300 words]
+7. [Accusation of dishonest or malafide conduct, 200–300 words]
+8. [Financial loss and mental harassment suffered, 200–300 words]
+9. [Legal basis for the claim, citing specific laws, 300–400 words]
+10. [Demand for resolution, without specifying compensation or timeframe, 200–300 words]
+11. [Warning of legal proceedings if unresolved, 200–300 words]
+12. [Statement holding recipient responsible for costs, 100–200 words]
+13. This legal notice is issued to you without prejudice to all other legal rights and remedies available to my client under the law.
+
+Kindly treat this as a final and urgent notice.
+
+For [Client Name]
+Through his Legal Counsel,
+
+(Advocate Shalini Tripathi)
 
 ---
 
 **Dispute Details:**  
 - **Dispute Type:** ${formData.dispute.relationship}  
-- **Country:** ${formData.dispute.country}  
-- **Transaction Date:** ${formData.dispute.transactionDate}  
-- **Transaction Place:** ${formData.dispute.transactionPlace}  
-- **Contract Details:** ${formData.dispute.contractDetails}  
+- **Country:** India  
+- **Description of Issue:** ${formData.dispute.issueDescription} (includes transaction date, place, and contract details if applicable)  
 - **Key Events Timeline:** ${formData.dispute.keyEvents}  
-- **Description of Dispute:** ${formData.dispute.issueDescription}  
 - **Damages Suffered:** ${formData.dispute.damages}  
-- **Specific Resolution Demanded:** ${formData.dispute.specificDemand}${formData.dispute.compensation ? ` amounting to $${formData.dispute.compensation} (USD)` : ''}  
-
----
 
 **Client Details (Sender):**  
 - **Name:** ${formData.client.name}  
@@ -127,42 +179,40 @@ You are a senior legal assistant with over 20 years of experience in civil and c
 **Recipient Details (Respondent):**  
 - **Name:** ${formData.recipient.name}  
 - **Address:** ${formData.recipient.address}  
-- **Contact:** ${formData.recipient.contact}  
-- **Email:** ${formData.recipient.email}  
+- **Contact:** ${formData.recipient.contact || 'Not provided'}  
+- **Email:** ${formData.recipient.email || 'Not provided'}  
 
 ---
 
 **Formatting & Content Requirements:**  
-- Structure the notice with the following sections, each thoroughly detailed:  
-  1. **Introduction and Identification of Parties** (200–300 words): Introduce the sender, respondent, and purpose of the notice.  
-  2. **Detailed Background and Factual Matrix** (300–400 words): Provide an exhaustive factual background of the dispute.  
-  3. **Timeline of Events** (200–300 words): List key events in chronological order with precise details.  
-  4. **Legal Violations & Statutory References** (300–400 words): Cite specific laws from ${formData.dispute.country} and explain violations.  
-  5. **Damages and Hardships Faced** (200–300 words): Detail financial, emotional, or other impacts on the sender.  
-  6. **Legal Consequences of Non-Compliance** (200–300 words): Outline potential legal actions if the demand is unmet.  
-  7. **Demand for Relief and Compliance Timeline** (200–300 words): Specify the resolution and deadline clearly.  
-  8. **Conclusion and Final Intimation** (100–200 words): Summarize and issue a final call to action.  
-- Ensure logical flow, professional legal language, and exhaustive elaboration in every section.  
-- Use numbered paragraphs where applicable for clarity and formality.  
-
----
+- Structure the notice with **13 numbered paragraphs**, each thoroughly detailed as per the sample.  
+- Ensure each paragraph is verbose, legally precise, and covers the specified word count.  
+- Use professional legal language, logical flow, and exhaustive elaboration.  
+- Cite specific Indian laws relevant to the dispute type (e.g., Indian Contract Act, 1872 for contractual disputes).  
+- Avoid including specific compensation amounts or timeframes in the demand (as per user requirements).  
+- End with the exact signature block: "For [Client Name]\nThrough his Legal Counsel,\n(Advocate Shalini Tripathi)".
 
 **Output Format:**  
+BY REGISTERED POST/EMAIL  
+
+Date: ${todayDate}  
+
 To,  
-[Recipient's Full Name]  
-[Recipient’s Full Address]  
+${formData.recipient.name}  
+${formData.recipient.address}  
 
 Subject: Legal Notice Regarding ${formData.dispute.relationship} – Immediate Action Required  
 
-Dated: ${todayDate}  
+Under the instructions and authority from my client ${formData.client.name}, residing at ${formData.client.address}, Mobile: ${formData.client.contact}, I hereby address you as follows:  
 
-[Full content of the legal notice here, meeting the 1200–1500 word requirement]  
+[13 numbered paragraphs, 1200–1500 words total, following the sample structure]  
 
-From,  
-${formData.client.name}  
-${formData.client.address}  
+Kindly treat this as a final and urgent notice.  
 
-Signed: This notice is digitally signed by the client  
+For ${formData.client.name}  
+Through his Legal Counsel,  
+
+(Advocate Shalini Tripathi)  
 `;
 
     try {
@@ -182,25 +232,18 @@ Signed: This notice is digitally signed by the client
         res.json({ content });
     } catch (error) {
         console.error('OpenAI API Error:', error.response ? error.response.data : error.message);
-        res.status(500).json({ error: error.response?.data?.error?.message || 'Failed to generate notice' });
+        res.status(500).json({ error: 'Failed to generate notice', details: error.message });
     }
 });
 
-// Send OTP
 app.post('/api/send-otp', async (req, res) => {
     const { email } = req.body;
     const otp = generateOTP();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
     try {
-        await pool.query(
-            'DELETE FROM otps WHERE email = $1',
-            [email]
-        );
-        await pool.query(
-            'INSERT INTO otps (email, otp, expires_at) VALUES ($1, $2, $3)',
-            [email, otp, expiresAt]
-        );
+        await pool.query('DELETE FROM otps WHERE email = $1', [email]);
+        await pool.query('INSERT INTO otps (email, otp, expires_at) VALUES ($1, $2, $3)', [email, otp, expiresAt]);
 
         await transporter.sendMail({
             from: `"Lexinco" <${process.env.EMAIL_USER}>`,
@@ -212,11 +255,10 @@ app.post('/api/send-otp', async (req, res) => {
         res.json({ success: true });
     } catch (error) {
         console.error('Send OTP Error:', error);
-        res.status(500).json({ error: 'Failed to send OTP' });
+        res.status(500).json({ error: 'Failed to send OTP', details: error.message });
     }
 });
 
-// Signup
 app.post('/api/signup', async (req, res) => {
     const { name, email, password, otp } = req.body;
 
@@ -229,10 +271,7 @@ app.post('/api/signup', async (req, res) => {
             return res.status(400).json({ error: 'Invalid/expired OTP. Please request a new one.' });
         }
 
-        const userResult = await pool.query(
-            'SELECT * FROM users WHERE email = $1',
-            [email]
-        );
+        const userResult = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
         if (userResult.rows.length > 0) {
             return res.status(400).json({ error: 'User already exists' });
         }
@@ -249,19 +288,15 @@ app.post('/api/signup', async (req, res) => {
         res.json({ success: true, user: insertResult.rows[0] });
     } catch (error) {
         console.error('Signup Error:', error);
-        res.status(500).json({ error: 'Signup failed' });
+        res.status(500).json({ error: 'Signup failed', details: error.message });
     }
 });
 
-// Login
 app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        const result = await pool.query(
-            'SELECT * FROM users WHERE email = $1',
-            [email]
-        );
+        const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
         if (result.rows.length === 0) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
@@ -274,19 +309,14 @@ app.post('/api/login', async (req, res) => {
 
         res.json({
             success: true,
-            user: {
-                id: user.user_id,
-                name: user.name,
-                email: user.email
-            }
+            user: { id: user.user_id, name: user.name, email: user.email }
         });
     } catch (error) {
         console.error('Login Error:', error);
-        res.status(500).json({ error: 'Login failed' });
+        res.status(500).json({ error: 'Login failed', details: error.message });
     }
 });
 
-// Get Notice
 app.get('/api/get-notice/:id', async (req, res) => {
     try {
         const { id } = req.params;
@@ -313,20 +343,15 @@ app.get('/api/get-notice/:id', async (req, res) => {
             },
             dispute: {
                 relationship: notice.dispute_relationship,
-                transactionDate: notice.dispute_transaction_date,
-                transactionPlace: notice.dispute_transaction_place,
-                contractDetails: notice.dispute_contract_details,
                 issueDescription: notice.dispute_issue_description,
                 keyEvents: notice.dispute_key_events,
                 damages: notice.dispute_damages,
-                specificDemand: notice.dispute_specific_demand,
-                compensation: notice.dispute_compensation,
-                timeframe: notice.dispute_timeframe,
                 tone: notice.dispute_tone
             },
             signature: notice.signature,
             content: notice.content,
             status: notice.status,
+            send_at: notice.send_at,
             payment: notice.payment_id ? {
                 status: notice.status,
                 paymentId: notice.payment_id,
@@ -337,16 +362,15 @@ app.get('/api/get-notice/:id', async (req, res) => {
         });
     } catch (error) {
         console.error('Get Notice Error:', error);
-        res.status(500).json({ error: 'Failed to fetch notice' });
+        res.status(500).json({ error: 'Failed to fetch notice', details: error.message });
     }
 });
 
-// Update Payment
 app.post('/api/update-payment', async (req, res) => {
     const { noticeId, paymentId, orderId, status } = req.body;
 
     try {
-        const reviewEndTime = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+        const reviewEndTime = new Date(Date.now() + 24 * 60 * 60 * 1000);
         const result = await pool.query(
             'UPDATE notices SET status = $1, payment_id = $2, order_id = $3, review_end_time = $4 WHERE notice_id = $5 RETURNING notice_id',
             [status, paymentId, orderId, reviewEndTime, noticeId]
@@ -358,12 +382,11 @@ app.post('/api/update-payment', async (req, res) => {
         res.json({ success: true });
     } catch (error) {
         console.error('Update Payment Error:', error);
-        res.status(500).json({ error: 'Failed to update payment' });
+        res.status(500).json({ error: 'Failed to update payment', details: error.message });
     }
 });
 
-// Send Invoice Email
-app.post('/api/send-invoice', async (req, res) => {
+app.post('/api/send-invoice', async function (req, res) {
     try {
         await transporter.sendMail({
             from: `"Lexinco" <${process.env.EMAIL_USER}>`,
@@ -374,20 +397,16 @@ app.post('/api/send-invoice', async (req, res) => {
         });
         res.json({ success: true });
     } catch (error) {
-        console.error('Invoice email error:', error);
-        res.status(500).json({ error: 'Failed to send invoice' });
+        console.error('Error sending invoice:', error);
+        res.status(500).json({ error: 'Failed to send invoice', details: error.message });
     }
 });
 
-// Send Notice
 app.post('/api/send-notice', upload.single('pdf'), async (req, res) => {
-    const { toEmail, fromEmail, senderName } = req.body;
+    const { fromEmail, senderName } = req.body;
     const pdfFile = req.file;
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!toEmail || !emailRegex.test(toEmail)) {
-        return res.status(400).json({ error: 'Invalid recipient email address' });
-    }
     if (!fromEmail || !emailRegex.test(fromEmail)) {
         return res.status(400).json({ error: 'Invalid sender email address' });
     }
@@ -400,8 +419,8 @@ app.post('/api/send-notice', upload.single('pdf'), async (req, res) => {
 
     try {
         const emailHtml = `
-            <p>Dear Recipient,</p>
-            <p>Please find attached the legal notice from ${senderName}.</p>
+            <p>Dear ${senderName},</p>
+            <p>Please find attached your generated legal notice.</p>
             <p>For any inquiries, please reply to this email.</p>
             <p>Best regards,<br>Lexinco Team</p>
             <hr>
@@ -412,8 +431,8 @@ app.post('/api/send-notice', upload.single('pdf'), async (req, res) => {
             </p>
         `;
         const emailText = `
-            Dear Recipient,
-            Please find attached the legal notice from ${senderName}.
+            Dear ${senderName},
+            Please find attached your generated legal notice.
             For any inquiries, please reply to this email.
             Best regards,
             Lexinco Team
@@ -424,11 +443,10 @@ app.post('/api/send-notice', upload.single('pdf'), async (req, res) => {
         `;
 
         await transporter.sendMail({
-            from: `"Lexinco Legal Notice" <${process.env.EMAIL_USER}>`,
+            from: `"Lexinco Legal Notice" <info@lexinco.com>`,
             replyTo: `"${senderName}" <${fromEmail}>`,
-            to: toEmail,
-            cc: fromEmail,
-            subject: 'Legal Notice',
+            to: fromEmail,
+            subject: 'Your Generated Legal Notice',
             html: emailHtml,
             text: emailText,
             attachments: [
@@ -447,21 +465,20 @@ app.post('/api/send-notice', upload.single('pdf'), async (req, res) => {
         if (pdfFile && fs.existsSync(pdfFile.path)) {
             fs.unlinkSync(pdfFile.path);
         }
-        res.status(500).json({ error: 'Failed to send notice' });
+        res.status(500).json({ error: 'Failed to send notice', details: error.message });
     }
 });
 
-// Create Razorpay Order
 app.post('/api/create-order', async (req, res) => {
     try {
         const { noticeId } = req.body;
         if (!noticeId) {
             return res.status(400).json({ error: 'Notice ID is required' });
         }
-        const amount = 99900;  // 1500 INR in paise
-        const shortNoticeId = noticeId.slice(0, 8); // First 8 chars of UUID
-        const shortTimestamp = Date.now().toString().slice(-6); // Last 6 digits of timestamp
-        const receipt = `order_${shortNoticeId}_t${shortTimestamp}`; // e.g., order_123e4567_t842268
+        const amount = 150000;
+        const shortNoticeId = noticeId.slice(0, 8);
+        const shortTimestamp = Date.now().toString().slice(-6);
+        const receipt = `order_${shortNoticeId}_t${shortTimestamp}`;
         if (receipt.length > 40) {
             console.warn('Receipt too long:', receipt);
             return res.status(400).json({ error: 'Generated receipt exceeds 40 characters' });
@@ -488,61 +505,133 @@ app.post('/api/create-order', async (req, res) => {
     }
 });
 
-// Save Legal Notice
-app.post('/api/save-notice', async (req, res) => {
-    const { client, recipient, dispute, signature, content, status } = req.body;
-    const userId = req.headers['user-id'] || null; // Allow anonymous notices if no user-id
-
+app.post('/api/save-notice', upload.single('pdf'), async (req, res) => {
     try {
+        if (!req.file) {
+            return res.status(400).json({ error: 'No PDF file uploaded' });
+        }
+
         const noticeId = uuidv4();
+        const pdfPath = path.join(uploadDir, `${noticeId}.pdf`);
+        fs.renameSync(req.file.path, pdfPath);
+
+        let client, recipient, dispute;
+        try {
+            client = JSON.parse(req.body.client);
+            recipient = JSON.parse(req.body.recipient);
+            dispute = JSON.parse(req.body.dispute);
+        } catch (error) {
+            console.error('JSON Parse Error:', error);
+            return res.status(400).json({ error: 'Invalid JSON data', details: error.message });
+        }
+
+        const maxLengthFields = {
+            client_name: client.name,
+            client_address: client.address,
+            client_contact: client.contact,
+            client_email: client.email,
+            recipient_name: recipient.name,
+            recipient_address: recipient.address,
+            recipient_contact: recipient.contact || '',
+            recipient_email: recipient.email || '',
+            dispute_relationship: dispute.relationship,
+            dispute_issue_description: dispute.issueDescription,
+            dispute_key_events: dispute.keyEvents,
+            dispute_damages: dispute.damages,
+            dispute_tone: dispute.tone
+        };
+
+        for (const [field, value] of Object.entries(maxLengthFields)) {
+            if (typeof value === 'string' && value.length > 255) {
+                return res.status(400).json({ error: `Field ${field} exceeds 255 characters`, details: `Value: ${value.substring(0, 50)}...` });
+            }
+        }
+
+        const signature = req.body.signature || null;
+        const content = req.body.content;
+        const status = 'pending_send';
+        const sendAt = new Date(Date.now() + 30 * 60 * 1000);
+
         const query = `
             INSERT INTO notices (
-                notice_id, user_id, client_name, client_address, client_contact, client_email,
+                notice_id, client_name, client_address, client_contact, client_email,
                 recipient_name, recipient_address, recipient_contact, recipient_email,
-                dispute_relationship, dispute_transaction_date, dispute_transaction_place,
-                dispute_contract_details, dispute_issue_description, dispute_key_events,
-                dispute_damages, dispute_specific_demand, dispute_compensation,
-                dispute_timeframe, dispute_tone, signature, content, status
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24)
+                dispute_relationship, dispute_issue_description, dispute_key_events,
+                dispute_damages, dispute_tone, signature, content, status, pdf_path, send_at
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
             RETURNING notice_id
         `;
         const values = [
             noticeId,
-            userId,
             client.name,
             client.address,
             client.contact,
             client.email,
             recipient.name,
             recipient.address,
-            recipient.contact,
-            recipient.email,
+            recipient.contact || '',
+            recipient.email || '',
             dispute.relationship,
-            dispute.transactionDate,
-            dispute.transactionPlace,
-            dispute.contractDetails,
             dispute.issueDescription,
             dispute.keyEvents,
             dispute.damages,
-            dispute.specificDemand,
-            parseFloat(dispute.compensation) || 0,
-            dispute.timeframe,
             dispute.tone,
             signature,
             content,
-            status
+            status,
+            pdfPath,
+            sendAt
         ];
 
-        const result = await pool.query(query, values);
-        console.log('Saved notice ID:', noticeId, 'User ID:', userId);
-        res.json({ success: true, noticeId: result.rows[0].notice_id });
+        await pool.query(query, values);
+        res.json({ success: true, noticeId });
     } catch (error) {
-        console.error('Save Notice Error:', error.message);
-        res.status(500).json({ error: 'Failed to save notice', details: error.message });
+        console.error('Save Notice Error:', error);
+        if (req.file && fs.existsSync(req.file.path)) {
+            fs.unlinkSync(req.file.path);
+        }
+        const errorDetails = error.message.includes('value too long') ? 
+            `Database error: ${error.message}. Check column lengths in notices table.` : 
+            error.message;
+        res.status(500).json({ error: 'Failed to save notice', details: errorDetails });
     }
 });
 
-// Upload PDF for WhatsApp Sharing
+app.post('/api/send-notice/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const result = await pool.query('SELECT * FROM notices WHERE notice_id = $1', [id]);
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Notice not found' });
+        }
+        const notice = result.rows[0];
+        const now = new Date();
+        if (now < notice.send_at) {
+            return res.status(400).json({ error: 'Not yet time to send' });
+        }
+
+        await transporter.sendMail({
+            from: `"Lexinco" <info@lexinco.com>`,
+            to: notice.client_email,
+            subject: 'Your Generated Legal Notice',
+            text: `Dear ${notice.client_name},\n\nPlease find attached your generated legal notice.\n\nBest regards,\nLexinco Team`,
+            attachments: [
+                {
+                    filename: 'legal_notice.pdf',
+                    path: notice.pdf_path,
+                    contentType: 'application/pdf'
+                }
+            ]
+        });
+
+        await pool.query('UPDATE notices SET status = $1 WHERE notice_id = $2', ['sent', id]);
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Send Notice Error:', error);
+        res.status(500).json({ error: 'Failed to send notice', details: error.message });
+    }
+});
+
 app.use('/uploads', express.static(path.join(__dirname, 'Uploads')));
 app.post('/api/upload-pdf', upload.single('pdf'), async (req, res) => {
     try {
@@ -566,11 +655,10 @@ app.post('/api/upload-pdf', upload.single('pdf'), async (req, res) => {
         res.json({ success: true, url: fileUrl });
     } catch (error) {
         console.error('Upload PDF Error:', error);
-        res.status(500).json({ error: 'Failed to upload PDF' });
+        res.status(500).json({ error: 'Failed to upload PDF', details: error.message });
     }
 });
 
-// Clean up expired files (every hour)
 setInterval(async () => {
     try {
         const now = new Date();
@@ -588,7 +676,6 @@ setInterval(async () => {
     }
 }, 60 * 60 * 1000);
 
-// Test Endpoints
 app.get('/test-email', async (req, res) => {
     try {
         await transporter.sendMail({
@@ -599,7 +686,7 @@ app.get('/test-email', async (req, res) => {
         res.send('Email sent!');
     } catch (error) {
         console.error('Test Email Error:', error);
-        res.send('Email failed: ' + error.message);
+        res.send(`Email failed: ${error.message}`);
     }
 });
 
@@ -617,7 +704,7 @@ app.get('/test-db', async (req, res) => {
         });
     } catch (error) {
         console.error('Test DB Error:', error);
-        res.status(500).send('DB access failed');
+        res.status(500).send(`DB access failed: ${error.message}`);
     }
 });
 
@@ -630,11 +717,10 @@ app.post('/api/proxy/consultation', async (req, res) => {
         res.json(response.data);
     } catch (error) {
         console.error('Proxy Error:', error.response ? error.response.data : error.message);
-        res.status(500).json({ error: 'Failed to submit consultation request' });
+        res.status(500).json({ error: 'Failed to submit consultation request', details: error.message });
     }
 });
 
-// Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);

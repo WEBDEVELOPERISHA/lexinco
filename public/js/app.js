@@ -39,7 +39,6 @@ const svgLetterhead = `
   </text>
 </svg>`;
 
-// Convert SVG to PNG data URL
 async function svgToDataUrl(svgStr) {
     const canvas = document.createElement('canvas');
     canvas.width = 800;
@@ -62,7 +61,6 @@ async function svgToDataUrl(svgStr) {
     return canvas.toDataURL('image/png');
 }
 
-// Fetch configuration from server
 async function loadConfig() {
     try {
         const response = await fetch(`${BASE_URL}/api/config`);
@@ -74,7 +72,6 @@ async function loadConfig() {
     }
 }
 
-// Initialize Signature Pad
 function initializeSignaturePad() {
     if (!signaturePadCanvas) return;
 
@@ -108,17 +105,14 @@ function handleCanvasResize() {
     signaturePad.fromData(oldData);
 }
 
-// Show Review Modal
 function showReviewModal() {
     document.getElementById('reviewModal').style.display = 'block';
 }
 
-// Close Review Modal
 function closeReviewModal() {
     document.getElementById('reviewModal').style.display = 'none';
 }
 
-// Start Timer for Review Period
 function startTimer(endTime) {
     const countdownElement = document.getElementById('countdown');
     const interval = setInterval(() => {
@@ -138,7 +132,6 @@ function startTimer(endTime) {
     }, 1000);
 }
 
-// Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', async function () {
     await loadConfig();
     initializeSignaturePad();
@@ -153,10 +146,12 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     document.querySelectorAll('.next-step').forEach(button => {
         button.addEventListener('click', function () {
-            if (currentStep === 3) {
-                setTimeout(initializeSignaturePad, 100);
+            if (validateStep(currentStep)) {
+                if (currentStep === 2) {
+                    setTimeout(initializeSignaturePad, 100);
+                }
+                nextStep();
             }
-            nextStep();
         });
     });
 
@@ -165,20 +160,15 @@ document.addEventListener('DOMContentLoaded', async function () {
     if (noticeId) {
         loadNoticeDetails(noticeId);
     } else {
-        const lastNoticeId = localStorage.getItem('lastNoticeId');
-        if (lastNoticeId) {
-            window.location.href = `legal-notice.html?id=${lastNoticeId}`;
-        } else {
-            showForm();
-        }
+        showForm();
     }
 });
 
-// Load notice details based on noticeId
 async function loadNoticeDetails(noticeId) {
     try {
         showLoading(true);
         const response = await fetch(`/api/get-notice/${noticeId}`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const notice = await response.json();
 
         if (notice && notice.content) {
@@ -188,30 +178,11 @@ async function loadNoticeDetails(noticeId) {
             formContainer.style.display = 'none';
             noticePage.style.display = 'block';
 
-            const payNowBtn = document.getElementById('payNowBtn');
-            const downloadBtn = document.getElementById('downloadBtn');
-            const sendBtn = document.getElementById('sendNoticeBtn');
-            const shareWhatsappBtn = document.getElementById('shareWhatsappBtn');
             const timerDisplay = document.getElementById('timerDisplay');
-
-            if (notice.status === 'pending') {
-                payNowBtn.style.display = 'block';
-                downloadBtn.disabled = true;
-                sendBtn.disabled = true;
-                shareWhatsappBtn.disabled = true;
-                timerDisplay.style.display = 'none';
-            } else if (notice.status === 'under_review') {
-                payNowBtn.style.display = 'none';
-                downloadBtn.disabled = true;
-                sendBtn.disabled = true;
-                shareWhatsappBtn.disabled = true;
+            if (notice.status === 'pending_send') {
                 timerDisplay.style.display = 'block';
-                startTimer(notice.review_end_time);
-            } else if (notice.status === 'ready') {
-                payNowBtn.style.display = 'none';
-                downloadBtn.disabled = false;
-                sendBtn.disabled = false;
-                shareWhatsappBtn.disabled = false;
+                startTimer(new Date(notice.send_at).getTime());
+            } else if (notice.status === 'sent') {
                 timerDisplay.style.display = 'none';
             }
         } else {
@@ -220,14 +191,13 @@ async function loadNoticeDetails(noticeId) {
         }
     } catch (error) {
         console.error('Error loading notice:', error);
-        alert('Failed to load notice details');
+        alert(`Failed to load notice: ${error.message}`);
         showForm();
     } finally {
         showLoading(false);
     }
 }
 
-// Form Step Navigation
 function showStep(stepIndex) {
     const index = parseInt(stepIndex) - 1;
     if (index < 0 || index >= steps.length) return;
@@ -262,36 +232,59 @@ function prevStep() {
 }
 
 function validateStep(stepIndex) {
-    const currentStep = steps[stepIndex];
-    const inputs = currentStep.querySelectorAll('input[required], select[required], textarea[required]');
+    const currentStepElement = steps[stepIndex];
+    const inputs = currentStepElement.querySelectorAll('input[required], select[required], textarea[required]');
     let isValid = true;
+    let errorMessages = [];
 
     inputs.forEach(input => {
-        if (!input.value.trim()) {
+        const value = input.value.trim();
+        if (!value) {
             input.classList.add('error');
+            errorMessages.push(`${input.name || input.id} is required.`);
             isValid = false;
         } else {
+            if (input.type === 'text' || input.type === 'email') {
+                if (value.length > 255) {
+                    input.classList.add('error');
+                    errorMessages.push(`${input.name || input.id} must be 255 characters or less.`);
+                    isValid = false;
+                }
+            } else if (input.tagName.toLowerCase() === 'textarea') {
+                if (value.length > 1000) {
+                    input.classList.add('error');
+                    errorMessages.push(`${input.name || input.id} must be 1000 characters or less.`);
+                    isValid = false;
+                }
+            }
             input.classList.remove('error');
         }
     });
 
-    if (!isValid) alert('Please fill in all required fields before proceeding.');
+    if (!isValid) {
+        alert('Please correct the following errors in the current step:\n' + errorMessages.join('\n'));
+    }
     return isValid;
 }
 
-// Clear Signature
 function clearSignature() {
     if (signaturePad) signaturePad.clear();
 }
 
-// Form Submission
 form.addEventListener('submit', async function (e) {
     e.preventDefault();
     if (!validateStep(currentStep)) return;
+    if (!signaturePad || signaturePad.isEmpty()) {
+        alert('Please provide your signature.');
+        return;
+    }
+    if (!document.getElementById('confirmDetails').checked || !document.getElementById('privacyPolicy').checked) {
+        alert('Please confirm the details and agree to the privacy policy.');
+        return;
+    }
     await generateLegalNotice();
 });
 
-// Generate Legal Notice
 async function generateLegalNotice() {
     showLoading(true);
     try {
@@ -311,141 +304,74 @@ async function generateLegalNotice() {
             },
             dispute: {
                 relationship: document.getElementById('relationshipType').value,
-                transactionDate: document.getElementById('transactionDate').value,
-                transactionPlace: document.getElementById('transactionPlace').value,
-                contractDetails: document.getElementById('contractDetails').value,
                 issueDescription: document.getElementById('issueDescription').value,
                 keyEvents: document.getElementById('keyEvents').value,
                 damages: document.getElementById('damagesSuffered').value,
-                specificDemand: document.getElementById('specificDemand').value,
-                compensation: document.getElementById('compensationAmount').value,
-                timeframe: document.getElementById('complianceTimeframe').value,
                 tone: document.getElementById('tone').value
-            },
-            signature: signatureData
+            }
         };
-        savedSenderName = formData.client.name;
-        sessionStorage.setItem('senderName', formData.client.name);
 
-        const currentDate = new Date().toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
+        const response = await fetch('/api/generate-notice', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
         });
+        const data = await response.json();
+        if (!data.content) throw new Error(data.error || 'Failed to generate notice');
 
-        const noticeContent = `
-            <div class="legal-notice" style="font-family: 'Times New Roman', Times, serif; font-size: 12pt; line-height: 1.5; color: #000;">
-                <div style="margin-bottom: 20px;">
-                    To,<br>
-                    ${formData.recipient.name}<br>
-                    ${formData.recipient.address}<br>
-                </div>
-                <div style="margin-bottom: 20px;">
-                    Subject: <strong>Legal Notice Regarding Breach of Consumer Agreement</strong><br>
-                </div>
-                <div style="margin-bottom: 20px;">
-                    Dated: ${currentDate}<br>
-                </div>
-                <div style="margin-bottom: 20px;">
-                    <strong>1. Introduction and Identification of Parties</strong><br>
-                    I, Adv. Shalini L Tripathi, legal representative of ${formData.client.name}, ${formData.client.address}, hereby issue this notice to ${formData.recipient.name}, situated at ${formData.recipient.address}. This notice addresses a serious consumer-business dispute arising from your company's breach of contractual obligations.
-                </div>
-                <div style="margin-bottom: 20px;">
-                    <strong>2. Detailed Background and Factual Matrix</strong><br>
-                    On ${formData.dispute.transactionDate}, my client engaged in a transaction with your company for ${formData.dispute.contractDetails}. The terms stipulated delivery within ${formData.dispute.timeframe} and a product free of defects. However, ${formData.dispute.issueDescription}.
-                </div>
-                <div style="margin-bottom: 20px;">
-                    <strong>3. Timeline of Events</strong><br>
-                    ${formData.dispute.keyEvents.replace(/\n/g, '<br>')}<br>
-                </div>
-                <div style="margin-bottom: 20px;">
-                    <strong>4. Legal Violations & Statutory References</strong><br>
-                    Your company's actions constitute a breach of contract under the Indian Contract Act, 1872. Additionally, your failure to address my client's complaints violates the Consumer Protection Act, 2019, specifically regarding the right to a refund or replacement for defective goods.
-                </div>
-                <div style="margin-bottom: 20px;">
-                    <strong>5. Damages and Hardships Faced</strong><br>
-                    Due to your negligence, my client has suffered damages amounting to ₹${formData.dispute.compensation}. The mental distress and inconvenience caused by your unresponsiveness further aggravate the hardship faced by my client.
-                </div>
-                <div style="margin-bottom: 20px;">
-                    <strong>6. Legal Consequences of Non-Compliance</strong><br>
-                    Failure to comply with the demands herein within ${formData.dispute.timeframe} will compel my client to initiate legal proceedings, including filing a complaint with the Consumer Court, seeking compensation for damages suffered.
-                </div>
-                <div style="margin-bottom: 20px;">
-                    <strong>7. Demand for Relief and Compliance Timeframe</strong><br>
-                    My client demands ${formData.dispute.specificDemand} within ${formData.dispute.timeframe} from the date of receipt of this notice. Additionally, compensation of ₹${formData.dispute.compensation} is sought for the distress and inconvenience caused.
-                </div>
-                <div style="margin-bottom: 20px;">
-                    <strong>8. Conclusion and Final Intimation</strong><br>
-                    This notice serves as a final intimation to rectify the breach within the stipulated timeframe. Failure to comply will result in legal action without further notice.
-                </div>
-                <div style="margin-top: 30px;">
-                    From,<br>
-                    ${formData.client.name}<br>
-                    ${formData.client.address}<br>
-                </div>
-                ${formData.signature ? `
-                    <div class="esignature" style="margin-top: 30px;">
-                        <p><strong>Digitally signed by:</strong></p>
-                        <img src="${formData.signature}" alt="Client Signature" style="max-height: 100px; margin-top: 10px;">
-                        <p>${formData.client.name}</p>
-                    </div>` : ''}
-            </div>
-        `;
-
+        const noticeContent = DOMPurify.sanitize(data.content);
         legalNoticeDiv.innerHTML = noticeContent;
+        formData.signature = signatureData;
+        formData.content = noticeContent;
+
+        const pdfBlob = await generatePDFBlob(noticeContent);
+        const pdfFormData = new FormData();
+        pdfFormData.append('pdf', pdfBlob, 'legal_notice.pdf');
+        pdfFormData.append('client', JSON.stringify(formData.client));
+        pdfFormData.append('recipient', JSON.stringify(formData.recipient));
+        pdfFormData.append('dispute', JSON.stringify(formData.dispute));
+        pdfFormData.append('signature', signatureData);
+        pdfFormData.append('content', noticeContent);
+
+        const saveResponse = await fetch('/api/save-notice', {
+            method: 'POST',
+            body: pdfFormData
+        });
+        const saveData = await saveResponse.json();
+        if (!saveData.success) throw new Error(saveData.details || saveData.error || 'Failed to save notice');
+
+        currentNoticeId = saveData.noticeId;
+        localStorage.setItem('lastNoticeId', currentNoticeId);
+        window.history.pushState({}, '', `?id=${currentNoticeId}`);
+
+        showReviewModal();
+
+        setTimeout(async () => {
+            try {
+                const sendResponse = await fetch(`/api/send-notice/${currentNoticeId}`, { method: 'POST' });
+                const sendData = await sendResponse.json();
+                if (sendData.success) {
+                    alert('Notice has been sent to your inbox');
+                    loadNoticeDetails(currentNoticeId);
+                } else {
+                    throw new Error(sendData.error || 'Failed to send notice');
+                }
+            } catch (error) {
+                console.error('Error sending notice:', error);
+                alert(`Failed to send notice: ${error.message}`);
+            }
+        }, 30 * 60 * 1000);
+
         formContainer.style.display = 'none';
         noticePage.style.display = 'block';
-
-        const noticeId = await saveNoticeToServer(formData, noticeContent);
-        currentNoticeId = noticeId;
-        localStorage.setItem('lastNoticeId', noticeId); // Store noticeId in local storage
-        window.history.pushState({}, '', `?id=${currentNoticeId}`);
     } catch (error) {
-        alert(`Error generating notice: ${error.message}`);
-        console.error('Error:', error);
+        console.error('Error generating notice:', error);
+        alert(`Error generating notice: ${error.message}\nDetails: ${error.response?.data?.details || 'No details available'}`);
     } finally {
         showLoading(false);
     }
 }
 
-// Save notice to server
-async function saveNoticeToServer(formData, content) {
-    const response = await fetch('/api/save-notice', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, content, status: 'pending' })
-    });
-
-    const data = await response.json();
-    if (!response.ok || !data.success) throw new Error('Failed to save notice');
-    return data.noticeId;
-}
-
-// Update UI after payment (not used directly, replaced by loadNoticeDetails logic)
-function updateUIAfterPayment(isPaid) {
-    const downloadBtn = document.getElementById('downloadBtn');
-    const sendBtn = document.getElementById('sendNoticeBtn');
-    const shareWhatsappBtn = document.getElementById('shareWhatsappBtn');
-    const payNowBtn = document.getElementById('payNowBtn');
-    const paymentDetailsDiv = document.getElementById('paymentDetails');
-
-    if (isPaid) {
-        downloadBtn.disabled = false;
-        sendBtn.disabled = false;
-        shareWhatsappBtn.disabled = false;
-        payNowBtn.style.display = 'none';
-        paymentDetailsDiv.innerHTML = '<p>Payment completed</p>';
-    } else {
-        downloadBtn.disabled = true;
-        sendBtn.disabled = true;
-        shareWhatsappBtn.disabled = true;
-        payNowBtn.style.display = 'inline-block';
-        payNowBtn.disabled = false;
-        paymentDetailsDiv.innerHTML = '<p>Payment required to access features</p>';
-    }
-}
-
-// Initiate Payment
 async function initiatePayment() {
     try {
         showLoading(true);
@@ -457,7 +383,7 @@ async function initiatePayment() {
 
         if (!orderResponse.ok) {
             const error = await orderResponse.json();
-            throw new Error(error.error || 'Failed to create payment order');
+            throw new Error(error.details || error.error || 'Failed to create payment order');
         }
 
         const orderData = await orderResponse.json();
@@ -489,12 +415,12 @@ async function initiatePayment() {
 
                     if (!updateResponse.ok) throw new Error('Failed to update payment status');
 
-                    localStorage.setItem('lastNoticeId', currentNoticeId); // Store noticeId in local storage
+                    localStorage.setItem('lastNoticeId', currentNoticeId);
                     showReviewModal();
                     loadNoticeDetails(currentNoticeId);
                 } catch (error) {
                     console.error('Payment success handler error:', error);
-                    alert('Error processing payment: ' + error.message);
+                    alert(`Error processing payment: ${error.message}`);
                 } finally {
                     showLoading(false);
                 }
@@ -503,19 +429,17 @@ async function initiatePayment() {
 
         const rzp = new Razorpay(options);
         rzp.on('payment.failed', function (response) {
-            alert('Payment failed: ' + response.error.description);
+            alert(`Payment failed: ${response.error.description}`);
             showLoading(false);
         });
         rzp.open();
     } catch (error) {
         console.error('Payment error:', error);
+        alert(`Payment initialization failed: ${error.message}`);
+    } finally {
         showLoading(false);
-        alert('Payment initialization failed: ' + error.message);
     }
 }
-
-// Bind the Pay Now button
-document.getElementById('payNowBtn').addEventListener('click', initiatePayment);
 
 async function getLawyerSignatureBase64(imageUrl) {
     return new Promise((resolve, reject) => {
@@ -537,7 +461,7 @@ async function getLawyerSignatureBase64(imageUrl) {
     });
 }
 
-async function generatePDFBlob() {
+async function generatePDFBlob(noticeContent) {
     if (typeof window.jspdf === 'undefined') throw new Error('jsPDF library not loaded.');
     if (typeof html2canvas === 'undefined') throw new Error('html2canvas library not loaded.');
 
@@ -581,7 +505,8 @@ async function generatePDFBlob() {
 
     const lawyerSignatureBase64 = await getLawyerSignatureBase64('/signature (2).jpeg');
 
-    const clonedDiv = legalNoticeDiv.cloneNode(true);
+    const clonedDiv = document.createElement('div');
+    clonedDiv.innerHTML = noticeContent;
     clonedDiv.style.position = 'fixed';
     clonedDiv.style.top = '0';
     clonedDiv.style.left = '0';
@@ -590,6 +515,10 @@ async function generatePDFBlob() {
     clonedDiv.style.padding = '10px';
     clonedDiv.style.zIndex = '-1';
     clonedDiv.style.overflow = 'visible';
+    clonedDiv.style.fontFamily = 'Times New Roman, Times, serif';
+    clonedDiv.style.fontSize = '12pt';
+    clonedDiv.style.lineHeight = '1.5';
+    clonedDiv.style.color = '#000';
     document.body.appendChild(clonedDiv);
 
     const scale = 3;
@@ -676,7 +605,7 @@ async function generatePDFBlob() {
 }
 
 function generatePDF() {
-    generatePDFBlob()
+    generatePDFBlob(legalNoticeDiv.innerHTML)
         .then(blob => {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -689,37 +618,24 @@ function generatePDF() {
         })
         .catch(error => {
             console.error('Error generating PDF:', error);
-            alert('Failed to generate PDF: ' + error.message);
+            alert(`Failed to generate PDF: ${error.message}`);
         });
 }
 
 async function sendEmail() {
-    let recipientEmail = document.getElementById('recipientEmail').value;
     let senderEmail = document.getElementById('senderEmail').value;
 
-    if (!recipientEmail) {
-        recipientEmail = prompt("Please enter the recipient's email address:");
-        if (!recipientEmail) {
-            alert('Recipient email is required.');
-            return;
-        }
-    }
-
     if (!senderEmail) {
-        senderEmail = prompt("Please enter the sender's email address:");
+        senderEmail = prompt("Please enter your email address:");
         if (!senderEmail) {
-            alert('Sender email is required.');
+            alert('Your email is required.');
             return;
         }
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(recipientEmail)) {
-        alert('Please enter a valid recipient email address.');
-        return;
-    }
     if (!emailRegex.test(senderEmail)) {
-        alert('Please enter a valid sender email address.');
+        alert('Please enter a valid email address.');
         return;
     }
 
@@ -730,12 +646,11 @@ async function sendEmail() {
 
     showLoading(true);
     try {
-        const pdfBlob = await generatePDFBlob();
+        const pdfBlob = await generatePDFBlob(legalNoticeDiv.innerHTML);
         const pdfFile = new File([pdfBlob], 'legal_notice.pdf', { type: 'application/pdf' });
 
         const formData = new FormData();
         formData.append('pdf', pdfFile);
-        formData.append('toEmail', recipientEmail);
         formData.append('fromEmail', senderEmail);
         formData.append('senderName', savedSenderName);
 
@@ -746,12 +661,13 @@ async function sendEmail() {
 
         const data = await response.json();
         if (data.success) {
-            alert('Notice sent successfully as a PDF attachment!');
+            alert('Notice sent successfully as a PDF attachment to your inbox!');
         } else {
-            alert('Failed to send notice: ' + data.error);
+            throw new Error(data.error || 'Failed to send notice');
         }
     } catch (error) {
-        alert('Error sending notice: ' + error.message);
+        console.error('Error sending notice:', error);
+        alert(`Error sending notice: ${error.message}`);
     } finally {
         showLoading(false);
     }
@@ -760,7 +676,7 @@ async function sendEmail() {
 async function shareViaWhatsapp() {
     showLoading(true);
     try {
-        const blob = await generatePDFBlob();
+        const blob = await generatePDFBlob(legalNoticeDiv.innerHTML);
         const file = new File([blob], 'legal_notice.pdf', { type: 'application/pdf' });
         const message = `Legal notice from ${savedSenderName}. Please review the attached PDF.`;
 
@@ -780,30 +696,27 @@ async function shareViaWhatsapp() {
             });
 
             const uploadData = await uploadResponse.json();
-            if (!uploadData.success || !uploadData.url) throw new Error('Invalid response from server');
+            if (!uploadData.success) throw new Error(uploadData.error || 'Failed to upload PDF');
 
             const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${message}\nDownload the PDF here: ${uploadData.url}`)}`;
             window.open(whatsappUrl, '_blank');
         }
     } catch (error) {
         console.error('Error sharing via WhatsApp:', error);
-        alert('Failed to share via WhatsApp: ' + error.message);
+        alert(`Failed to share via WhatsApp: ${error.message}`);
     } finally {
         showLoading(false);
     }
 }
 
-// Show form function
 function showForm() {
     noticePage.style.display = 'none';
     formContainer.style.display = 'block';
     showStep(1);
 }
 
-// Loading State
 function showLoading(show) {
     loadingOverlay.style.display = show ? 'flex' : 'none';
 }
 
-// Initialize first step
 showStep(1);
