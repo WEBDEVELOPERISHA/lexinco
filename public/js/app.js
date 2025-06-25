@@ -1,3 +1,5 @@
+
+
 const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 const BASE_URL = isLocal ? 'http://localhost:3000' : '';
 let savedSenderName = '';
@@ -17,6 +19,8 @@ let currentStep = 0;
 let currentNoticeId = null;
 let signaturePad = null;
 let razorpayKeyId = null;
+let stepInteracted = new Array(steps.length).fill(false); // Track interaction per step
+let isNextStepProcessing = false; // Debounce flag
 
 const svgLetterhead = `
 <svg width="800" height="200" xmlns="http://www.w3.org/2000/svg">
@@ -35,7 +39,7 @@ const svgLetterhead = `
     204, Poonam Aster, Poonam Nagar, Virar West, Palghar 401303
   </text>
   <text x="50%" y="150" font-size="14" font-family="Times New Roman, serif" text-anchor="middle" fill="#000000">
-    License No: MAH/9337/2024
+    License No: MAH/9337/aaa
   </text>
 </svg>`;
 
@@ -136,24 +140,38 @@ document.addEventListener('DOMContentLoaded', async function () {
     await loadConfig();
     initializeSignaturePad();
 
+    // Initialize step interaction tracking
+    steps.forEach((step, index) => {
+        step.querySelectorAll('input, select, textarea').forEach(input => {
+            input.addEventListener('input', () => {
+                stepInteracted[index] = true;
+                console.log(`Interaction detected on step ${index}, input: ${input.id}`);
+            });
+        });
+    });
+
+    // Progress step navigation
     document.querySelectorAll('.progress-steps .step').forEach((step, index) => {
         step.addEventListener('click', () => {
-            if (index <= currentStep) {
+            if (index <= currentStep || !stepInteracted[currentStep] || validateStep(currentStep)) {
                 showStep(index + 1);
+            } else {
+                validateStep(currentStep);
             }
         });
     });
 
-    document.querySelectorAll('.next-step').forEach(button => {
-        button.addEventListener('click', function () {
-            if (validateStep(currentStep)) {
-                if (currentStep === 2) {
-                    setTimeout(initializeSignaturePad, 100);
-                }
-                nextStep();
-            }
-        });
+    // Next button click - Remove existing listeners to prevent duplicates
+    const nextButtons = document.querySelectorAll('.next-step');
+    nextButtons.forEach(button => {
+        button.removeEventListener('click', handleNextClick);
+        button.addEventListener('click', handleNextClick);
     });
+
+    function handleNextClick() {
+        console.log('Next button clicked for step:', currentStep);
+        nextStep();
+    }
 
     const urlParams = new URLSearchParams(window.location.search);
     const noticeId = urlParams.get('id');
@@ -200,12 +218,19 @@ async function loadNoticeDetails(noticeId) {
 
 function showStep(stepIndex) {
     const index = parseInt(stepIndex) - 1;
-    if (index < 0 || index >= steps.length) return;
+    console.log('showStep called with stepIndex:', stepIndex, 'index:', index);
+    if (index < 0 || index >= steps.length) {
+        console.log('Invalid step index, returning');
+        return;
+    }
 
     currentStep = index;
 
-    steps.forEach(step => step.classList.remove('active'));
-    steps[currentStep].classList.add('active');
+    steps.forEach((step, i) => {
+        step.classList.toggle('active', i === currentStep);
+        step.style.display = i === currentStep ? 'block' : 'none';
+        console.log(`Step ${i} display:`, step.style.display);
+    });
 
     progressSteps.forEach((step, i) => {
         step.classList.toggle('active', i <= currentStep);
@@ -218,11 +243,33 @@ function showStep(stepIndex) {
 }
 
 function nextStep() {
-    if (validateStep(currentStep)) {
-        currentStep++;
-        if (currentStep >= steps.length) currentStep = steps.length - 1;
-        showStep(currentStep + 1);
+    if (isNextStepProcessing) {
+        console.log('nextStep already processing, ignoring call');
+        return;
     }
+    isNextStepProcessing = true;
+
+    console.log('Current Step Before:', currentStep);
+    if (stepInteracted[currentStep] && !validateStep(currentStep)) {
+        console.log('Validation failed for step:', currentStep);
+        isNextStepProcessing = false;
+        return;
+    }
+    currentStep++;
+    console.log('Current Step After:', currentStep);
+    if (currentStep >= steps.length) {
+        currentStep = steps.length - 1;
+        console.log('Clamped currentStep to:', currentStep);
+    }
+    showStep(currentStep + 1);
+    console.log('Showing step:', currentStep + 1);
+    if (currentStep === 2) {
+        setTimeout(initializeSignaturePad, 100);
+    }
+
+    setTimeout(() => {
+        isNextStepProcessing = false;
+    }, 300);
 }
 
 function prevStep() {
@@ -232,13 +279,23 @@ function prevStep() {
 }
 
 function validateStep(stepIndex) {
+    console.log('Validating step:', stepIndex);
+    if (!stepInteracted[stepIndex]) {
+        console.log('No interaction, skipping validation for step:', stepIndex);
+        return true;
+    }
+
     const currentStepElement = steps[stepIndex];
     const inputs = currentStepElement.querySelectorAll('input[required], select[required], textarea[required]');
     let isValid = true;
     let errorMessages = [];
 
+    const errorContainer = currentStepElement.querySelector('.error-messages');
+    if (errorContainer) errorContainer.remove();
+
     inputs.forEach(input => {
         const value = input.value.trim();
+        console.log(`Validating input ${input.id}:`, value);
         if (!value) {
             input.classList.add('error');
             errorMessages.push(`${input.name || input.id} is required.`);
@@ -261,8 +318,14 @@ function validateStep(stepIndex) {
         }
     });
 
-    if (!isValid) {
-        alert('Please correct the following errors in the current step:\n' + errorMessages.join('\n'));
+    if (!isValid && errorMessages.length > 0) {
+        console.log('Validation errors:', errorMessages);
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-messages';
+        errorDiv.style.color = 'red';
+        errorDiv.style.marginTop = '10px';
+        errorDiv.innerHTML = errorMessages.map(msg => `<p>${msg}</p>`).join('');
+        currentStepElement.appendChild(errorDiv);
     }
     return isValid;
 }
@@ -484,7 +547,7 @@ async function generatePDFBlob(noticeContent) {
         <text x="50%" y="75" font-size="16" text-anchor="middle" fill="#333333">B.Com, LLB</text>
         <text x="50%" y="105" font-size="14" text-anchor="middle" fill="#000000">Contact: 9552446231 | Email: info@lexinco.com</text>
         <text x="50%" y="125" font-size="14" text-anchor="middle" fill="#000000">204, Poonam Aster, Poonam Nagar, Virar West, Palghar 401303</text>
-        <text x="50%" y="150" font-size="14" text-anchor="middle" fill="#000000">License No: MAH/9337/2024</text>
+        <text x="50%" y="150" font-size="14" text-anchor="middle" fill="#000000">License No: MAH/9337/aaa</text>
       </svg>
     `;
     const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });

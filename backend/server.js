@@ -116,110 +116,96 @@ app.post('/api/generate-notice', async (req, res) => {
         year: 'numeric'
     });
 
-    const prompt = `
-You are a senior legal assistant with over 20 years of experience in civil and contractual disputes in India, tasked with drafting a **comprehensive, jurisdiction-specific legal notice** on behalf of a client. The notice must adhere to the legal standards and practices of India and follow the exact format provided below.
+    // Validate formData
+    if (!formData.client || !formData.recipient || !formData.dispute) {
+        console.error('Invalid form data:', formData);
+        return res.status(400).json({ error: 'Invalid form data', details: 'Missing client, recipient, or dispute data' });
+    }
 
-**Objective:**  
-- Draft a formal legal notice that is **a minimum of 4 A4 pages long (approximately 1200–1500 words)**, exhaustive, and detailed.  
-- Use a **${formData.dispute.tone} tone** and ensure it is suitable for court submission or dispute resolution authorities in India.  
-- Base the notice **solely on the provided facts**—do not invent or alter any details (e.g., names, events).  
-- Include **relevant laws, statutes, or legal principles** from India (e.g., Indian Contract Act, 1872; Consumer Protection Act, 2019) to strengthen the notice.  
-- Follow the exact structure and style of the sample notice provided below, including header, numbered paragraphs, and closing signature block.
+    const template = `
+BY REGISTERED /POST/EMAIL
 
-**Sample Notice Format to Follow Exactly:**
-
-BY REGISTERED POST/EMAIL
-
-Date: ${todayDate}
-
-To,
-[Recipient Name]
-[Recipient Address]
-
-Subject: Legal Notice Regarding [Dispute Relationship] – Immediate Action Required
-
-Under the instructions and authority from my client [Client Name], residing at [Client Address], Mobile: [Client Contact], I hereby address you as follows:
-
-1. [Introduction to client’s background and business/relationship context, 200–300 words]
-2. [Detailed description of the issue, including transaction details if provided in issue description, 300–400 words]
-3. [Factual matrix of events leading to the dispute, 200–300 words]
-4. [Explanation of recipient’s obligations or assurances, 200–300 words]
-5. [Details of recipient’s failure to comply, 200–300 words]
-6. [Client’s efforts to resolve the issue, 200–300 words]
-7. [Accusation of dishonest or malafide conduct, 200–300 words]
-8. [Financial loss and mental harassment suffered, 200–300 words]
-9. [Legal basis for the claim, citing specific laws, 300–400 words]
-10. [Demand for resolution, without specifying compensation or timeframe, 200–300 words]
-11. [Warning of legal proceedings if unresolved, 200–300 words]
-12. [Statement holding recipient responsible for costs, 100–200 words]
-13. This legal notice is issued to you without prejudice to all other legal rights and remedies available to my client under the law.
-
-Kindly treat this as a final and urgent notice.
-
-For [Client Name]
-Through his Legal Counsel,
-
-(Advocate Shalini Tripathi)
-
----
-
-**Dispute Details:**  
-- **Dispute Type:** ${formData.dispute.relationship}  
-- **Country:** India  
-- **Description of Issue:** ${formData.dispute.issueDescription} (includes transaction date, place, and contract details if applicable)  
-- **Key Events Timeline:** ${formData.dispute.keyEvents}  
-- **Damages Suffered:** ${formData.dispute.damages}  
-
-**Client Details (Sender):**  
-- **Name:** ${formData.client.name}  
-- **Address:** ${formData.client.address}  
-- **Contact:** ${formData.client.contact}  
-- **Email:** ${formData.client.email}  
-
-**Recipient Details (Respondent):**  
-- **Name:** ${formData.recipient.name}  
-- **Address:** ${formData.recipient.address}  
-- **Contact:** ${formData.recipient.contact || 'Not provided'}  
-- **Email:** ${formData.recipient.email || 'Not provided'}  
-
----
-
-**Formatting & Content Requirements:**  
-- Structure the notice with **13 numbered paragraphs**, each thoroughly detailed as per the sample.  
-- Ensure each paragraph is verbose, legally precise, and covers the specified word count.  
-- Use professional legal language, logical flow, and exhaustive elaboration.  
-- Cite specific Indian laws relevant to the dispute type (e.g., Indian Contract Act, 1872 for contractual disputes).  
-- Avoid including specific compensation amounts or timeframes in the demand (as per user requirements).  
-- End with the exact signature block: "For [Client Name]\nThrough his Legal Counsel,\n(Advocate Shalini Tripathi)".
-
-**Output Format:**  
-BY REGISTERED POST/EMAIL  
-
-Date: ${todayDate}  
+                                                             Date: ${todayDate}
 
 To,  
 ${formData.recipient.name}  
-${formData.recipient.address}  
+${formData.recipient.address}
 
-Subject: Legal Notice Regarding ${formData.dispute.relationship} – Immediate Action Required  
+Subject: Legal Notice regarding ${formData.dispute.relationship}
 
-Under the instructions and authority from my client ${formData.client.name}, residing at ${formData.client.address}, Mobile: ${formData.client.contact}, I hereby address you as follows:  
+Under the instructions and authority from my client ${formData.client.name}, residing at ${formData.client.address}, Mobile: ${formData.client.contact}, I hereby address you as follows:
 
-[13 numbered paragraphs, 1200–1500 words total, following the sample structure]  
+That ${formData.client.name} is engaged in ${formData.dispute.issueDescription.split(' ')[0] === 'the' ? '' : 'the business of '} ${formData.dispute.issueDescription}.  
 
-Kindly treat this as a final and urgent notice.  
+That in the course of dealings between the parties, the following key events occurred: ${formData.dispute.keyEvents}.  
+
+That my client fulfilled all obligations as agreed under the understanding/transaction.  
+
+That the respondent was obligated to act as per assurances but failed to do so.  
+
+That despite repeated follow-ups, no satisfactory resolution was offered.  
+
+That such failure indicates dishonest intention and breach of trust.  
+
+That my client has faced significant loss, inconvenience, and mental harassment.  
+
+That the respondent’s conduct constitutes a legal wrong under applicable Indian laws, including but not limited to the Indian Contract Act, 1872.  
+
+That my client hereby demands that the dispute be resolved immediately by [specify action, e.g., payment of dues, performance of obligations].  
+
+That if you fail to act within 7 days from the receipt of this notice, legal proceedings (civil and/or criminal) will be initiated at your risk.  
+
+That you shall be liable for all litigation costs, damages, and consequences arising from your failure to comply.  
+
+That this legal notice serves as a final opportunity for resolution.  
+
+This legal notice is issued to you without prejudice to all other legal rights and remedies available to my client under the law.
+
+Kindly treat this as a final and urgent notice.
 
 For ${formData.client.name}  
 Through his Legal Counsel,  
 
-(Advocate Shalini Tripathi)  
+(Advocate Shalini Tripathi)
+`;
+
+    const prompt = `
+You are a senior legal assistant with 20+ years of experience in Indian civil and contractual legal matters.
+
+Your task is to draft a **formal legal notice** based on the provided form data. The notice must:
+- Be comprehensive (approx. 1200–1500 words, around 4 A4 pages).
+- Use **Indian legal language** with tone: ${formData.dispute.tone}.
+- Be suitable for court/legal submission.
+- Reference relevant laws (e.g., Indian Contract Act, 1872) where applicable.
+- **EXACTLY** follow the structure provided below, without adding, removing, or modifying any sections, headers, or formatting. Every paragraph after the introductory statement must start with "That". Do not include any additional text, explanations, or markdown symbols (e.g., \`\`\`, #, *, etc.) outside the template. Do not include letterhead or signatures, as these are added separately.
+
+**Form Data**:
+- Client Name: ${formData.client.name}
+- Client Address: ${formData.client.address}
+- Client Contact: ${formData.client.contact}
+- Recipient Name: ${formData.recipient.name}
+- Recipient Address: ${formData.recipient.address}
+- Relationship: ${formData.dispute.relationship}
+- Issue Description: ${formData.dispute.issueDescription}
+- Key Events: ${formData.dispute.keyEvents}
+- Tone: ${formData.dispute.tone}
+
+**Template to Follow**:
+${template}
+
+**Instructions**:
+1. Fill in the placeholders in the template with detailed content based on the form data.
+2. For the paragraph starting with "That my client hereby demands...", specify a clear action (e.g., payment of Rs. X, return of property) based on the issue description and key events.
+3. For the paragraph starting with "That if you fail to act...", use a 7-day timeline unless the issue requires a different period.
+4. Ensure each "That" paragraph is detailed, legally precise, and contextually relevant to the dispute.
+5. Output **only** the filled-in template, with no additional text or formatting.
 `;
 
     try {
         const response = await axios.post('https://api.openai.com/v1/chat/completions', {
-            model: "gpt-4",
+            model: "gpt-3.5-turbo",
             messages: [{ role: "user", content: prompt }],
-            temperature: 0.3,
+            temperature: 0.1, // Lower temperature for stricter adherence
             max_tokens: 4096
         }, {
             headers: {
@@ -228,11 +214,33 @@ Through his Legal Counsel,
             }
         });
 
-        const content = response.data.choices[0].message.content;
+        let content = response.data.choices[0].message.content;
+
+        // Post-process to ensure structure
+        const expectedStart = `BY REGISTERED /POST/EMAIL`;
+        const expectedEnd = `(Advocate Shalini Tripathi)`;
+        if (!content.startsWith(expectedStart) || !content.endsWith(expectedEnd)) {
+            console.warn('OpenAI response does not match expected structure:', content.substring(0, 100) + '...');
+            content = template; // Fallback to template
+        }
+
+        // Convert to HTML-compatible format
+        content = content
+            .replace(/\n\n/g, '<p>')
+            .replace(/\n/g, '<br>')
+            .replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
+
         res.json({ content });
     } catch (error) {
-        console.error('OpenAI API Error:', error.response ? error.response.data : error.message);
-        res.status(500).json({ error: 'Failed to generate notice', details: error.message });
+        console.error('OpenAI API Error:', {
+            message: error.message,
+            response: error.response ? error.response.data : null,
+            status: error.response ? error.response.status : null
+        });
+        res.status(500).json({
+            error: 'Failed to generate notice',
+            details: error.response?.data?.error?.message || error.message
+        });
     }
 });
 
