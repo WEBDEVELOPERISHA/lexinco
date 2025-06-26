@@ -69,6 +69,90 @@
         .clear-signature {
             margin-top: 10px;
         }
+
+        .form-section h2 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-group .help-text {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .form-group textarea {
+            position: relative;
+            padding-right: 40px;
+        }
+
+        .speech-to-text {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #007bff;
+        }
+
+        .speech-to-text:hover {
+            color: #0056b3;
+        }
+
+        .trust-elements {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .trust-elements .progress-info {
+            font-size: 1.1em;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .trust-elements .trust-seal {
+            font-size: 0.9em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .trust-elements .privacy-assurance {
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .disclaimer {
+            font-size: 0.85em;
+            color: #666;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .whatsapp-help {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #25D366;
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+
+        .whatsapp-help:hover {
+            background-color: #20b358;
+        }
     </style>
 </head>
 
@@ -94,86 +178,37 @@
         <div class="container">
             <div class="generator-header">
                 <h1>Legal Notice Generator</h1>
-                <p>Fill in the details below to generate your professional legal notice</p>
+                <p>Fill in the details below to create your professional legal notice – we’ll guide you every step of the way!</p>
+            </div>
+
+            <div class="trust-elements">
+                <div class="progress-info">Step 1 of 3 – We’ll be done in 2 mins!</div>
+                <div class="trust-seal">Trusted by 1,000+ users | Built by lawyers, made for everyone.</div>
+                <div class="privacy-assurance">Your data is encrypted and never shared. Period.</div>
             </div>
 
             <div class="progress-steps">
                 <div class="step active" data-step="1">
                     <div class="step-number">1</div>
-                    <div class="step-label">Client Details</div>
+                    <div class="step-label">About Your Dispute</div>
                 </div>
                 <div class="step" data-step="2">
                     <div class="step-number">2</div>
-                    <div class="step-label">Recipient Info</div>
+                    <div class="step-label">About You</div>
                 </div>
                 <div class="step" data-step="3">
                     <div class="step-number">3</div>
-                    <div class="step-label">Dispute Details</div>
+                    <div class="step-label">About the Recipient</div>
                 </div>
             </div>
 
             <form id="noticeForm" class="notice-form">
+                <!-- Step 1: Dispute Information -->
                 <div class="form-step active" data-step="1">
                     <div class="form-section">
-                        <h2><i class="fas fa-user"></i> Your Details</h2>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="senderName" class="required">Full Name / Business Name</label>
-                                <input type="text" id="senderName" required>
-                                <div class="help-text">Enter your legal name or registered business name</div>
-                            </div>
-                            <div class="form-group">
-                                <label for="senderContact" class="required">Contact Number</label>
-                                <input type="tel" id="senderContact" required>
-                            </div>
-                        </div>
+                        <h2><i class="fas fa-balance-scale"></i> About Your Dispute</h2>
                         <div class="form-group">
-                            <label for="senderAddress" class="required">Complete Address</label>
-                            <textarea id="senderAddress" required></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="senderEmail" class="required">Email Address</label>
-                            <input type="email" id="senderEmail" required>
-                        </div>
-                    </div>
-                    <div class="form-navigation">
-                        <button type="button" class="btn next-step" onclick="nextStep()">Next <i class="fas fa-arrow-right"></i></button>
-                    </div>
-                </div>
-
-                <div class="form-step" data-step="2">
-                    <div class="form-section">
-                        <h2><i class="fas fa-users"></i> Recipient Details</h2>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="recipientName" class="required">Full Name / Business Name</label>
-                                <input type="text" id="recipientName" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="recipientContact">Contact Number</label>
-                                <input type="tel" id="recipientContact">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="recipientAddress" class="required">Complete Address</label>
-                            <textarea id="recipientAddress" required></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="recipientEmail">Email Address</label>
-                            <input type="email" id="recipientEmail">
-                        </div>
-                    </div>
-                    <div class="form-navigation">
-                        <button type="button" class="btn prev-step" onclick="prevStep()"><i class="fas fa-arrow-left"></i> Previous</button>
-                        <button type="button" class="btn next-step" onclick="nextStep()">Next <i class="fas fa-arrow-right"></i></button>
-                    </div>
-                </div>
-
-                <div class="form-step" data-step="3">
-                    <div class="form-section">
-                        <h2><i class="fas fa-balance-scale"></i> Dispute Information</h2>
-                        <div class="form-group">
-                            <label for="relationshipType" class="required">Nature of Relationship</label>
+                            <label for="relationshipType" class="required">What’s the nature of your relationship with the other party?</label>
                             <select id="relationshipType" required>
                                 <option value="">Select relationship type</option>
                                 <option value="consumer-business">Consumer-Business</option>
@@ -183,27 +218,107 @@
                                 <option value="business-partner">Business Partners</option>
                                 <option value="other">Other</option>
                             </select>
+                            <div class="help-text">This helps us tailor the notice to your situation.</div>
                         </div>
                         <div class="form-group">
-                            <label for="issueDescription" class="required">Description of Issue</label>
-                            <textarea id="issueDescription" required placeholder="Describe the issue you're facing in detail, including transaction date, place, and contract details if applicable."></textarea>
+                            <label for="issueDescription" class="required">Tell us what went wrong – in your own words.</label>
+                            <textarea id="issueDescription" required placeholder="Example: I ordered a product but got the wrong one. I’ve contacted support but got no help. Include transaction date, place, and contract details if applicable."></textarea>
+                            <i class="fas fa-microphone speech-to-text" title="Use speech-to-text"></i>
+                            <div class="help-text">We’ll use this to draft a precise notice.</div>
                         </div>
                         <div class="form-group">
-                            <label for="keyEvents" class="required">Key Events Timeline</label>
-                            <textarea id="keyEvents" required placeholder="List important events with dates that led to the dispute"></textarea>
+                            <label for="keyEvents" class="required">What are the key events that led to this dispute?</label>
+                            <textarea id="keyEvents" required placeholder="Example: Ordered on Feb 1, 2025; delivered on Feb 15; no response to follow-ups."></textarea>
+                            <i class="fas fa-microphone speech-to-text" title="Use speech-to-text"></i>
+                            <div class="help-text">List dates and events to strengthen your notice.</div>
                         </div>
                         <div class="form-group">
-                            <label for="damagesSuffered" class="required">Loss or Damages Suffered</label>
-                            <textarea id="damagesSuffered" required placeholder="Describe monetary losses, mental agony, defamation, etc."></textarea>
+                            <label for="damagesSuffered" class="required">How has this affected you?</label>
+                            <textarea id="damagesSuffered" required placeholder="Tell us how this affected you – financially or otherwise. Example: Lost ₹50,000 and faced mental stress."></textarea>
+                            <i class="fas fa-microphone speech-to-text" title="Use speech-to-text"></i>
+                            <div class="help-text">Describe monetary losses, stress, or other impacts.</div>
                         </div>
                         <div class="form-group">
-                            <label for="tone" class="required">Tone of Notice</label>
+                            <label for="tone" class="required">What tone should the notice have?</label>
                             <select id="tone" required>
                                 <option value="">Select tone</option>
                                 <option value="Polite">Polite</option>
                                 <option value="Formal">Formal</option>
                                 <option value="Aggressive">Aggressive</option>
                             </select>
+                            <div class="help-text">Choose how firm or friendly the notice should sound.</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="documentUpload">Want to upload proof? (Optional)</label>
+                            <input type="file" id="documentUpload" accept=".pdf,.jpg,.png">
+                            <div class="help-text">Upload contracts, receipts, or other evidence to support your notice.</div>
+                        </div>
+                    </div>
+                    <div class="form-navigation">
+                        <button type="button" class="btn next-step" onclick="nextStep()">Next <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Your Details -->
+                <div class="form-step" data-step="2">
+                    <div class="form-section">
+                        <h2><i class="fas fa-user"></i> About You</h2>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="senderName" class="required">What’s your full name or your company’s name?</label>
+                                <input type="text" id="senderName" required placeholder="Example: Sanjay Shah or ABC Ltd.">
+                                <div class="help-text">This will appear as the sender in the notice.</div>
+                            </div>
+                            <div class="form-group">
+                                <label for="senderContact" class="required">Your contact number</label>
+                                <input type="tel" id="senderContact" required placeholder="Example: +91 9876543210">
+                                <div class="help-text">We’ll include this in the notice header.</div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="senderAddress" class="required">Your complete address</label>
+                            <textarea id="senderAddress" required placeholder="Example: 123 Main St, Mumbai, Maharashtra"></textarea>
+                            <i class="fas fa-microphone speech-to-text" title="Use speech-to-text"></i>
+                            <div class="help-text">We’ll use this to send your notice to the right place.</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="senderEmail" class="required">Your email address</label>
+                            <input type="email" id="senderEmail" required placeholder="Example: you@example.com">
+                            <div class="help-text">We’ll send the final notice here.</div>
+                        </div>
+                    </div>
+                    <div class="form-navigation">
+                        <button type="button" class="btn prev-step" onclick="prevStep()"><i class="fas fa-arrow-left"></i> Previous</button>
+                        <button type="button" class="btn next-step" onclick="nextStep()">Next <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Recipient Details -->
+                <div class="form-step" data-step="3">
+                    <div class="form-section">
+                        <h2><i class="fas fa-users"></i> About Who You’re Contacting</h2>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="recipientName" class="required">What’s their full name or company name?</label>
+                                <input type="text" id="recipientName" required placeholder="Example: Rahul Bajpai or XYZ Corp.">
+                                <div class="help-text">This identifies the notice recipient.</div>
+                            </div>
+                            <div class="form-group">
+                                <label for="recipientContact">Their contact number (optional)</label>
+                                <input type="tel" id="recipientContact" placeholder="Example: +91 9876543210">
+                                <div class="help-text">Include if known, for formal communication.</div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="recipientAddress" class="required">Their complete address</label>
+                            <textarea id="recipientAddress" required placeholder="Example: 456 Park Ave, Delhi"></textarea>
+                            <i class="fas fa-microphone speech-to-text" title="Use speech-to-text"></i>
+                            <div class="help-text">This ensures the notice reaches the right place.</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="recipientEmail">Their email address (optional)</label>
+                            <input type="email" id="recipientEmail" placeholder="Example: them@example.com">
+                            <div class="help-text">Include if you want to send the notice via email too.</div>
                         </div>
                         <div class="signature-section">
                             <h3>Your Signature</h3>
@@ -213,12 +328,13 @@
                                 <button type="button" class="btn clear-signature" onclick="clearSignature()">
                                     <i class="fas fa-eraser"></i> Clear Signature
                                 </button>
+                                <div class="help-text">Your signature makes the notice official.</div>
                             </div>
                         </div>
                         <div class="form-group">
                             <div class="checkbox-group">
                                 <input type="checkbox" id="confirmDetails" required>
-                                <label for="confirmDetails">I confirm that all the information provided is accurate to the best of my knowledge</label>
+                                <label for="confirmDetails">I confirm that all the information provided is accurate to the best of my knowledge.</label>
                             </div>
                             <div class="checkbox-group">
                                 <input type="checkbox" id="privacyPolicy" required>
@@ -234,6 +350,10 @@
                     </div>
                 </div>
             </form>
+
+            <div class="disclaimer">
+                Lexinco helps generate professional legal documents. We do not offer legal advice.
+            </div>
         </div>
     </main>
 
@@ -249,7 +369,7 @@
                         <i class="fas fa-credit-card"></i> Pay Now
                     </button> -->
                     <div id="paymentDetails" class="payment-details"></div>
-                    <!-- <button class="btn" onclick="generatePDF()" id="downloadBtn" disabled>
+                    <!-- <button class="btn" id="downloadBtn" onclick="generatePDF()" disabled>
                         <i class="fas fa-download"></i> Download PDF
                     </button> -->
                     <!-- <button class="btn primary" id="sendNoticeBtn" onclick="sendEmail()" disabled>
@@ -317,7 +437,7 @@
 
     <a href="https://wa.me/+918329186509?text=Hello,%20I%20need%20assistance%20with%20Lexinco's%20legal%20notice%20generator."
         class="whatsapp-help" target="_blank">
-        <i class="fab fa-whatsapp"></i> May I Help You?
+        <i class="fab fa-whatsapp"></i> Need help filling this? Chat with us.
     </a>
 
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.2.0/dist/signature_pad.umd.min.js"></script>
@@ -327,6 +447,39 @@
     <script src="https://smtpjs.com/v3/smtp.js"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="js/app.js"></script>
+    <script>
+        // Basic speech-to-text functionality
+        const speechButtons = document.querySelectorAll('.speech-to-text');
+        speechButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const textarea = button.previousElementSibling;
+                if ('webkitSpeechRecognition' in window) {
+                    const recognition = new webkitSpeechRecognition();
+                    recognition.lang = 'en-IN';
+                    recognition.start();
+                    recognition.onresult = (event) => {
+                        textarea.value += event.results[0][0].transcript;
+                    };
+                    recognition.onerror = (event) => {
+                        alert('Speech-to-text error: ' + event.error);
+                    };
+                } else {
+                    alert('Speech-to-text is not supported in this browser.');
+                }
+            });
+        });
+
+        // Update progress bar text dynamically
+        function updateProgressText() {
+            const currentStep = document.querySelector('.form-step.active').getAttribute('data-step');
+            document.querySelector('.progress-info').textContent = `Step ${currentStep} of 3 – We’ll be done in 2 mins!`;
+        }
+
+        document.querySelectorAll('.next-step, .prev-step').forEach(button => {
+            button.addEventListener('click', updateProgressText);
+        });
+        updateProgressText();
+    </script>
 </body>
 
 </html>
