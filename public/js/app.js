@@ -33,7 +33,7 @@ const svgLetterhead = `
     B.Com, LLB
   </text>
   <text x="50%" y="105" font-size="14" font-family="Times New Roman, serif" text-anchor="middle" fill="#000000">
-    Contact: 9552446231 | Email: info@lexinco.com
+    Contact: 9552446231 | Email: adv.shalinitripathi@gmail.com
   </text>
   <text x="50%" y="125" font-size="14" font-family="Times New Roman, serif" text-anchor="middle" fill="#000000">
     204, Poonam Aster, Poonam Nagar, Virar West, Palghar 401303
