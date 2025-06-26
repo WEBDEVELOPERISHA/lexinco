@@ -109,23 +109,62 @@
         .trust-elements {
             margin-bottom: 20px;
             text-align: center;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
         }
 
-        .trust-elements .progress-info {
-            font-size: 1.1em;
+        .trust-elements .progress-info,
+        .trust-elements .trust-seal,
+        .trust-elements .privacy-assurance,
+        .trust-elements .notice-ready,
+        .trust-elements .professional-draft,
+        .trust-elements .support-options {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1em;
+            color: #007bff;
             font-weight: 500;
             margin-bottom: 10px;
+            padding: 10px;
+            transition: color 0.3s ease, background-color 0.3s ease;
         }
 
-        .trust-elements .trust-seal {
-            font-size: 0.9em;
+        .trust-elements .progress-info:hover,
+        .trust-elements .trust-seal:hover,
+        .trust-elements .privacy-assurance:hover,
+        .trust-elements .notice-ready:hover,
+        .trust-elements .professional-draft:hover,
+        .trust-elements .support-options:hover {
+            color: #20b358;
+            background-color: #e9ecef;
+            border-radius: 4px;
+        }
+
+        .trust-elements .progress-info i,
+        .trust-elements .trust-seal i,
+        .trust-elements .privacy-assurance i,
+        .trust-elements .notice-ready i,
+        .trust-elements .professional-draft i,
+        .trust-elements .support-options i {
+            font-size: 1.2em;
+            color: #20b358;
+        }
+
+        .trust-elements .trust-seal span,
+        .trust-elements .privacy-assurance span,
+        .trust-elements .professional-draft span,
+        .trust-elements .support-options span {
+            font-weight: 400;
             color: #333;
-            margin-bottom: 10px;
         }
 
-        .trust-elements .privacy-assurance {
-            font-size: 0.85em;
-            color: #666;
+        .trust-elements hr {
+            border: 0;
+            border-top: 1px solid #ddd;
+            margin: 10px 0;
         }
 
         .disclaimer {
@@ -142,7 +181,7 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            background-color: #25D366;
+            background-color: #20b358;
             color: #fff;
             padding: 10px 15px;
             border-radius: 20px;
@@ -151,7 +190,30 @@
         }
 
         .whatsapp-help:hover {
-            background-color: #20b358;
+            background-color: #1a9c4a;
+        }
+
+        /* Hide inactive form steps */
+        .form-step {
+            display: none;
+        }
+
+        .form-step.active {
+            display: block;
+        }
+
+        /* Ensure generator-container is hidden when noticePage is shown */
+        .generator-container.hidden {
+            display: none !important;
+        }
+
+        /* Ensure noticePage is hidden by default */
+        #noticePage {
+            display: none;
+        }
+
+        #noticePage.active {
+            display: block;
         }
     </style>
 </head>
@@ -182,23 +244,16 @@
             </div>
 
             <div class="trust-elements">
-                <div class="progress-info">Step 1 of 3 – We’ll be done in 2 mins!</div>
-                <div class="trust-seal">Trusted by 1,000+ users | Built by lawyers, made for everyone.</div>
-                <div class="privacy-assurance">Your data is encrypted and never shared. Period.</div>
-            </div>
-
-            <div class="progress-steps">
-                <div class="step active" data-step="1">
-                    <div class="step-number">1</div>
-                    <div class="step-label">About Your Dispute</div>
+                <div class="progress-info">
+                    <i class="fas fa-clock"></i> We’ll be done in 2 mins!
                 </div>
-                <div class="step" data-step="2">
-                    <div class="step-number">2</div>
-                    <div class="step-label">About You</div>
+                <hr>
+                <div class="trust-seal">
+                    <i class="fas fa-shield-alt"></i> <span>Trusted by 1,000+ users | Built by lawyers, made for everyone.</span>
                 </div>
-                <div class="step" data-step="3">
-                    <div class="step-number">3</div>
-                    <div class="step-label">About the Recipient</div>
+                <hr>
+                <div class="privacy-assurance">
+                    <i class="fas fa-lock"></i> <span>Your data is encrypted and never shared. Period.</span>
                 </div>
             </div>
 
@@ -357,8 +412,22 @@
         </div>
     </main>
 
-    <section id="noticePage" class="notice-page" style="display: none;">
+    <section id="noticePage" class="notice-page">
         <div class="container">
+            <div class="trust-elements">
+                <div class="notice-ready">
+                    <i class="fas fa-check-circle"></i> Notice drafted successfully — it’s now under advocate review and will reach your inbox in 30 minutes.
+                </div>
+                <hr>
+                <div class="professional-draft">
+                    <i class="fas fa-file-alt"></i> <span>Professionally drafted by AI, reviewed by legal experts.</span>
+                </div>
+                <hr>
+                <div class="support-options">
+                    <i class="fas fa-headset"></i> <span>Need help? Contact us via <a href="https://wa.me/+918329186509" target="_blank">WhatsApp</a> or <a href="mailto:support@lexinco.com">email</a>.</span>
+                </div>
+            </div>
+
             <div class="notice-header">
                 <h1>Generated Legal Notice</h1>
                 <div class="notice-actions">
@@ -468,17 +537,6 @@
                 }
             });
         });
-
-        // Update progress bar text dynamically
-        function updateProgressText() {
-            const currentStep = document.querySelector('.form-step.active').getAttribute('data-step');
-            document.querySelector('.progress-info').textContent = `Step ${currentStep} of 3 – We’ll be done in 2 mins!`;
-        }
-
-        document.querySelectorAll('.next-step, .prev-step').forEach(button => {
-            button.addEventListener('click', updateProgressText);
-        });
-        updateProgressText();
     </script>
 </body>
 

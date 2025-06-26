@@ -11,7 +11,7 @@ const progressSteps = document.querySelectorAll('.progress-steps .step');
 const signaturePadCanvas = document.getElementById('signature-pad');
 const loadingOverlay = document.getElementById('loadingOverlay');
 const legalNoticeDiv = document.getElementById('legalNotice');
-const formContainer = document.querySelector('.notice-form');
+const formContainer = document.querySelector('.generator-container');
 const noticePage = document.getElementById('noticePage');
 const letterheadBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABQAAAACACAYAAAAa4jRQAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAXEgAAFxIBZ5/SUgAAABl0RVh0Q3JlYXRpb24gVGltZQAwNS8xNy8yNVQxMDozMDo1OVrLB0sAABVpSURBVHic7d1rtF3Vdcfx99/DFgJBEBJSSjVKWkx9SSV9QpRYpS3tQuWTW7b9KQ9xWU5VNIl2U7KdqfMNpZKqSK10EeqVRPpQ8OQjRzJvKXJf7mDMzex29d+ZOdjJlnZsZ6N/cv/M7Zs2ZkZma1O+f//nV9Uu4IABAgQIECBAgAABAwL+AhoUurWFaT74AAAAASUVORK5CYII=';
 
@@ -193,8 +193,8 @@ async function loadNoticeDetails(noticeId) {
             legalNoticeDiv.innerHTML = notice.content;
             currentNoticeId = noticeId;
             savedSenderName = notice.client.name;
-            formContainer.style.display = 'none';
-            noticePage.style.display = 'block';
+            formContainer.classList.add('hidden');
+            noticePage.classList.add('active');
 
             const timerDisplay = document.getElementById('timerDisplay');
             if (notice.status === 'pending_send') {
@@ -425,8 +425,8 @@ async function generateLegalNotice() {
             }
         }, 30 * 60 * 1000);
 
-        formContainer.style.display = 'none';
-        noticePage.style.display = 'block';
+        formContainer.classList.add('hidden');
+        noticePage.classList.add('active');
     } catch (error) {
         console.error('Error generating notice:', error);
         alert(`Error generating notice: ${error.message}\nDetails: ${error.response?.data?.details || 'No details available'}`);
@@ -773,8 +773,8 @@ async function shareViaWhatsapp() {
 }
 
 function showForm() {
-    noticePage.style.display = 'none';
-    formContainer.style.display = 'block';
+    noticePage.classList.remove('active');
+    formContainer.classList.remove('hidden');
     showStep(1);
 }
 
