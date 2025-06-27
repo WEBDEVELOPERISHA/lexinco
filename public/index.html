@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lexinco - Professional Legal Notice Generator</title>
+    <title>Lexinco - Your Voice. Your Rights. Made Legal.</title>
     <link rel="stylesheet" href="css/landing.css">
     <link rel="stylesheet" href="css/whatsapp.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -16,11 +15,10 @@
         window.dataLayer = window.dataLayer || [];
         function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
-
         gtag('config', 'G-ZEHSS991MC');
     </script>
     <style>
-        /* Modal Styles for Consultation Form */
+        /* Modal Styles for Consultation Form (unchanged) */
         .consultation-modal {
             display: none;
             position: fixed;
@@ -33,7 +31,6 @@
             justify-content: center;
             align-items: center;
         }
-
         .consultation-modal-content {
             background: var(--white);
             border-radius: 25px;
@@ -42,20 +39,15 @@
             width: 90%;
             max-width: 600px;
             max-height: 80vh;
-            /* Limit height to 80% of viewport */
             overflow-y: auto;
-            /* Enable vertical scrolling */
             position: relative;
             margin: 20px;
-            /* Center vertically with margin */
         }
-
         .consultation-modal-content h2 {
             color: var(--primary-color);
             margin-bottom: 20px;
             font-size: 18px;
         }
-
         .consultation-modal-close {
             position: absolute;
             top: 10px;
@@ -66,27 +58,22 @@
             color: var(--text-light);
             cursor: pointer;
         }
-
         .consultation-modal-close:hover {
             color: var(--primary-color);
         }
-
         .consultation-form .form-group {
             margin-bottom: 20px;
         }
-
         .consultation-form label {
             display: block;
             margin-bottom: 8px;
             font-weight: 500;
             color: var(--primary-color);
         }
-
         .consultation-form label.required::after {
             content: ' *';
             color: var(--accent-color);
         }
-
         .consultation-form input,
         .consultation-form select,
         .consultation-form textarea {
@@ -97,26 +84,22 @@
             font-family: 'Poppins', sans-serif;
             font-size: 1rem;
         }
-
         .consultation-form input:focus,
         .consultation-form select:focus,
         .consultation-form textarea:focus {
             outline: none;
             border-color: var(--secondary-color);
         }
-
         .consultation-form textarea {
             min-height: 100px;
             resize: vertical;
         }
-
         .consultation-form .form-navigation {
             display: flex;
             justify-content: flex-end;
             gap: 10px;
             margin-top: 20px;
         }
-
         .consultation-form .btn {
             padding: 12px 20px;
             border-radius: var(--border-radius);
@@ -124,35 +107,27 @@
             cursor: pointer;
             transition: background-color 0.3s ease;
             position: relative;
-            /* For positioning loader */
         }
-
         .consultation-form .btn.primary {
             background-color: var(--secondary-color);
             color: var(--white);
             border: none;
         }
-
         .consultation-form .btn.primary:hover {
             background-color: #2980b9;
         }
-
         .consultation-form .btn.primary:disabled {
             background-color: #7f8c8d;
             cursor: not-allowed;
         }
-
         .consultation-form .btn.secondary {
             background-color: var(--white);
             color: var(--primary-color);
             border: 1px solid var(--primary-color);
         }
-
         .consultation-form .btn.secondary:hover {
             background-color: var(--gray);
         }
-
-        /* Success Message */
         .success-message {
             display: none;
             text-align: center;
@@ -168,8 +143,6 @@
             transform: translate(-50%, -50%);
             width: 80%;
         }
-
-        /* Loading Spinner */
         .loader {
             display: none;
             border: 3px solid #f3f3f3;
@@ -183,52 +156,237 @@
             left: 50%;
             transform: translate(-50%, -50%);
         }
-
         @keyframes spin {
-            0% {
-                transform: translate(-50%, -50%) rotate(0deg);
-            }
-
-            100% {
-                transform: translate(-50%, -50%) rotate(360deg);
-            }
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
-
         .btn.primary.loading .loader {
             display: inline-block;
         }
-
         .btn.primary.loading span {
             visibility: hidden;
         }
-
-        /* Responsive Design */
         @media (max-width: 768px) {
             .consultation-modal-content {
                 width: 95%;
                 padding: 15px;
                 max-height: 70vh;
-                /* Slightly smaller max-height for mobile */
                 overflow-y: auto;
-                /* Ensure scrolling on mobile */
             }
+        }
+        /* Styles for Hero, Use Cases, etc. */
+        .hero {
+            background: var(--gray);
+            padding: 120px 0 80px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        .hero-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+        .hero-content h1 {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        .hero-content h2 {
+            font-size: 1.5rem;
+            color: #64748b;
+            margin-bottom: 2rem;
+            font-weight: normal;
+        }
+        .features-list {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+        .features-list li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            color: #475569;
+        }
+        .features-list i {
+            color: var(--secondary-color);
+            margin-right: 0.5rem;
+        }
+        .hero-cta {
+            font-size: 1.2rem;
+            padding: 1rem 2rem;
+            margin-bottom: 1rem;
+        }
+        .hero-visual {
+            text-align: center;
+        }
+        .hero-image {
+            width: 100%;
+            max-width: 500px;
+            height: 400px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .hero-image:hover {
+            transform: translateY(-10px);
+        }
+        .use-cases {
+            padding: 80px 0;
+            background: var(--gray);
+        }
+        .use-case-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        .use-case-card {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .use-case-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--secondary-color);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .use-case-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .trust-section {
+            padding: 80px 0;
+            background: var(--white);
+        }
+        .trust-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+        .trust-item {
+            text-align: center;
+            padding: 2rem;
+        }
+        .trust-icon {
+            font-size: 3rem;
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+        }
+        .video-section {
+            padding: 80px 0;
+            background: #1e293b;
+            color: var(--white);
+            text-align: center;
+        }
+        .video-placeholder {
+            width: 100%;
+            max-width: 800px;
+            height: 450px;
+            background: #334155;
+            border-radius: 20px;
+            margin: 2rem auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: #94a3b8;
+        }
+        .faq-section {
+            padding: 80px 0;
+            background: var(--gray);
+        }
+        .faq-item {
+            background: var(--white);
+            margin-bottom: 1rem;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        .faq-question {
+            padding: 2rem;
+            background: var(--white);
+            border: none;
+            width: 100%;
+            text-align: left;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .faq-answer {
+            padding: 0 2rem 2rem;
+            color: #64748b;
+            display: none;
+        }
+        .faq-answer.active {
+            display: block;
+        }
+        .mobile-sticky {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--secondary-color);
+            padding: 1rem;
+            text-align: center;
+            z-index: 999;
+            display: none;
+        }
+        .mobile-sticky a {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: bold;
+        }
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            .hero-container {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+            .mobile-sticky {
+                display: block;
+            }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-on-scroll {
+            animation: fadeInUp 0.6s ease forwards;
         }
     </style>
 </head>
-
 <body>
     <!-- Navigation -->
     <nav class="navbar">
         <div class="container" style="display:flex;justify-content:space-between">
             <a href="index.html" class="logo">
-                <img src="/assets/logo.svg" alt="" width="200">
+                <img src="/assets/logo.svg" alt="Lexinco Logo" width="200">
             </a>
             <div class="nav-links">
-                <a href="index.html#features">Features</a>
-                <a href="index.html#how-it-works">How It Works</a>
-                <a href="index.html#testimonials">Testimonials</a>
-                <a href="signup.html" class="btn secondary">Sign Up</a>
-                <a href="legal-notice.html" class="btn primary">Generate Notice</a>
+                <a href="#home">Home</a>
+                <a href="#how-it-works">How It Works</a>
+                <a href="#advocate-verified">Advocate Verified</a>
+                <a href="#contact">Contact</a>
+                <!-- <a href="signup.html" class="btn secondary">Sign Up</a> -->
+                <a href="legal-notice.html" class="btn primary">Start Legal Notice</a>
             </div>
             <button class="mobile-menu-btn">
                 <i class="fas fa-bars"></i>
@@ -242,27 +400,14 @@
             <button class="modal-close" id="closeModal" aria-label="Close modal">
                 <i class="fas fa-times"></i>
             </button>
-
-            <!-- Offer Statement -->
-            <p style="font-weight: bold; color: #28a745; font-size: 18px; margin-bottom: 10px;">
-                🎉 Limited Time Deal: Legal Notice Worth <span
-                    style="text-decoration: line-through; color: #dc3545;">₹999</span> Now at <span
-                    style="color: #000;">₹0</span> – Don’t Miss Out!
+            <p style="font-weight: bold; color: var(--secondary-color); font-size: 18px; margin-bottom: 10px;">
+                🎉 Limited Time Deal: Legal Notice Worth <span style="text-decoration: line-through; color: var(--accent-color);">₹999</span> Now at <span style="color: #000;">₹0</span> – Don’t Miss Out!
             </p>
-
-
-            <h3>Disclaimer!</h3>
-            <p>Lexinco is not a law firm and does not provide legal advice. We operate as a platform to connect users
-                with registered advocates for consultation, documentation, and notice-related services. All legal
-                services are provided by independent advocates registered with the Bar Council of India, in compliance
-                with the Advocates Act, 1961.
-                Use of this platform does not create an attorney-client relationship between Lexinco and the user. For
-                any legal action or representation before a court of law, please consult a practicing advocate
-                independently.</p>
-            <a href="legal-notice.html" class="btn primary">Claim Notice Now</a>
+            <h3>Disclaimer</h3>
+            <p>Lexinco is not a law firm and does not provide legal advice. We connect you with registered advocates for professional legal notice drafting and consultation. All services are provided by independent advocates registered with the Bar Council of India, in compliance with the Advocates Act, 1961. Using our platform does not create an attorney-client relationship.</p>
+            <a href="legal-notice.html" class="btn primary">Claim Your Free Notice</a>
         </div>
     </div>
-
 
     <!-- Consultation Modal -->
     <div class="consultation-modal" id="consultationModal">
@@ -305,106 +450,199 @@
                     <button type="button" class="btn secondary" id="cancelConsultation">Cancel</button>
                 </div>
             </form>
-            <div class="success-message" id="successMessage" style="display: none;">
+            <div class="success-message" id="successMessage">
                 Your consultation request has been submitted successfully! Our Advocate will contact you soon.
             </div>
         </div>
     </div>
 
     <!-- Hero Section -->
-    <section class="hero">
-        <div class="container">
+    <section class="hero" id="home">
+        <div class="hero-container">
             <div class="hero-content">
-                <h1>Create Professional Legal Notices in Minutes</h1>
-                <p class="subtitle">Generate legally valid notices with our AI-powered platform. Save time and ensure
-                    compliance with legal standards.</p>
-                <div class="cta-buttons">
-                    <a href="legal-notice.html" class="btn primary">Generate Notice Now</a>
-                    <a href="#consultationModal" class="btn primary" id="bookConsultation">Book a Consultation with a
-                        Registered Advocate</a>
-                </div>
+                <h1>Cheated? Ignored? Harassed? Don’t Stay Silent.</h1>
+                <h2>Generate a legal notice in minutes — No lawyer needed. Start for FREE.</h2>
+                <ul class="features-list">
+                    <li><i class="fas fa-check"></i> Reviewed by registered advocates</li>
+                    <li><i class="fas fa-check"></i> 1000+ notices created</li>
+                    <li><i class="fas fa-check"></i> Hindi & English supported</li>
+                </ul>
+                <a href="legal-notice.html" class="btn primary">📲 Start My Notice Now</a>
+                <a href="#consultationModal" class="btn primary" id="bookConsultation">Book a Consultation</a>
             </div>
-            <div class="hero-image">
-                <img src="assets/hero-image.jpg" alt="">
-            </div>
+
         </div>
     </section>
 
-    <!-- Features Section -->
-    <section class="features" id="features">
-        <div class="container">
-            <h2 class="section-title">Why Choose Lexinco</h2>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-bolt"></i>
-                    </div>
-                    <h3>Quick Generation</h3>
-                    <p>Create professional legal notices in just a few minutes with our streamlined process.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <h3>Legally Compliant</h3>
-                    <p>All notices comply with legal standards and requirements.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-robot"></i>
-                    </div>
-                    <h3>AI-Powered</h3>
-                    <p>Advanced AI ensures your notice is professionally drafted and effective.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-file-pdf"></i>
-                    </div>
-                    <h3>Instant PDF</h3>
-                    <p>Download your notice as a professionally formatted PDF document.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- How It Works Section -->
+    <!-- How It Works -->
     <section class="how-it-works" id="how-it-works">
         <div class="container">
             <h2 class="section-title">How It Works</h2>
             <div class="steps">
                 <div class="step">
-                    <div class="step-number">1</div>
-                    <div class="step-content">
-                        <h3>Enter Details</h3>
-                        <p>Fill in the simple form with your information and the details of your legal matter.</p>
+                    <div class="step-icon">
+                        <i class="fas fa-comments"></i>
                     </div>
+                    <h3>Tell Us Your Issue</h3>
+                    <p>Like telling a friend - simple and conversational</p>
                 </div>
                 <div class="step">
-                    <div class="step-number">2</div>
-                    <div class="step-content">
-                        <h3>AI Generation</h3>
-                        <p>Our system processes your information and drafts a professional legal notice.</p>
+                    <div class="step-icon">
+                        <i class="fas fa-file-alt"></i>
                     </div>
+                    <h3>We Prepare a Legal Notice</h3>
+                    <p>Verified by a real lawyer in proper legal format</p>
                 </div>
                 <div class="step">
-                    <div class="step-number">3</div>
-                    <div class="step-content">
-                        <h3>Review & Download</h3>
-                        <p>Review the generated notice, make any adjustments, and download or send it.</p>
+                    <div class="step-icon">
+                        <i class="fas fa-download"></i>
                     </div>
+                    <h3>Download, Email, or Send</h3>
+                    <p>Easy & affordable - ready to use immediately</p>
+                </div>
+            </div>
+            <div style="text-align: center;">
+                <a href="legal-notice.html" class="btn primary">🎯 Start for Free</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Use Cases -->
+    <section class="use-cases">
+        <div class="container">
+            <h2 class="section-title">What Kind of Issue Are You Facing?</h2>
+            <div class="use-case-grid">
+                <div class="use-case-card" onclick="selectUseCase('product')">
+                    <div class="use-case-icon">🛍️</div>
+                    <h3>Product Not Delivered</h3>
+                </div>
+                <div class="use-case-card" onclick="selectUseCase('bank')">
+                    <div class="use-case-icon">💳</div>
+                    <h3>Bank or Loan Harassment</h3>
+                </div>
+                <div class="use-case-card" onclick="selectUseCase('divorce')">
+                    <div class="use-case-icon">💔</div>
+                    <h3>Divorce/Matrimonial</h3>
+                </div>
+                <div class="use-case-card" onclick="selectUseCase('rti')">
+                    <div class="use-case-icon">🏢</div>
+                    <h3>Govt Didn’t Reply to RTI</h3>
+                </div>
+                <div class="use-case-card" onclick="selectUseCase('customer')">
+                    <div class="use-case-icon">📞</div>
+                    <h3>Customer Care Not Responding</h3>
+                </div>
+                <div class="use-case-card" onclick="selectUseCase('other')">
+                    <div class="use-case-icon">✍️</div>
+                    <h3>Other (Tell Your Story)</h3>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trust Section -->
+    <section class="trust-section" id="advocate-verified">
+        <div class="container">
+            <h2 class="section-title">Why People Trust Lexinco</h2>
+            <div class="trust-grid">
+                <div class="trust-item">
+                    <div class="trust-icon">
+                        <i class="fas fa-certificate"></i>
+                    </div>
+                    <h3>Advocate Verified</h3>
+                    <p>Every notice reviewed by registered advocates</p>
+                </div>
+                <div class="trust-item">
+                    <div class="trust-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Secure & Private</h3>
+                    <p>Your data is encrypted and completely confidential</p>
+                </div>
+                <div class="trust-item">
+                    <div class="trust-icon">
+                        <i class="fas fa-file-contract"></i>
+                    </div>
+                    <h3>Real Legal Format</h3>
+                    <p>Proper legal structure that courts recognize</p>
+                </div>
+                <div class="trust-item">
+                    <div class="trust-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3>Chat Support Available</h3>
+                    <p>Get help whenever you need it</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Video Section -->
+    <section class="video-section">
+        <div class="container">
+            <h2 class="section-title">🎥 How Does It Work?</h2>
+            <div class="video-placeholder">
+                <i class="fas fa-play-circle"></i>
+            </div>
+            <p>1-minute walkthrough of the entire process</p>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq-section">
+        <div class="container">
+            <h2 class="section-title">Frequently Asked Questions</h2>
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(0)">
+                    Is this legally valid? <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    Yes, all notices are prepared in proper legal format and reviewed by registered advocates. They are legally valid and enforceable.
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(1)">
+                    Will a real lawyer see it? <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    Absolutely. Every notice is reviewed by independent registered advocates before delivery to ensure legal accuracy.
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(2)">
+                    How do I send the notice? <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    We provide a complete sending guide with your download, including email templates and postal service options.
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(3)">
+                    Is this free? <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    You can start for free and see a preview. The final download with advocate review costs ₹499.
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(4)">
+                    Can I get a refund? <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    Yes, we offer a 100% money-back guarantee if you’re not satisfied with the quality of your legal notice.
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Testimonials Section -->
-    <section class="testimonials" id="testimonials">
+    <section class="testimonials">
         <div class="container">
             <h2 class="section-title">What Our Users Say</h2>
             <div class="testimonial-carousel">
                 <div class="testimonial">
                     <div class="testimonial-content">
-                        <p>"Lexinco saved me hours of work. The notice was perfectly formatted and legally sound."</p>
+                        <p>"Lexinco made it so easy to draft a notice. It felt like talking to a friend, and the result was professional!"</p>
                     </div>
                     <div class="testimonial-author">
                         <div class="author-info">
@@ -415,7 +653,7 @@
                 </div>
                 <div class="testimonial">
                     <div class="testimonial-content">
-                        <p>"As a lawyer, I appreciate how accurate and professional the generated notices are."</p>
+                        <p>"As a lawyer, I was impressed by how accurate and user-friendly the platform is. Highly recommend!"</p>
                     </div>
                     <div class="testimonial-author">
                         <div class="author-info">
@@ -428,42 +666,37 @@
         </div>
     </section>
 
-    <!-- CTA Section -->
-    <section class="cta-section">
-        <div class="container">
-            <h2>Ready to Create Your Legal Notice?</h2>
-            <p>Get started now and save time with our professional legal notice generator.</p>
-            <a href="legal-notice.html" class="btn primary">Generate Notice Now</a>
-        </div>
-    </section>
-
     <!-- Footer -->
-    <footer class="footer">
+    <footer class="footer" id="contact">
         <div class="container">
             <div class="footer-content">
-                <div class="footer-brand">
-                    <a href="index.html" class="logo">
-                        <img src="/assets/logo.svg" alt="">
-                    </a>
-                    <p>Making legal documentation accessible and efficient.</p>
-                </div>
-                <div class="footer-links">
-                    <h4>Quick Links</h4>
-                    <ul>
-                        <li><a href="index.html">Home</a></li>
-                        <li><a href="legal-notice.html">Generator</a></li>
-                        <li><a href="#features">Features</a></li>
-                        <li><a href="#how-it-works">How It Works</a></li>
+                <div class="footer-section">
+                    <h3>💬 Contact Us</h3>
+                    <ul class="footer-links">
+                        <li><a href="https://wa.me/+918329186509">WhatsApp Support</a></li>
+                        <li><a href="mailto:support@lexinco.com">support@lexinco.com</a></li>
+                        <li><a href="tel:+919876543210">+91 98765 43210</a></li>
                     </ul>
                 </div>
-                <div class="footer-contact">
-                    <h4>Contact Us</h4>
-                    <ul>
-                        <li><i class="fas fa-envelope"></i> support@lexinco.com</li>
+                <div class="footer-section">
+                    <h3>Legal</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Disclaimer</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Company</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Our Team</a></li>
+                        <li><a href="#">Careers</a></li>
                     </ul>
                 </div>
             </div>
             <div class="footer-bottom">
+                <p><strong>Disclaimer:</strong> Lexinco is not a law firm and does not provide legal advice. All notices are reviewed by independent registered advocates.</p>
                 <p>© 2025 Lexinco. All rights reserved.</p>
                 <div class="social-links">
                     <a href="#"><i class="fab fa-twitter"></i></a>
@@ -474,9 +707,14 @@
         </div>
     </footer>
 
+    <!-- Mobile Sticky Bar -->
+    <div class="mobile-sticky">
+        <a href="#contact">Need help? Chat with us 💬</a>
+    </div>
+
     <!-- WhatsApp Help Button -->
     <a href="https://wa.me/+918329186509?text=Hello,%20I%20need%20assistance%20with%20Lexinco's%20legal%20notice%20generator."
-        class="whatsapp-help" target="_blank">
+       class="whatsapp-help" target="_blank">
         <i class="fab fa-whatsapp"></i> May I Help You?
     </a>
 
@@ -490,20 +728,15 @@
         const consultationForm = document.getElementById('consultationForm');
         const successMessage = document.getElementById('successMessage');
         const submitButton = document.getElementById('submitConsultation');
-
-        // Determine base URL based on environment
-        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
         const BASE_URL = window.location.origin;
 
-        // Open modal
         bookConsultationBtn.addEventListener('click', (e) => {
             e.preventDefault();
             consultationModal.style.display = 'flex';
-            consultationForm.style.display = 'block'; // Ensure form is visible
-            successMessage.style.display = 'none'; // Hide success message
+            consultationForm.style.display = 'block';
+            successMessage.style.display = 'none';
         });
 
-        // Close modal
         closeConsultationModal.addEventListener('click', () => {
             consultationModal.style.display = 'none';
             consultationForm.reset();
@@ -522,7 +755,6 @@
             submitButton.disabled = false;
         });
 
-        // Handle form submission
         consultationForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             submitButton.classList.add('loading');
@@ -542,13 +774,9 @@
                 const response = await fetch(`${BASE_URL}/api/proxy/consultation`, {
                     method: 'POST',
                     body: JSON.stringify(data),
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
+                    headers: { 'Content-Type': 'application/json' }
                 });
-
                 const responseData = await response.json();
-
                 submitButton.classList.remove('loading');
                 submitButton.disabled = false;
 
@@ -560,7 +788,7 @@
                         consultationForm.style.display = 'block';
                         successMessage.style.display = 'none';
                         consultationForm.reset();
-                    }, 10000);  // Changed from 3000 to 10000 milliseconds (10 seconds)
+                    }, 10000);
                 } else {
                     throw new Error(responseData.error || 'Failed to submit consultation request');
                 }
@@ -571,7 +799,20 @@
                 alert(`Error submitting consultation request: ${error.message}. Please try again or contact support.`);
             }
         });
+
+        // Use Case Redirection
+        function selectUseCase(type) {
+            window.location.href = `legal-notice.html?issue=${encodeURIComponent(type)}`;
+        }
+
+        // FAQ Toggle
+        function toggleFAQ(index) {
+            const answers = document.querySelectorAll('.faq-answer');
+            const answer = answers[index];
+            const isActive = answer.classList.contains('active');
+            answers.forEach(a => a.classList.remove('active'));
+            if (!isActive) answer.classList.add('active');
+        }
     </script>
 </body>
-
 </html>
