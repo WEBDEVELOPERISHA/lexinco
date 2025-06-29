@@ -131,25 +131,23 @@ To,
 ${formData.recipient.name}  
 ${formData.recipient.address}
 
-Subject: Legal Notice regarding ${formData.dispute.relationship}
+Subject: Legal Notice regarding Dispute
 
 Under the instructions and authority from my client ${formData.client.name}, residing at ${formData.client.address}, Mobile: ${formData.client.contact}, I hereby address you as follows:
 
-That ${formData.client.name} is engaged in ${formData.dispute.issueDescription.split(' ')[0] === 'the' ? '' : 'the business of '} ${formData.dispute.issueDescription}.  
-
-That in the course of dealings between the parties, the following key events occurred: ${formData.dispute.keyEvents}.  
+That my client and you entered into a transaction/understanding, as described: ${formData.dispute.issueDescription}.  
 
 That my client fulfilled all obligations as agreed under the understanding/transaction.  
 
-That the respondent was obligated to act as per assurances but failed to do so.  
+That you were obligated to act as per the understanding but failed to do so.  
 
 That despite repeated follow-ups, no satisfactory resolution was offered.  
 
-That such failure indicates dishonest intention and breach of trust.  
+That such failure indicates breach of trust.  
 
-That my client has faced significant loss, inconvenience, and mental harassment.  
+That my client has suffered losses and inconvenience, as described: ${formData.dispute.damages}.  
 
-That the respondent’s conduct constitutes a legal wrong under applicable Indian laws, including but not limited to the Indian Contract Act, 1872.  
+That your conduct constitutes a legal wrong under applicable Indian laws, including but not limited to the Indian Contract Act, 1872.  
 
 That my client hereby demands that the dispute be resolved immediately by [specify action, e.g., payment of dues, performance of obligations].  
 
@@ -174,10 +172,10 @@ You are a senior legal assistant with 20+ years of experience in Indian civil an
 
 Your task is to draft a **formal legal notice** based on the provided form data. The notice must:
 - Be comprehensive (approx. 1200–1500 words, around 4 A4 pages).
-- Use **Indian legal language** with tone: ${formData.dispute.tone}.
+- Use **Indian legal language** with a formal tone.
 - Be suitable for court/legal submission.
 - Reference relevant laws (e.g., Indian Contract Act, 1872) where applicable.
-- **EXACTLY** follow the structure provided below, without adding, removing, or modifying any sections, headers, or formatting. Every paragraph after the introductory statement must start with "That". Do not include any additional text, explanations, or markdown symbols (e.g., \`\`\`, #, *, etc.) outside the template. Do not include letterhead or signatures, as these are added separately.
+- **EXACTLY** follow the structure provided below, without adding, removing, or modifying any sections, headers, or formatting. Every paragraph after the introductory statement must start with "That". Do not include any additional text, explanations, or markdown symbols outside the template. Do not include letterhead or signatures, as these are added separately.
 
 **Form Data**:
 - Client Name: ${formData.client.name}
@@ -185,27 +183,26 @@ Your task is to draft a **formal legal notice** based on the provided form data.
 - Client Contact: ${formData.client.contact}
 - Recipient Name: ${formData.recipient.name}
 - Recipient Address: ${formData.recipient.address}
-- Relationship: ${formData.dispute.relationship}
 - Issue Description: ${formData.dispute.issueDescription}
-- Key Events: ${formData.dispute.keyEvents}
-- Tone: ${formData.dispute.tone}
+- Damages Suffered: ${formData.dispute.damages}
 
 **Template to Follow**:
 ${template}
 
 **Instructions**:
 1. Fill in the placeholders in the template with detailed content based on the form data.
-2. For the paragraph starting with "That my client hereby demands...", specify a clear action (e.g., payment of Rs. X, return of property) based on the issue description and key events.
-3. For the paragraph starting with "That if you fail to act...", use a 7-day timeline unless the issue requires a different period.
-4. Ensure each "That" paragraph is detailed, legally precise, and contextually relevant to the dispute.
-5. Output **only** the filled-in template, with no additional text or formatting.
+2. For the paragraph starting with "That my client and you entered into a transaction/understanding, as described:", elaborate based on the issue description.
+3. For the paragraph starting with "That my client has suffered losses and inconvenience, as described:", elaborate based on the damages suffered.
+4. For the paragraph starting with "That my client hereby demands...", specify a clear action (e.g., payment of Rs. X, return of property) based on the issue description and damages.
+5. Ensure each "That" paragraph is detailed, legally precise, and contextually relevant to the dispute.
+6. Output **only** the filled-in template, with no additional text or formatting.
 `;
 
     try {
         const response = await axios.post('https://api.openai.com/v1/chat/completions', {
             model: "gpt-4",
             messages: [{ role: "user", content: prompt }],
-            temperature: 0.1, // Lower temperature for stricter adherence
+            temperature: 0.1,
             max_tokens: 4096
         }, {
             headers: {
@@ -216,7 +213,6 @@ ${template}
 
         let content = response.data.choices[0].message.content;
 
-        // Post-process to ensure structure
         const expectedStart = `BY REGISTERED /POST/EMAIL`;
         const expectedEnd = `(Advocate Shalini Tripathi)`;
         if (!content.startsWith(expectedStart) || !content.endsWith(expectedEnd)) {
@@ -224,11 +220,10 @@ ${template}
             content = template; // Fallback to template
         }
 
-        // Convert to HTML-compatible format
         content = content
             .replace(/\n\n/g, '<p>')
             .replace(/\n/g, '<br>')
-            .replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
+            .replace(/\t/g, '    ');
 
         res.json({ content });
     } catch (error) {

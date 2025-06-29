@@ -1,5 +1,3 @@
-
-
 const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 const BASE_URL = isLocal ? 'http://localhost:3000' : '';
 let savedSenderName = '';
@@ -7,7 +5,6 @@ let savedSenderName = '';
 const config = {};
 const form = document.getElementById('noticeForm');
 const steps = document.querySelectorAll('.form-step');
-const progressSteps = document.querySelectorAll('.progress-steps .step');
 const signaturePadCanvas = document.getElementById('signature-pad');
 const loadingOverlay = document.getElementById('loadingOverlay');
 const legalNoticeDiv = document.getElementById('legalNotice');
@@ -19,8 +16,8 @@ let currentStep = 0;
 let currentNoticeId = null;
 let signaturePad = null;
 let razorpayKeyId = null;
-let stepInteracted = new Array(steps.length).fill(false); // Track interaction per step
-let isNextStepProcessing = false; // Debounce flag
+let stepInteracted = new Array(steps.length).fill(false);
+let isNextStepProcessing = false;
 
 const svgLetterhead = `
 <svg width="800" height="200" xmlns="http://www.w3.org/2000/svg">
@@ -140,7 +137,6 @@ document.addEventListener('DOMContentLoaded', async function () {
     await loadConfig();
     initializeSignaturePad();
 
-    // Initialize step interaction tracking
     steps.forEach((step, index) => {
         step.querySelectorAll('input, select, textarea').forEach(input => {
             input.addEventListener('input', () => {
@@ -150,18 +146,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
     });
 
-    // Progress step navigation
-    document.querySelectorAll('.progress-steps .step').forEach((step, index) => {
-        step.addEventListener('click', () => {
-            if (index <= currentStep || !stepInteracted[currentStep] || validateStep(currentStep)) {
-                showStep(index + 1);
-            } else {
-                validateStep(currentStep);
-            }
-        });
-    });
-
-    // Next button click - Remove existing listeners to prevent duplicates
     const nextButtons = document.querySelectorAll('.next-step');
     nextButtons.forEach(button => {
         button.removeEventListener('click', handleNextClick);
@@ -232,9 +216,12 @@ function showStep(stepIndex) {
         console.log(`Step ${i} display:`, step.style.display);
     });
 
-    progressSteps.forEach((step, i) => {
-        step.classList.toggle('active', i <= currentStep);
-    });
+    const stepNumber = currentStep + 1;
+    document.getElementById('currentStep').textContent = stepNumber;
+    const percentage = (stepNumber / 6) * 100; // Updated to 6 steps
+    document.getElementById('progressFill').style.width = `${percentage}%`;
+    const currentTitle = steps[currentStep].dataset.title;
+    document.getElementById('stepTitle').textContent = currentTitle;
 
     window.scrollTo({
         top: form.offsetTop - 100,
@@ -263,9 +250,6 @@ function nextStep() {
     }
     showStep(currentStep + 1);
     console.log('Showing step:', currentStep + 1);
-    if (currentStep === 2) {
-        setTimeout(initializeSignaturePad, 100);
-    }
 
     setTimeout(() => {
         isNextStepProcessing = false;
@@ -285,48 +269,32 @@ function validateStep(stepIndex) {
         return true;
     }
 
-    const currentStepElement = steps[stepIndex];
-    const inputs = currentStepElement.querySelectorAll('input[required], select[required], textarea[required]');
+    const stepElement = steps[stepIndex];
+    const requiredInputs = stepElement.querySelectorAll('input[required], textarea[required], select[required]');
     let isValid = true;
-    let errorMessages = [];
 
-    const errorContainer = currentStepElement.querySelector('.error-messages');
-    if (errorContainer) errorContainer.remove();
-
-    inputs.forEach(input => {
-        const value = input.value.trim();
-        console.log(`Validating input ${input.id}:`, value);
-        if (!value) {
-            input.classList.add('error');
-            errorMessages.push(`${input.name || input.id} is required.`);
+    requiredInputs.forEach(input => {
+        if (!input.value.trim()) {
             isValid = false;
+            input.classList.add('error');
         } else {
-            if (input.type === 'text' || input.type === 'email') {
-                if (value.length > 255) {
-                    input.classList.add('error');
-                    errorMessages.push(`${input.name || input.id} must be 255 characters or less.`);
-                    isValid = false;
-                }
-            } else if (input.tagName.toLowerCase() === 'textarea') {
-                if (value.length > 1000) {
-                    input.classList.add('error');
-                    errorMessages.push(`${input.name || input.id} must be 1000 characters or less.`);
-                    isValid = false;
-                }
-            }
             input.classList.remove('error');
         }
     });
 
-    if (!isValid && errorMessages.length > 0) {
-        console.log('Validation errors:', errorMessages);
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'error-messages';
-        errorDiv.style.color = 'red';
-        errorDiv.style.marginTop = '10px';
-        errorDiv.innerHTML = errorMessages.map(msg => `<p>${msg}</p>`).join('');
-        currentStepElement.appendChild(errorDiv);
+    if (stepIndex === 5) { // Step 6: Signature and Consent
+        if (signaturePad.isEmpty()) {
+            alert('Please provide your signature.');
+            isValid = false;
+        }
+        const confirmDetails = document.getElementById('confirmDetails').checked;
+        const privacyPolicy = document.getElementById('privacyPolicy').checked;
+        if (!confirmDetails || !privacyPolicy) {
+            alert('Please confirm the details and agree to the privacy policy.');
+            isValid = false;
+        }
     }
+
     return isValid;
 }
 
@@ -362,15 +330,15 @@ async function generateLegalNotice() {
             recipient: {
                 name: document.getElementById('recipientName').value,
                 address: document.getElementById('recipientAddress').value,
-                contact: document.getElementById('recipientContact').value,
-                email: document.getElementById('recipientEmail').value
+                contact: document.getElementById('recipientContact').value || '',
+                email: document.getElementById('recipientEmail').value || ''
             },
             dispute: {
-                relationship: document.getElementById('relationshipType').value,
                 issueDescription: document.getElementById('issueDescription').value,
-                keyEvents: document.getElementById('keyEvents').value,
                 damages: document.getElementById('damagesSuffered').value,
-                tone: document.getElementById('tone').value
+                relationship: '',
+                keyEvents: '',
+                tone: ''
             }
         };
 
