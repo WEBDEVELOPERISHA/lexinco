@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +11,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZEHSS991MC"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -19,39 +21,231 @@
         gtag('config', 'G-ZEHSS991MC');
     </script>
     <style>
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); }
-        .modal-content { background-color: #fff; margin: 15% auto; padding: 20px; border-radius: 8px; width: 80%; max-width: 500px; text-align: center; }
-        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
-        .close:hover { color: #000; }
-        .signature-pad { width: 100%; height: 200px; border: 1px solid #ccc; border-radius: 4px; background-color: #fff; touch-action: none; }
-        .signature-section { margin-top: 20px; }
-        .clear-signature { margin-top: 10px; }
-        .form-section h2 { display: flex; align-items: center; gap: 10px; font-size: 1.5em; margin-bottom: 20px; }
-        .form-group { position: relative; margin-bottom: 20px; }
-        .form-group .help-text { font-size: 0.85em; color: #666; margin-top: 5px; }
-        .form-group textarea { position: relative; padding-right: 40px; }
-        .speech-to-text { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #007bff; }
-        .speech-to-text:hover { color: #0056b3; }
-        .trust-elements { margin-bottom: 20px; text-align: center; padding: 15px; background-color: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef; }
-        .trust-elements .progress-info, .trust-elements .trust-seal, .trust-elements .privacy-assurance, .trust-elements .notice-ready, .trust-elements .professional-draft, .trust-elements .support-options { display: flex; align-items: center; gap: 10px; font-size: 1em; color: #007bff; font-weight: 500; margin-bottom: 10px; padding: 10px; transition: color 0.3s ease, background-color 0.3s ease; }
-        .trust-elements .progress-info:hover, .trust-elements .trust-seal:hover, .trust-elements .privacy-assurance:hover, .trust-elements .notice-ready:hover, .trust-elements .professional-draft:hover, .trust-elements .support-options:hover { color: #20b358; background-color: #e9ecef; border-radius: 4px; }
-        .trust-elements .progress-info i, .trust-elements .trust-seal i, .trust-elements .privacy-assurance i, .trust-elements .notice-ready i, .trust-elements .professional-draft i, .trust-elements .support-options i { font-size: 1.2em; color: #20b358; }
-        .trust-elements .trust-seal span, .trust-elements .privacy-assurance span, .trust-elements .professional-draft span, .trust-elements .support-options span { font-weight: 400; color: #333; }
-        .trust-elements hr { border: 0; border-top: 1px solid #ddd; margin: 10px 0; }
-        .disclaimer { font-size: 0.85em; color: #666; text-align: center; margin-top: 20px; }
-        .whatsapp-help { display: flex; align-items: center; gap: 5px; position: fixed; bottom: 20px; right: 20px; background-color: #20b358; color: #fff; padding: 10px 15px; border-radius: 20px; text-decoration: none; font-size: 0.9em; }
-        .whatsapp-help:hover { background-color: #1a9c4a; }
-        .form-step { display: none; }
-        .form-step.active { display: block; }
-        .generator-container.hidden { display: none !important; }
-        #noticePage { display: none; }
-        #noticePage.active { display: block; }
-        .progress-container { margin-bottom: 20px; }
-        .progress-text { text-align: center; font-weight: bold; margin-bottom: 10px; }
-        .progress-bar { height: 10px; background-color: #e0e0e0; border-radius: 5px; overflow: hidden; }
-        .progress-fill { height: 100%; background-color: #007bff; width: 0; transition: width 0.3s ease; }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .signature-pad {
+            width: 100%;
+            height: 200px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #fff;
+            touch-action: none;
+        }
+
+        .signature-section {
+            margin-top: 20px;
+        }
+
+        .clear-signature {
+            margin-top: 10px;
+        }
+
+        .form-section h2 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .form-group .help-text {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .form-group textarea {
+            position: relative;
+            padding-right: 40px;
+        }
+
+        .speech-to-text {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #007bff;
+        }
+
+        .speech-to-text:hover {
+            color: #0056b3;
+        }
+
+        .trust-elements {
+            margin-bottom: 20px;
+            text-align: center;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .trust-elements .progress-info,
+        .trust-elements .trust-seal,
+        .trust-elements .privacy-assurance,
+        .trust-elements .notice-ready,
+        .trust-elements .professional-draft,
+        .trust-elements .support-options {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1em;
+            color: #007bff;
+            font-weight: 500;
+            margin-bottom: 10px;
+            padding: 10px;
+            transition: color 0.3s ease, background-color 0.3s ease;
+        }
+
+        .trust-elements .progress-info:hover,
+        .trust-elements .trust-seal:hover,
+        .trust-elements .privacy-assurance:hover,
+        .trust-elements .notice-ready:hover,
+        .trust-elements .professional-draft:hover,
+        .trust-elements .support-options:hover {
+            color: #20b358;
+            background-color: #e9ecef;
+            border-radius: 4px;
+        }
+
+        .trust-elements .progress-info i,
+        .trust-elements .trust-seal i,
+        .trust-elements .privacy-assurance i,
+        .trust-elements .notice-ready i,
+        .trust-elements .professional-draft i,
+        .trust-elements .support-options i {
+            font-size: 1.2em;
+            color: #20b358;
+        }
+
+        .trust-elements .trust-seal span,
+        .trust-elements .privacy-assurance span,
+        .trust-elements .professional-draft span,
+        .trust-elements .support-options span {
+            font-weight: 400;
+            color: #333;
+        }
+
+        .trust-elements hr {
+            border: 0;
+            border-top: 1px solid #ddd;
+            margin: 10px 0;
+        }
+
+        .disclaimer {
+            font-size: 0.85em;
+            color: #666;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .whatsapp-help {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #20b358;
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+
+        .whatsapp-help:hover {
+            background-color: #1a9c4a;
+        }
+
+        .form-step {
+            display: none;
+        }
+
+        .form-step.active {
+            display: block;
+        }
+
+        .generator-container.hidden {
+            display: none !important;
+        }
+
+        #noticePage {
+            display: none;
+        }
+
+        #noticePage.active {
+            display: block;
+        }
+
+        .progress-container {
+            margin-bottom: 20px;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: #007bff;
+            width: 0;
+            transition: width 0.3s ease;
+        }
+
+        .notice-actions button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
     </style>
 </head>
+
 <body>
     <nav class="navbar">
         <div class="container" style="display:flex;justify-content:space-between">
@@ -74,12 +268,14 @@
         <div class="container">
             <div class="generator-header">
                 <h1>Legal Notice Generator</h1>
-                <p>Just enter your details below — we’ll help you create a professional legal notice in a few easy steps!</p>
+                <p>Just enter your details below — we’ll help you create a professional legal notice in a few easy
+                    steps!</p>
             </div>
 
             <form id="noticeForm" class="notice-form">
                 <div class="progress-container">
-                    <div class="progress-text">Step <span id="currentStep">1</span> of 6: <span id="stepTitle"></span></div>
+                    <div class="progress-text">Step <span id="currentStep">1</span> of 6: <span id="stepTitle"></span>
+                    </div>
                     <div class="progress-bar">
                         <div class="progress-fill" id="progressFill"></div>
                     </div>
@@ -88,13 +284,16 @@
                 <!-- Step 1: Issue Description -->
                 <div class="form-step active" data-step="1" data-title="Issue Description">
                     <div class="form-group">
-                        <label for="issueDescription" class="required">Tell us what went wrong – in your own words.</label>
-                        <textarea id="issueDescription" required placeholder="Example: I ordered a product but got the wrong one. I’ve contacted support but got no help. Include transaction date, place, and contract details if applicable."></textarea>
+                        <label for="issueDescription" class="required">Tell us what went wrong – in your own
+                            words.</label>
+                        <textarea id="issueDescription" required
+                            placeholder="Example: I ordered a product but got the wrong one. I’ve contacted support but got no help. Include transaction date, place, and contract details if applicable."></textarea>
                         <i class="fas fa-microphone speech-to-text" title="Use speech-to-text"></i>
                         <div class="help-text">We’ll use this to draft a precise notice.</div>
                     </div>
                     <div class="form-navigation">
-                        <button type="button" class="btn next-step" onclick="nextStep()">Next <i class="fas fa-arrow-right"></i></button>
+                        <button type="button" class="btn next-step" onclick="nextStep()">Next <i
+                                class="fas fa-arrow-right"></i></button>
                     </div>
                 </div>
 
@@ -102,13 +301,16 @@
                 <div class="form-step" data-step="2" data-title="Damages Suffered">
                     <div class="form-group">
                         <label for="damagesSuffered" class="required">How has this affected you?</label>
-                        <textarea id="damagesSuffered" required placeholder="Tell us how this affected you – financially or otherwise. Example: Lost ₹50,000 and faced mental stress."></textarea>
+                        <textarea id="damagesSuffered" required
+                            placeholder="Tell us how this affected you – financially or otherwise. Example: Lost ₹50,000 and faced mental stress."></textarea>
                         <i class="fas fa-microphone speech-to-text" title="Use speech-to-text"></i>
                         <div class="help-text">Describe monetary losses, stress, or other impacts.</div>
                     </div>
                     <div class="form-navigation">
-                        <button type="button" class="btn prev-step" onclick="prevStep()"><i class="fas fa-arrow-left"></i> Previous</button>
-                        <button type="button" class="btn next-step" onclick="nextStep()">Next <i class="fas fa-arrow-right"></i></button>
+                        <button type="button" class="btn prev-step" onclick="prevStep()"><i
+                                class="fas fa-arrow-left"></i> Previous</button>
+                        <button type="button" class="btn next-step" onclick="nextStep()">Next <i
+                                class="fas fa-arrow-right"></i></button>
                     </div>
                 </div>
 
@@ -117,11 +319,14 @@
                     <div class="form-group">
                         <label for="documentUpload">Want to upload proof? (Optional)</label>
                         <input type="file" id="documentUpload" accept=".pdf,.jpg,.png">
-                        <div class="help-text">Upload contracts, receipts, or other evidence to support your notice.</div>
+                        <div class="help-text">Upload contracts, receipts, or other evidence to support your notice.
+                        </div>
                     </div>
                     <div class="form-navigation">
-                        <button type="button" class="btn prev-step" onclick="prevStep()"><i class="fas fa-arrow-left"></i> Previous</button>
-                        <button type="button" class="btn next-step" onclick="nextStep()">Next <i class="fas fa-arrow-right"></i></button>
+                        <button type="button" class="btn prev-step" onclick="prevStep()"><i
+                                class="fas fa-arrow-left"></i> Previous</button>
+                        <button type="button" class="btn next-step" onclick="nextStep()">Next <i
+                                class="fas fa-arrow-right"></i></button>
                     </div>
                 </div>
 
@@ -139,7 +344,8 @@
                     </div>
                     <div class="form-group">
                         <label for="senderAddress" class="required">Your complete address</label>
-                        <textarea id="senderAddress" required placeholder="Example: 123 Main St, Mumbai, Maharashtra"></textarea>
+                        <textarea id="senderAddress" required
+                            placeholder="Example: 123 Main St, Mumbai, Maharashtra"></textarea>
                         <i class="fas fa-microphone speech-to-text" title="Use speech-to-text"></i>
                         <div class="help-text">We’ll use this to send your notice to the right place.</div>
                     </div>
@@ -149,8 +355,10 @@
                         <div class="help-text">We’ll send the final notice here.</div>
                     </div>
                     <div class="form-navigation">
-                        <button type="button" class="btn prev-step" onclick="prevStep()"><i class="fas fa-arrow-left"></i> Previous</button>
-                        <button type="button" class="btn next-step" onclick="nextStep()">Next <i class="fas fa-arrow-right"></i></button>
+                        <button type="button" class="btn prev-step" onclick="prevStep()"><i
+                                class="fas fa-arrow-left"></i> Previous</button>
+                        <button type="button" class="btn next-step" onclick="nextStep()">Next <i
+                                class="fas fa-arrow-right"></i></button>
                     </div>
                 </div>
 
@@ -178,8 +386,10 @@
                         <div class="help-text">Include if you want to send the notice via email too.</div>
                     </div>
                     <div class="form-navigation">
-                        <button type="button" class="btn prev-step" onclick="prevStep()"><i class="fas fa-arrow-left"></i> Previous</button>
-                        <button type="button" class="btn next-step" onclick="nextStep()">Next <i class="fas fa-arrow-right"></i></button>
+                        <button type="button" class="btn prev-step" onclick="prevStep()"><i
+                                class="fas fa-arrow-left"></i> Previous</button>
+                        <button type="button" class="btn next-step" onclick="nextStep()">Next <i
+                                class="fas fa-arrow-right"></i></button>
                     </div>
                 </div>
 
@@ -199,15 +409,20 @@
                     <div class="form-group">
                         <div class="checkbox-group">
                             <input type="checkbox" id="confirmDetails" required>
-                            <label for="confirmDetails">I confirm that all the information provided is accurate to the best of my knowledge.</label>
+                            <label for="confirmDetails">I confirm that all the information provided is accurate to the
+                                best of my knowledge.</label>
                         </div>
                         <div class="checkbox-group">
                             <input type="checkbox" id="privacyPolicy" required>
-                            <label for="privacyPolicy">I consent to Lexinco collecting and processing my data as outlined in the <a href="/privacy-policy.html" target="_blank">Privacy Policy</a>. I understand that Lexinco is not a law firm and does not provide legal advice or legal services.</label>
+                            <label for="privacyPolicy">I consent to Lexinco collecting and processing my data as
+                                outlined in the <a href="/privacy-policy.html" target="_blank">Privacy Policy</a>. I
+                                understand that Lexinco is not a law firm and does not provide legal advice or legal
+                                services.</label>
                         </div>
                     </div>
                     <div class="form-navigation">
-                        <button type="button" class="btn prev-step" onclick="prevStep()"><i class="fas fa-arrow-left"></i> Previous</button>
+                        <button type="button" class="btn prev-step" onclick="prevStep()"><i
+                                class="fas fa-arrow-left"></i> Previous</button>
                         <button type="submit" class="btn primary">
                             <i class="fas fa-file-contract"></i> Generate Legal Notice
                         </button>
@@ -224,16 +439,19 @@
     <section id="noticePage" class="notice-page">
         <div class="container">
             <div class="trust-elements">
-                <div class="notice-ready">
-                    <i class="fas fa-check-circle"></i> Notice drafted successfully — it’s now under advocate review and will reach your inbox in 30 minutes.
+                <div class="notice-ready" id="noticeStatusMessage">
+                    <i class="fas fa-check-circle"></i> Notice drafted successfully. Please complete the payment of ₹499
+                    to schedule delivery to your inbox in 30 minutes.
                 </div>
                 <hr>
                 <div class="professional-draft">
-                    <i class="fas fa-file-alt"></i> <span>Professionally drafted by AI, reviewed by legal experts.</span>
+                    <i class="fas fa-file-alt"></i> <span>Professionally drafted by AI, reviewed by legal
+                        experts.</span>
                 </div>
                 <hr>
                 <div class="support-options">
-                    <i class="fas fa-headset"></i> <span>Need help? Contact us via <a href="https://wa.me/+918329186509" target="_blank">WhatsApp</a> or <a href="mailto:support@lexinco.com">email</a>.</span>
+                    <i class="fas fa-headset"></i> <span>Need help? Contact us via <a href="https://wa.me/+918329186509"
+                            target="_blank">WhatsApp</a> or <a href="mailto:support@lexinco.com">email</a>.</span>
                 </div>
             </div>
             <div class="notice-header">
@@ -243,7 +461,12 @@
                         <i class="fas fa-edit"></i> Edit Notice
                     </button>
                     <div id="paymentDetails" class="payment-details"></div>
-                    <div id="timerDisplay" style="display: none;">Notice will be ready in <span id="countdown"></span></div>
+                    <div id="timerDisplay" style="display: none;">Notice will be ready in <span id="countdown"></span>
+                    </div>
+                    <button id="downloadBtn" class="btn" onclick="generatePDF()" disabled>Download PDF</button>
+                    <!-- <button id="sendNoticeBtn" class="btn" onclick="sendEmail()" disabled>Send via Email</button> -->
+                    <button id="shareWhatsappBtn" class="btn" onclick="shareViaWhatsapp()" disabled>Share via
+                        WhatsApp</button>
                 </div>
             </div>
             <div id="legalNotice" class="legal-notice-content"></div>
@@ -253,7 +476,7 @@
     <div class="modal" id="reviewModal" style="display: none;">
         <div class="modal-content">
             <span class="close" onclick="closeReviewModal()">×</span>
-            <p>The notice will be sent to your inbox in 30 minutes.</p>
+            <p>Your payment was successful. The notice will be sent to your inbox in 30 minutes.</p>
         </div>
     </div>
 
@@ -334,4 +557,5 @@
         });
     </script>
 </body>
+
 </html>

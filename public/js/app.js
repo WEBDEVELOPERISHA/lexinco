@@ -122,9 +122,7 @@ function startTimer(endTime) {
         if (remaining <= 0) {
             clearInterval(interval);
             document.getElementById('timerDisplay').style.display = 'none';
-            document.getElementById('downloadBtn').disabled = false;
-            document.getElementById('sendNoticeBtn').disabled = false;
-            document.getElementById('shareWhatsappBtn').disabled = false;
+            loadNoticeDetails(currentNoticeId); // Refresh status
         } else {
             const minutes = Math.floor(remaining / 60000);
             const seconds = Math.floor((remaining % 60000) / 1000);
@@ -174,21 +172,77 @@ async function loadNoticeDetails(noticeId) {
         const notice = await response.json();
 
         if (notice && notice.content) {
-            legalNoticeDiv.innerHTML = notice.content;
+            console.log('Loading notice:', noticeId, 'status:', notice.status);
             currentNoticeId = noticeId;
             savedSenderName = notice.client.name;
             formContainer.classList.add('hidden');
             noticePage.classList.add('active');
 
+            const paymentDetails = document.getElementById('paymentDetails');
+            const legalNotice = document.getElementById('legalNotice');
             const timerDisplay = document.getElementById('timerDisplay');
-            if (notice.status === 'pending_send') {
-                timerDisplay.style.display = 'block';
-                startTimer(new Date(notice.send_at).getTime());
-            } else if (notice.status === 'sent') {
+            const statusMessage = document.getElementById('noticeStatusMessage');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const sendNoticeBtn = document.getElementById('sendNoticeBtn');
+            const shareWhatsappBtn = document.getElementById('shareWhatsappBtn');
+
+            if (notice.status === 'pending_payment') {
+                statusMessage.innerHTML = '<i class="fas fa-check-circle"></i> Notice drafted successfully. Please complete the payment of ₹499 to finalize and receive the notice with lawyer\'s letterhead and signature in your inbox.';
+                paymentDetails.innerHTML = `
+                    <p>Please pay <strong>₹499</strong> to finalize your legal notice.</p>
+                    <button class="btn primary" onclick="initiatePayment()">Pay Now</button>
+                `;
+                legalNotice.innerHTML = notice.content; // Show draft notice without letterhead/signature
                 timerDisplay.style.display = 'none';
+                downloadBtn.disabled = true;
+                sendNoticeBtn.disabled = true;
+                shareWhatsappBtn.disabled = true;
+            } else if (notice.status === 'pending_send') {
+                if (!notice.payment || !notice.payment.paymentId) {
+                    console.error('Invalid pending_send status: No paymentId found for noticeId:', noticeId);
+                    statusMessage.innerHTML = '<i class="fas fa-exclamation-circle"></i> Payment not verified. Please complete the payment of ₹499.';
+                    paymentDetails.innerHTML = `
+                        <p>Please pay <strong>₹499</strong> to finalize your legal notice.</p>
+                        <button class="btn primary" onclick="initiatePayment()">Pay Now</button>
+                    `;
+                    legalNotice.innerHTML = notice.content; // Show draft notice
+                    timerDisplay.style.display = 'none';
+                    downloadBtn.disabled = true;
+                    sendNoticeBtn.disabled = true;
+                    shareWhatsappBtn.disabled = true;
+                } else {
+                    statusMessage.innerHTML = '<i class="fas fa-clock"></i> Payment successful. Your notice is being finalized with lawyer\'s letterhead and signature and will be sent to your inbox in 30 minutes.';
+                    paymentDetails.innerHTML = '';
+                    const sendTime = new Date(notice.send_at).getTime();
+                    const now = Date.now();
+                    const remaining = sendTime - now;
+                    if (remaining > 0) {
+                        timerDisplay.style.display = 'block';
+                        startTimer(sendTime);
+                        legalNotice.innerHTML = 'Your notice is being finalized and will be available soon.';
+                    } else {
+                        // Show finalized notice with letterhead/signature (assuming content is updated)
+                        legalNotice.innerHTML = notice.content;
+                        timerDisplay.style.display = 'none';
+                        downloadBtn.disabled = false;
+                        sendNoticeBtn.disabled = false;
+                        shareWhatsappBtn.disabled = false;
+                    }
+                }
+            } else if (notice.status === 'sent') {
+                statusMessage.innerHTML = '<i class="fas fa-check-circle"></i> Notice sent to your inbox with lawyer\'s letterhead and signature.';
+                paymentDetails.innerHTML = '';
+                legalNotice.innerHTML = notice.content; // Show finalized notice
+                timerDisplay.style.display = 'none';
+                downloadBtn.disabled = false;
+                sendNoticeBtn.disabled = false;
+                shareWhatsappBtn.disabled = false;
+            } else {
+                throw new Error(`Invalid notice status: ${notice.status}`);
             }
         } else {
-            alert('Notice content not found');
+            console.error('Notice not found or invalid for noticeId:', noticeId);
+            alert('Notice not found. Please generate a new notice.');
             showForm();
         }
     } catch (error) {
@@ -218,7 +272,7 @@ function showStep(stepIndex) {
 
     const stepNumber = currentStep + 1;
     document.getElementById('currentStep').textContent = stepNumber;
-    const percentage = (stepNumber / 6) * 100; // Updated to 6 steps
+    const percentage = (stepNumber / 6) * 100;
     document.getElementById('progressFill').style.width = `${percentage}%`;
     const currentTitle = steps[currentStep].dataset.title;
     document.getElementById('stepTitle').textContent = currentTitle;
@@ -282,7 +336,7 @@ function validateStep(stepIndex) {
         }
     });
 
-    if (stepIndex === 5) { // Step 6: Signature and Consent
+    if (stepIndex === 5) {
         if (signaturePad.isEmpty()) {
             alert('Please provide your signature.');
             isValid = false;
@@ -351,7 +405,6 @@ async function generateLegalNotice() {
         if (!data.content) throw new Error(data.error || 'Failed to generate notice');
 
         const noticeContent = DOMPurify.sanitize(data.content);
-        legalNoticeDiv.innerHTML = noticeContent;
         formData.signature = signatureData;
         formData.content = noticeContent;
 
@@ -375,26 +428,8 @@ async function generateLegalNotice() {
         localStorage.setItem('lastNoticeId', currentNoticeId);
         window.history.pushState({}, '', `?id=${currentNoticeId}`);
 
-        showReviewModal();
-
-        setTimeout(async () => {
-            try {
-                const sendResponse = await fetch(`/api/send-notice/${currentNoticeId}`, { method: 'POST' });
-                const sendData = await sendResponse.json();
-                if (sendData.success) {
-                    alert('Notice has been sent to your inbox');
-                    loadNoticeDetails(currentNoticeId);
-                } else {
-                    throw new Error(sendData.error || 'Failed to send notice');
-                }
-            } catch (error) {
-                console.error('Error sending notice:', error);
-                alert(`Failed to send notice: ${error.message}`);
-            }
-        }, 30 * 60 * 1000);
-
-        formContainer.classList.add('hidden');
-        noticePage.classList.add('active');
+        // Explicitly load the notice details to ensure correct status
+        await loadNoticeDetails(currentNoticeId);
     } catch (error) {
         console.error('Error generating notice:', error);
         alert(`Error generating notice: ${error.message}\nDetails: ${error.response?.data?.details || 'No details available'}`);
@@ -406,67 +441,76 @@ async function generateLegalNotice() {
 async function initiatePayment() {
     try {
         showLoading(true);
-        const orderResponse = await fetch(`${BASE_URL}/api/create-order`, {
+        const response = await fetch('/api/create-order', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ noticeId: currentNoticeId })
         });
+        const order = await response.json();
+        if (!order.id) throw new Error(order.error || 'Failed to create payment order');
 
-        if (!orderResponse.ok) {
-            const error = await orderResponse.json();
-            throw new Error(error.details || error.error || 'Failed to create payment order');
+        // Log order details for debugging
+        console.log('Razorpay order response:', JSON.stringify(order, null, 2));
+
+        // Ensure amount is exactly 49900 paise (₹499)
+        if (order.amount !== 49900) {
+            console.error('Unexpected order amount:', order.amount, 'Expected: 49900 paise (₹499)');
+            alert(`Payment error: Invalid amount. Expected ₹499, received ₹${order.amount / 100}. Please try again.`);
+            return;
         }
-
-        const orderData = await orderResponse.json();
 
         const options = {
             key: razorpayKeyId,
-            amount: orderData.amount,
-            currency: 'INR',
-            order_id: orderData.id,
-            name: 'Lexinco Legal Notice',
-            description: 'Payment for legal notice delivery',
-            prefill: {
-                name: document.getElementById('senderName').value,
-                email: document.getElementById('senderEmail').value,
-                contact: document.getElementById('senderContact').value
-            },
+            amount: order.amount, // 49900 paise
+            currency: order.currency,
+            name: 'Lexinco',
+            description: 'Payment for Legal Notice',
+            order_id: order.id,
             handler: async function (response) {
                 try {
-                    const updateResponse = await fetch(`${BASE_URL}/api/update-payment`, {
+                    showLoading(true);
+                    const paymentData = {
+                        noticeId: currentNoticeId,
+                        paymentId: response.razorpay_payment_id,
+                        orderId: response.razorpay_order_id,
+                        signature: response.razorpay_signature,
+                        status: 'pending_send'
+                    };
+                    const verifyResponse = await fetch('/api/update-payment', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            noticeId: currentNoticeId,
-                            status: 'completed',
-                            paymentId: response.razorpay_payment_id,
-                            orderId: response.razorpay_order_id
-                        })
+                        body: JSON.stringify(paymentData)
                     });
+                    const verifyData = await verifyResponse.json();
+                    if (!verifyData.success) throw new Error(verifyData.error || 'Payment verification failed');
 
-                    if (!updateResponse.ok) throw new Error('Failed to update payment status');
-
-                    localStorage.setItem('lastNoticeId', currentNoticeId);
-                    showReviewModal();
-                    loadNoticeDetails(currentNoticeId);
+                    // Reload notice details to update UI
+                    await loadNoticeDetails(currentNoticeId);
                 } catch (error) {
-                    console.error('Payment success handler error:', error);
-                    alert(`Error processing payment: ${error.message}`);
+                    console.error('Payment verification error:', error);
+                    alert('Payment verification failed: ' + error.message);
                 } finally {
                     showLoading(false);
                 }
+            },
+            prefill: {
+                email: document.getElementById('senderEmail').value,
+                contact: document.getElementById('senderContact').value
+            },
+            theme: {
+                color: '#004aad'
             }
         };
 
         const rzp = new Razorpay(options);
         rzp.on('payment.failed', function (response) {
-            alert(`Payment failed: ${response.error.description}`);
-            showLoading(false);
+            console.error('Payment failed:', response.error);
+            alert('Payment failed: ' + response.error.description);
         });
         rzp.open();
     } catch (error) {
-        console.error('Payment error:', error);
-        alert(`Payment initialization failed: ${error.message}`);
+        console.error('Payment initiation error:', error);
+        alert('Failed to initiate payment: ' + error.message);
     } finally {
         showLoading(false);
     }

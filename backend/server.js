@@ -116,7 +116,6 @@ app.post('/api/generate-notice', async (req, res) => {
         year: 'numeric'
     });
 
-    // Validate formData
     if (!formData.client || !formData.recipient || !formData.dispute) {
         console.error('Invalid form data:', formData);
         return res.status(400).json({ error: 'Invalid form data', details: 'Missing client, recipient, or dispute data' });
@@ -217,7 +216,7 @@ ${template}
         const expectedEnd = `(Advocate Shalini Tripathi)`;
         if (!content.startsWith(expectedStart) || !content.endsWith(expectedEnd)) {
             console.warn('OpenAI response does not match expected structure:', content.substring(0, 100) + '...');
-            content = template; // Fallback to template
+            content = template;
         }
 
         content = content
@@ -373,10 +372,15 @@ app.post('/api/update-payment', async (req, res) => {
     const { noticeId, paymentId, orderId, status } = req.body;
 
     try {
-        const reviewEndTime = new Date(Date.now() + 24 * 60 * 60 * 1000);
+        const noticeResult = await pool.query('SELECT status FROM notices WHERE notice_id = $1', [noticeId]);
+        if (noticeResult.rows.length === 0 || noticeResult.rows[0].status !== 'pending_payment') {
+            return res.status(400).json({ error: 'Invalid notice status for payment update' });
+        }
+
+        const sendAt = new Date(Date.now() + 30 * 60 * 1000);
         const result = await pool.query(
-            'UPDATE notices SET status = $1, payment_id = $2, order_id = $3, review_end_time = $4 WHERE notice_id = $5 RETURNING notice_id',
-            [status, paymentId, orderId, reviewEndTime, noticeId]
+            'UPDATE notices SET status = $1, payment_id = $2, order_id = $3, send_at = $4 WHERE notice_id = $5 RETURNING notice_id',
+            ['pending_send', paymentId, orderId, sendAt, noticeId]
         );
         if (result.rows.length === 0) {
             return res.status(404).json({ error: 'Notice not found' });
@@ -478,7 +482,13 @@ app.post('/api/create-order', async (req, res) => {
         if (!noticeId) {
             return res.status(400).json({ error: 'Notice ID is required' });
         }
-        const amount = 150000;
+
+        const noticeResult = await pool.query('SELECT status FROM notices WHERE notice_id = $1', [noticeId]);
+        if (noticeResult.rows.length === 0 || noticeResult.rows[0].status !== 'pending_payment') {
+            return res.status(400).json({ error: 'Invalid notice status for payment' });
+        }
+
+        const amount = 49900; // 499 INR in paise
         const shortNoticeId = noticeId.slice(0, 8);
         const shortTimestamp = Date.now().toString().slice(-6);
         const receipt = `order_${shortNoticeId}_t${shortTimestamp}`;
@@ -552,8 +562,8 @@ app.post('/api/save-notice', upload.single('pdf'), async (req, res) => {
 
         const signature = req.body.signature || null;
         const content = req.body.content;
-        const status = 'pending_send';
-        const sendAt = new Date(Date.now() + 30 * 60 * 1000);
+        const status = 'pending_payment';
+        const sendAt = null;
 
         const query = `
             INSERT INTO notices (
