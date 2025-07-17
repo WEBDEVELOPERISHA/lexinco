@@ -59,8 +59,13 @@
             height: 200px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            background-color: #fff;
+            background-color: #ffffff !important;
+            /* Ensure white background */
+            display: block !important;
+            /* Force visibility */
             touch-action: none;
+            z-index: 10;
+            /* Prevent overlap by other elements */
         }
 
         .signature-section {
@@ -435,11 +440,13 @@
         <div class="container">
             <div class="trust-elements">
                 <div class="notice-ready" id="noticeStatusMessage">
-                    <i class="fas fa-check-circle"></i> Your legal notice has been generated and sent to our advocate for review. We will contact you shortly for further steps.
+                    <i class="fas fa-check-circle"></i> Your legal notice has been generated and sent to our advocate
+                    for review. We will contact you shortly for further steps.
                 </div>
                 <hr>
                 <div class="professional-draft">
-                    <i class="fas fa-file-alt"></i> <span>Professionally drafted by AI, reviewed by legal experts.</span>
+                    <i class="fas fa-file-alt"></i> <span>Professionally drafted by AI, reviewed by legal
+                        experts.</span>
                 </div>
                 <hr>
                 <div class="support-options">

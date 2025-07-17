@@ -72,19 +72,45 @@ async function loadConfig() {
 }
 
 function initializeSignaturePad() {
-    if (!signaturePadCanvas) return;
+    if (!signaturePadCanvas) {
+        console.error('Signature pad canvas not found');
+        return;
+    }
+
+    // Ensure canvas is visible
+    signaturePadCanvas.style.display = 'block';
+    signaturePadCanvas.style.backgroundColor = '#ffffff'; // Explicitly set background
 
     const ratio = Math.max(window.devicePixelRatio || 1, 1);
     signaturePadCanvas.width = signaturePadCanvas.offsetWidth * ratio;
     signaturePadCanvas.height = signaturePadCanvas.offsetHeight * ratio;
-    signaturePadCanvas.getContext('2d').scale(ratio, ratio);
+    const ctx = signaturePadCanvas.getContext('2d');
+    ctx.scale(ratio, ratio);
 
+    // Initialize SignaturePad
     signaturePad = new SignaturePad(signaturePadCanvas, {
         backgroundColor: 'rgb(255, 255, 255)',
         penColor: 'rgb(0, 0, 0)',
         minWidth: 1,
         maxWidth: 2.5,
         throttle: 16
+    });
+
+    // Log initialization
+    console.log('SignaturePad initialized. Canvas dimensions:', signaturePadCanvas.width, signaturePadCanvas.height);
+
+    // Test rendering a dot to confirm visibility
+    signaturePad.dotSize = 1;
+    signaturePad.penColor = 'rgb(0, 0, 0)';
+    signaturePad.clear(); // Clear any existing content
+    signaturePad.fromData([[{ x: 50, y: 50, time: Date.now(), color: 'rgb(0, 0, 0)' }]]); // Draw a test dot
+
+    // Add event listener to log drawing
+    signaturePad.addEventListener('beginStroke', () => {
+        console.log('Drawing started');
+    });
+    signaturePad.addEventListener('endStroke', () => {
+        console.log('Drawing ended. Signature data:', signaturePad.toData());
     });
 
     window.addEventListener('resize', handleCanvasResize);
@@ -208,6 +234,12 @@ function showStep(stepIndex) {
     document.getElementById('progressFill').style.width = `${percentage}%`;
     const currentTitle = steps[currentStep].dataset.title;
     document.getElementById('stepTitle').textContent = currentTitle;
+
+    // Re-initialize signature pad when showing Step 6
+    if (stepNumber === 6) {
+        console.log('Re-initializing signature pad for Step 6');
+        initializeSignaturePad();
+    }
 
     window.scrollTo({
         top: form.offsetTop - 100,
