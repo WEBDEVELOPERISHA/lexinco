@@ -238,11 +238,6 @@
             width: 0;
             transition: width 0.3s ease;
         }
-
-        .notice-actions button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
     </style>
 </head>
 
@@ -440,13 +435,11 @@
         <div class="container">
             <div class="trust-elements">
                 <div class="notice-ready" id="noticeStatusMessage">
-                    <i class="fas fa-check-circle"></i> Notice drafted successfully. Please complete the payment of ₹499
-                    to schedule delivery to your inbox in 30 minutes.
+                    <i class="fas fa-check-circle"></i> Your legal notice has been generated and sent to our advocate for review. We will contact you shortly for further steps.
                 </div>
                 <hr>
                 <div class="professional-draft">
-                    <i class="fas fa-file-alt"></i> <span>Professionally drafted by AI, reviewed by legal
-                        experts.</span>
+                    <i class="fas fa-file-alt"></i> <span>Professionally drafted by AI, reviewed by legal experts.</span>
                 </div>
                 <hr>
                 <div class="support-options">
@@ -463,10 +456,6 @@
                     <div id="paymentDetails" class="payment-details"></div>
                     <div id="timerDisplay" style="display: none;">Notice will be ready in <span id="countdown"></span>
                     </div>
-                    <button id="downloadBtn" class="btn" onclick="generatePDF()" disabled>Download PDF</button>
-                    <!-- <button id="sendNoticeBtn" class="btn" onclick="sendEmail()" disabled>Send via Email</button> -->
-                    <button id="shareWhatsappBtn" class="btn" onclick="shareViaWhatsapp()" disabled>Share via
-                        WhatsApp</button>
                 </div>
             </div>
             <div id="legalNotice" class="legal-notice-content"></div>
@@ -476,7 +465,7 @@
     <div class="modal" id="reviewModal" style="display: none;">
         <div class="modal-content">
             <span class="close" onclick="closeReviewModal()">×</span>
-            <p>Your payment was successful. The notice will be sent to your inbox in 30 minutes.</p>
+            <p>Your notice has been sent to our advocate for review.</p>
         </div>
     </div>
 
@@ -533,7 +522,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.3/purify.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://smtpjs.com/v3/smtp.js"></script>
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="js/app.js"></script>
     <script>
         const speechButtons = document.querySelectorAll('.speech-to-text');

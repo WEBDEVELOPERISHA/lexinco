@@ -5,12 +5,10 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
 const fs = require('fs');
-const Razorpay = require('razorpay');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 const { Pool } = require('pg');
 const axios = require('axios');
-const cron = require('node-cron');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const app = express();
@@ -37,15 +35,6 @@ const pool = new Pool({
     ssl: process.env.DATABASE_URL.includes('localhost') ? false : { rejectUnauthorized: false }
 });
 
-if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
-    throw new Error('Razorpay credentials are missing. Check your .env file.');
-}
-
-const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET
-});
-
 const transporter = nodemailer.createTransport({
     host: 'smtpout.secureserver.net',
     port: 465,
@@ -65,36 +54,6 @@ function generateOTP() {
     return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-cron.schedule('* * * * *', async () => {
-    try {
-        const now = new Date();
-        const result = await pool.query('SELECT * FROM notices WHERE status = $1 AND send_at <= $2', ['pending_send', now]);
-        for (const notice of result.rows) {
-            try {
-                await transporter.sendMail({
-                    from: `"Lexinco" <info@lexinco.com>`,
-                    to: notice.client_email,
-                    subject: 'Your Generated Legal Notice',
-                    text: `Dear ${notice.client_name},\n\nPlease find attached your generated legal notice.\n\nBest regards,\nLexinco Team`,
-                    attachments: [
-                        {
-                            filename: 'legal_notice.pdf',
-                            path: notice.pdf_path,
-                            contentType: 'application/pdf'
-                        }
-                    ]
-                });
-                await pool.query('UPDATE notices SET status = $1 WHERE notice_id = $2', ['sent', notice.notice_id]);
-                console.log(`Notice ${notice.notice_id} sent successfully to ${notice.client_email}`);
-            } catch (error) {
-                console.error(`Failed to send notice ${notice.notice_id}:`, error);
-            }
-        }
-    } catch (error) {
-        console.error('Cron job error:', error);
-    }
-});
-
 app.get('/', (req, res) => {
     const indexPath = path.join(__dirname, '..', 'public', 'index.html');
     if (fs.existsSync(indexPath)) {
@@ -105,7 +64,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/api/config', (req, res) => {
-    res.json({ razorpayKeyId: process.env.RAZORPAY_KEY_ID });
+    res.json({});
 });
 
 app.post('/api/generate-notice', async (req, res) => {
@@ -354,42 +313,11 @@ app.get('/api/get-notice/:id', async (req, res) => {
             content: notice.content,
             status: notice.status,
             send_at: notice.send_at,
-            payment: notice.payment_id ? {
-                status: notice.status,
-                paymentId: notice.payment_id,
-                orderId: notice.order_id,
-                updatedAt: notice.review_end_time
-            } : null,
             createdAt: notice.created_at
         });
     } catch (error) {
         console.error('Get Notice Error:', error);
         res.status(500).json({ error: 'Failed to fetch notice', details: error.message });
-    }
-});
-
-app.post('/api/update-payment', async (req, res) => {
-    const { noticeId, paymentId, orderId, status } = req.body;
-
-    try {
-        const noticeResult = await pool.query('SELECT status FROM notices WHERE notice_id = $1', [noticeId]);
-        if (noticeResult.rows.length === 0 || noticeResult.rows[0].status !== 'pending_payment') {
-            return res.status(400).json({ error: 'Invalid notice status for payment update' });
-        }
-
-        const sendAt = new Date(Date.now() + 30 * 60 * 1000);
-        const result = await pool.query(
-            'UPDATE notices SET status = $1, payment_id = $2, order_id = $3, send_at = $4 WHERE notice_id = $5 RETURNING notice_id',
-            ['pending_send', paymentId, orderId, sendAt, noticeId]
-        );
-        if (result.rows.length === 0) {
-            return res.status(404).json({ error: 'Notice not found' });
-        }
-
-        res.json({ success: true });
-    } catch (error) {
-        console.error('Update Payment Error:', error);
-        res.status(500).json({ error: 'Failed to update payment', details: error.message });
     }
 });
 
@@ -476,48 +404,6 @@ app.post('/api/send-notice', upload.single('pdf'), async (req, res) => {
     }
 });
 
-app.post('/api/create-order', async (req, res) => {
-    try {
-        const { noticeId } = req.body;
-        if (!noticeId) {
-            return res.status(400).json({ error: 'Notice ID is required' });
-        }
-
-        const noticeResult = await pool.query('SELECT status FROM notices WHERE notice_id = $1', [noticeId]);
-        if (noticeResult.rows.length === 0 || noticeResult.rows[0].status !== 'pending_payment') {
-            return res.status(400).json({ error: 'Invalid notice status for payment' });
-        }
-
-        const amount = 49900; // 499 INR in paise
-        const shortNoticeId = noticeId.slice(0, 8);
-        const shortTimestamp = Date.now().toString().slice(-6);
-        const receipt = `order_${shortNoticeId}_t${shortTimestamp}`;
-        if (receipt.length > 40) {
-            console.warn('Receipt too long:', receipt);
-            return res.status(400).json({ error: 'Generated receipt exceeds 40 characters' });
-        }
-        const options = {
-            amount,
-            currency: 'INR',
-            receipt,
-            payment_capture: 1
-        };
-        const order = await razorpay.orders.create(options);
-        res.json({
-            id: order.id,
-            amount: order.amount,
-            currency: order.currency,
-            receipt: order.receipt
-        });
-    } catch (error) {
-        console.error('Razorpay error:', error);
-        res.status(500).json({
-            error: error.error?.description || 'Failed to create payment order',
-            details: error.message
-        });
-    }
-});
-
 app.post('/api/save-notice', upload.single('pdf'), async (req, res) => {
     try {
         if (!req.file) {
@@ -562,7 +448,7 @@ app.post('/api/save-notice', upload.single('pdf'), async (req, res) => {
 
         const signature = req.body.signature || null;
         const content = req.body.content;
-        const status = 'pending_payment';
+        const status = 'generated';
         const sendAt = null;
 
         const query = `
@@ -597,6 +483,22 @@ app.post('/api/save-notice', upload.single('pdf'), async (req, res) => {
         ];
 
         await pool.query(query, values);
+
+        // Send email to advocate
+        await transporter.sendMail({
+            from: `"Lexinco" <${process.env.EMAIL_USER}>`,
+            to: 'info@lexinco.com',
+            subject: 'New Legal Notice Generated',
+            text: `A new legal notice has been generated.\n\nUser Details:\nName: ${client.name}\nEmail: ${client.email}\nContact: ${client.contact}\nAddress: ${client.address}\n\nNotice ID: ${noticeId}\n\nPlease review the attached notice and contact the user for further steps.`,
+            attachments: [
+                {
+                    filename: 'legal_notice.pdf',
+                    path: pdfPath,
+                    contentType: 'application/pdf'
+                }
+            ]
+        });
+
         res.json({ success: true, noticeId });
     } catch (error) {
         console.error('Save Notice Error:', error);
@@ -618,10 +520,6 @@ app.post('/api/send-notice/:id', async (req, res) => {
             return res.status(404).json({ error: 'Notice not found' });
         }
         const notice = result.rows[0];
-        const now = new Date();
-        if (now < notice.send_at) {
-            return res.status(400).json({ error: 'Not yet time to send' });
-        }
 
         await transporter.sendMail({
             from: `"Lexinco" <info@lexinco.com>`,
@@ -637,7 +535,6 @@ app.post('/api/send-notice/:id', async (req, res) => {
             ]
         });
 
-        await pool.query('UPDATE notices SET status = $1 WHERE notice_id = $2', ['sent', id]);
         res.json({ success: true });
     } catch (error) {
         console.error('Send Notice Error:', error);

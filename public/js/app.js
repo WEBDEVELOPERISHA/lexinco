@@ -15,7 +15,6 @@ const letterheadBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABQAAAACA
 let currentStep = 0;
 let currentNoticeId = null;
 let signaturePad = null;
-let razorpayKeyId = null;
 let stepInteracted = new Array(steps.length).fill(false);
 let isNextStepProcessing = false;
 
@@ -65,8 +64,7 @@ async function svgToDataUrl(svgStr) {
 async function loadConfig() {
     try {
         const response = await fetch(`${BASE_URL}/api/config`);
-        const data = await response.json();
-        razorpayKeyId = data.razorpayKeyId;
+        await response.json();
     } catch (error) {
         console.error('Error loading config:', error);
         alert('Failed to load configuration. Please refresh the page.');
@@ -112,23 +110,6 @@ function showReviewModal() {
 
 function closeReviewModal() {
     document.getElementById('reviewModal').style.display = 'none';
-}
-
-function startTimer(endTime) {
-    const countdownElement = document.getElementById('countdown');
-    const interval = setInterval(() => {
-        const now = Date.now();
-        const remaining = endTime - now;
-        if (remaining <= 0) {
-            clearInterval(interval);
-            document.getElementById('timerDisplay').style.display = 'none';
-            loadNoticeDetails(currentNoticeId); // Refresh status
-        } else {
-            const minutes = Math.floor(remaining / 60000);
-            const seconds = Math.floor((remaining % 60000) / 1000);
-            countdownElement.textContent = `${minutes}m ${seconds}s`;
-        }
-    }, 1000);
 }
 
 document.addEventListener('DOMContentLoaded', async function () {
@@ -182,61 +163,12 @@ async function loadNoticeDetails(noticeId) {
             const legalNotice = document.getElementById('legalNotice');
             const timerDisplay = document.getElementById('timerDisplay');
             const statusMessage = document.getElementById('noticeStatusMessage');
-            const downloadBtn = document.getElementById('downloadBtn');
-            const sendNoticeBtn = document.getElementById('sendNoticeBtn');
-            const shareWhatsappBtn = document.getElementById('shareWhatsappBtn');
 
-            if (notice.status === 'pending_payment') {
-                statusMessage.innerHTML = '<i class="fas fa-check-circle"></i> Notice drafted successfully. Please complete the payment of ₹499 to finalize and receive the notice with lawyer\'s letterhead and signature in your inbox.';
-                paymentDetails.innerHTML = `
-                    <p>Please pay <strong>₹499</strong> to finalize your legal notice.</p>
-                    <button class="btn primary" onclick="initiatePayment()">Pay Now</button>
-                `;
-                legalNotice.innerHTML = notice.content; // Show draft notice without letterhead/signature
-                timerDisplay.style.display = 'none';
-                downloadBtn.disabled = true;
-                sendNoticeBtn.disabled = true;
-                shareWhatsappBtn.disabled = true;
-            } else if (notice.status === 'pending_send') {
-                if (!notice.payment || !notice.payment.paymentId) {
-                    console.error('Invalid pending_send status: No paymentId found for noticeId:', noticeId);
-                    statusMessage.innerHTML = '<i class="fas fa-exclamation-circle"></i> Payment not verified. Please complete the payment of ₹499.';
-                    paymentDetails.innerHTML = `
-                        <p>Please pay <strong>₹499</strong> to finalize your legal notice.</p>
-                        <button class="btn primary" onclick="initiatePayment()">Pay Now</button>
-                    `;
-                    legalNotice.innerHTML = notice.content; // Show draft notice
-                    timerDisplay.style.display = 'none';
-                    downloadBtn.disabled = true;
-                    sendNoticeBtn.disabled = true;
-                    shareWhatsappBtn.disabled = true;
-                } else {
-                    statusMessage.innerHTML = '<i class="fas fa-clock"></i> Payment successful. Your notice is being finalized with lawyer\'s letterhead and signature and will be sent to your inbox in 30 minutes.';
-                    paymentDetails.innerHTML = '';
-                    const sendTime = new Date(notice.send_at).getTime();
-                    const now = Date.now();
-                    const remaining = sendTime - now;
-                    if (remaining > 0) {
-                        timerDisplay.style.display = 'block';
-                        startTimer(sendTime);
-                        legalNotice.innerHTML = 'Your notice is being finalized and will be available soon.';
-                    } else {
-                        // Show finalized notice with letterhead/signature (assuming content is updated)
-                        legalNotice.innerHTML = notice.content;
-                        timerDisplay.style.display = 'none';
-                        downloadBtn.disabled = false;
-                        sendNoticeBtn.disabled = false;
-                        shareWhatsappBtn.disabled = false;
-                    }
-                }
-            } else if (notice.status === 'sent') {
-                statusMessage.innerHTML = '<i class="fas fa-check-circle"></i> Notice sent to your inbox with lawyer\'s letterhead and signature.';
+            if (notice.status === 'generated') {
+                statusMessage.innerHTML = '<i class="fas fa-check-circle"></i> Your legal notice has been generated and sent to our advocate for review. We will contact you shortly for further steps.';
                 paymentDetails.innerHTML = '';
-                legalNotice.innerHTML = notice.content; // Show finalized notice
+                legalNotice.innerHTML = notice.content;
                 timerDisplay.style.display = 'none';
-                downloadBtn.disabled = false;
-                sendNoticeBtn.disabled = false;
-                shareWhatsappBtn.disabled = false;
             } else {
                 throw new Error(`Invalid notice status: ${notice.status}`);
             }
@@ -428,89 +360,10 @@ async function generateLegalNotice() {
         localStorage.setItem('lastNoticeId', currentNoticeId);
         window.history.pushState({}, '', `?id=${currentNoticeId}`);
 
-        // Explicitly load the notice details to ensure correct status
         await loadNoticeDetails(currentNoticeId);
     } catch (error) {
         console.error('Error generating notice:', error);
         alert(`Error generating notice: ${error.message}\nDetails: ${error.response?.data?.details || 'No details available'}`);
-    } finally {
-        showLoading(false);
-    }
-}
-
-async function initiatePayment() {
-    try {
-        showLoading(true);
-        const response = await fetch('/api/create-order', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ noticeId: currentNoticeId })
-        });
-        const order = await response.json();
-        if (!order.id) throw new Error(order.error || 'Failed to create payment order');
-
-        // Log order details for debugging
-        console.log('Razorpay order response:', JSON.stringify(order, null, 2));
-
-        // Ensure amount is exactly 49900 paise (₹499)
-        if (order.amount !== 49900) {
-            console.error('Unexpected order amount:', order.amount, 'Expected: 49900 paise (₹499)');
-            alert(`Payment error: Invalid amount. Expected ₹499, received ₹${order.amount / 100}. Please try again.`);
-            return;
-        }
-
-        const options = {
-            key: razorpayKeyId,
-            amount: order.amount, // 49900 paise
-            currency: order.currency,
-            name: 'Lexinco',
-            description: 'Payment for Legal Notice',
-            order_id: order.id,
-            handler: async function (response) {
-                try {
-                    showLoading(true);
-                    const paymentData = {
-                        noticeId: currentNoticeId,
-                        paymentId: response.razorpay_payment_id,
-                        orderId: response.razorpay_order_id,
-                        signature: response.razorpay_signature,
-                        status: 'pending_send'
-                    };
-                    const verifyResponse = await fetch('/api/update-payment', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(paymentData)
-                    });
-                    const verifyData = await verifyResponse.json();
-                    if (!verifyData.success) throw new Error(verifyData.error || 'Payment verification failed');
-
-                    // Reload notice details to update UI
-                    await loadNoticeDetails(currentNoticeId);
-                } catch (error) {
-                    console.error('Payment verification error:', error);
-                    alert('Payment verification failed: ' + error.message);
-                } finally {
-                    showLoading(false);
-                }
-            },
-            prefill: {
-                email: document.getElementById('senderEmail').value,
-                contact: document.getElementById('senderContact').value
-            },
-            theme: {
-                color: '#004aad'
-            }
-        };
-
-        const rzp = new Razorpay(options);
-        rzp.on('payment.failed', function (response) {
-            console.error('Payment failed:', response.error);
-            alert('Payment failed: ' + response.error.description);
-        });
-        rzp.open();
-    } catch (error) {
-        console.error('Payment initiation error:', error);
-        alert('Failed to initiate payment: ' + error.message);
     } finally {
         showLoading(false);
     }
@@ -677,111 +530,6 @@ async function generatePDFBlob(noticeContent) {
     doc.text("Adv. Shalini L Tripathi", signatureX, signatureY + signatureHeight + 6);
 
     return doc.output('blob');
-}
-
-function generatePDF() {
-    generatePDFBlob(legalNoticeDiv.innerHTML)
-        .then(blob => {
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'legal_notice.pdf';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        })
-        .catch(error => {
-            console.error('Error generating PDF:', error);
-            alert(`Failed to generate PDF: ${error.message}`);
-        });
-}
-
-async function sendEmail() {
-    let senderEmail = document.getElementById('senderEmail').value;
-
-    if (!senderEmail) {
-        senderEmail = prompt("Please enter your email address:");
-        if (!senderEmail) {
-            alert('Your email is required.');
-            return;
-        }
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(senderEmail)) {
-        alert('Please enter a valid email address.');
-        return;
-    }
-
-    if (!currentNoticeId) {
-        alert('Notice ID is missing. Please regenerate the notice.');
-        return;
-    }
-
-    showLoading(true);
-    try {
-        const pdfBlob = await generatePDFBlob(legalNoticeDiv.innerHTML);
-        const pdfFile = new File([pdfBlob], 'legal_notice.pdf', { type: 'application/pdf' });
-
-        const formData = new FormData();
-        formData.append('pdf', pdfFile);
-        formData.append('fromEmail', senderEmail);
-        formData.append('senderName', savedSenderName);
-
-        const response = await fetch('/api/send-notice', {
-            method: 'POST',
-            body: formData
-        });
-
-        const data = await response.json();
-        if (data.success) {
-            alert('Notice sent successfully as a PDF attachment to your inbox!');
-        } else {
-            throw new Error(data.error || 'Failed to send notice');
-        }
-    } catch (error) {
-        console.error('Error sending notice:', error);
-        alert(`Error sending notice: ${error.message}`);
-    } finally {
-        showLoading(false);
-    }
-}
-
-async function shareViaWhatsapp() {
-    showLoading(true);
-    try {
-        const blob = await generatePDFBlob(legalNoticeDiv.innerHTML);
-        const file = new File([blob], 'legal_notice.pdf', { type: 'application/pdf' });
-        const message = `Legal notice from ${savedSenderName}. Please review the attached PDF.`;
-
-        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({
-                text: message,
-                files: [file],
-                title: 'Legal Notice'
-            });
-        } else {
-            const formData = new FormData();
-            formData.append('pdf', blob, 'legal_notice.pdf');
-
-            const uploadResponse = await fetch('/api/upload-pdf', {
-                method: 'POST',
-                body: formData
-            });
-
-            const uploadData = await uploadResponse.json();
-            if (!uploadData.success) throw new Error(uploadData.error || 'Failed to upload PDF');
-
-            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${message}\nDownload the PDF here: ${uploadData.url}`)}`;
-            window.open(whatsappUrl, '_blank');
-        }
-    } catch (error) {
-        console.error('Error sharing via WhatsApp:', error);
-        alert(`Failed to share via WhatsApp: ${error.message}`);
-    } finally {
-        showLoading(false);
-    }
 }
 
 function showForm() {
