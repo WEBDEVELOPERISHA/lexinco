@@ -21,21 +21,23 @@ let isNextStepProcessing = false;
 const svgLetterhead = `
 <svg width="800" height="200" xmlns="http://www.w3.org/2000/svg">
   <rect width="100%" height="100%" fill="#ffffff"/>
-  <line x1="20" y1="190" x2="780" y2="190" stroke="#000000" stroke-width="2"/>
-  <text x="50%" y="50" font-size="24" font-family="Times New Roman, serif" font-weight="bold" text-anchor="middle" fill="#000000">
-    Adv. Shalini L Tripathi
+  <text x="50%" y="40" font-size="20" font-family="Times New Roman, serif" font-weight="bold" text-anchor="middle" fill="#000000">
+    Adv. Shalini Tripathi
   </text>
-  <text x="50%" y="75" font-size="16" font-family="Times New Roman, serif" text-anchor="middle" fill="#333333">
-    B.Com, LLB
+  <text x="50%" y="60" font-size="14" font-family="Times New Roman, serif" text-anchor="middle" fill="#000000">
+      B.Com, LLB
   </text>
-  <text x="50%" y="105" font-size="14" font-family="Times New Roman, serif" text-anchor="middle" fill="#000000">
+  <text x="50%" y="80" font-size="14" font-family="Times New Roman, serif" text-anchor="middle" fill="#000000">
+    ADVOCATE BOMBAY HIGH COURT
+  </text>
+  <text x="50%" y="100" font-size="14" font-family="Times New Roman, serif" text-anchor="middle" fill="#000000">
+    Address: 03, 1st Floor, Navkar Paradise Building, Bihind Vimal Interior Hub, Near Laxmi Chaya Building, Babhai Naka, Lt. Loait, Borivali(W), Mumbai 400092
+  </text>
+  <text x="50%" y="120" font-size="14" font-family="Times New Roman, serif" text-anchor="middle" fill="#000000">
     Contact: 9552446231 | Email: adv.shalinitripathi@gmail.com
   </text>
-  <text x="50%" y="125" font-size="14" font-family="Times New Roman, serif" text-anchor="middle" fill="#000000">
-    204, Poonam Aster, Poonam Nagar, Virar West, Palghar 401303
-  </text>
-  <text x="50%" y="150" font-size="14" font-family="Times New Roman, serif" text-anchor="middle" fill="#000000">
-    License No: MAH/9337/aaa
+  <text x="50%" y="170" font-size="16" font-family="Times New Roman, serif" font-weight="bold" text-anchor="middle" fill="#000000">
+    License No: MAH/9337/2024
   </text>
 </svg>`;
 
@@ -442,9 +444,9 @@ async function generatePDFBlob(noticeContent) {
         <line x1="20" y1="190" x2="780" y2="190" stroke="#000000" stroke-width="2"/>
         <text x="50%" y="50" font-size="24" font-weight="bold" text-anchor="middle" fill="#000000">Adv. Shalini L Tripathi</text>
         <text x="50%" y="75" font-size="16" text-anchor="middle" fill="#333333">B.Com, LLB</text>
-        <text x="50%" y="105" font-size="14" text-anchor="middle" fill="#000000">Contact: 9552446231 | Email: info@lexinco.com</text>
-        <text x="50%" y="125" font-size="14" text-anchor="middle" fill="#000000">204, Poonam Aster, Poonam Nagar, Virar West, Palghar 401303</text>
-        <text x="50%" y="150" font-size="14" text-anchor="middle" fill="#000000">License No: MAH/9337/aaa</text>
+        <text x="50%" y="105" font-size="14" text-anchor="middle" fill="#000000">Contact: 9552446231 | Email: adv.shalinitripathi@gmail.com </text>
+        <text x="50%" y="125" font-size="14" text-anchor="middle" fill="#000000">03, 1st Floor, Navkar Paradise Building, Bihind Vimal Interior Hub, Near Laxmi Chaya Building, Babhai Naka, Lt. Loait, Borivali(W), Mumbai 400092</text>
+        <text x="50%" y="150" font-size="14" text-anchor="middle" fill="#000000">License No: MAH/9337/2024</text>
       </svg>
     `;
     const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
@@ -522,7 +524,7 @@ async function generatePDFBlob(noticeContent) {
         const imgData = tempCanvas.toDataURL('image/jpeg', 0.95);
 
         if (isFirstPage) {
-            const letterheadHeight = 40;
+            const letterheadHeight = 50;
             doc.addImage(letterheadBase64, 'PNG', marginLeft, 10, imgWidth, letterheadHeight);
         }
 
