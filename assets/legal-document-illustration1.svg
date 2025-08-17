@@ -1,0 +1,206 @@
+<svg viewBox="0 0 1200 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Professional gradient backgrounds -->
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f8fafc;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e2e8f0;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="primaryGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1d4ed8;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="secondaryGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Subtle shadow filter -->
+    <filter id="softShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="8"/>
+      <feOffset dx="0" dy="4" result="offset" />
+      <feFlood flood-color="#000000" flood-opacity="0.1"/>
+      <feComposite in2="offset" operator="in"/>
+      <feMerge> 
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/> 
+      </feMerge>
+    </filter>
+    
+    <!-- Document shadow -->
+    <filter id="docShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+      <feOffset dx="0" dy="2" result="offset" />
+      <feFlood flood-color="#000000" flood-opacity="0.08"/>
+      <feComposite in2="offset" operator="in"/>
+      <feMerge> 
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/> 
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="600" fill="url(#bgGradient)"/>
+  
+  <!-- Subtle background pattern -->
+  <pattern id="dots" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+    <circle cx="20" cy="20" r="1.5" fill="#cbd5e1" opacity="0.3"/>
+  </pattern>
+  <rect width="1200" height="600" fill="url(#dots)"/>
+  
+  <!-- Main illustration container -->
+  <g transform="translate(100, 80)">
+    
+    <!-- Professional person silhouette (left side) -->
+    <g transform="translate(50, 120)" filter="url(#softShadow)">
+      <!-- Person figure -->
+      <ellipse cx="80" cy="280" rx="45" ry="12" fill="#e2e8f0" opacity="0.6"/> <!-- Base shadow -->
+      
+      <!-- Body -->
+      <path d="M 80 180 Q 65 190 65 220 L 65 275 Q 65 280 70 280 L 90 280 Q 95 280 95 275 L 95 220 Q 95 190 80 180 Z" fill="url(#primaryGradient)"/>
+      
+      <!-- Arms -->
+      <path d="M 65 200 Q 45 210 45 225 Q 45 235 55 235 L 65 225 Z" fill="url(#primaryGradient)"/>
+      <path d="M 95 200 Q 115 210 115 225 Q 115 235 105 235 L 95 225 Z" fill="url(#primaryGradient)"/>
+      
+      <!-- Head -->
+      <circle cx="80" cy="160" r="25" fill="#fbbf24"/>
+      
+      <!-- Hair -->
+      <path d="M 55 150 Q 55 135 70 130 Q 80 125 90 130 Q 105 135 105 150 Q 105 160 100 165 Q 95 155 80 155 Q 65 155 60 165 Q 55 160 55 150 Z" fill="#374151"/>
+      
+      <!-- Confident gesture - holding document -->
+      <rect x="110" y="215" width="20" height="25" rx="2" fill="white" filter="url(#docShadow)"/>
+      <line x1="115" y1="220" x2="125" y2="220" stroke="#6b7280" stroke-width="1"/>
+      <line x1="115" y1="225" x2="125" y2="225" stroke="#6b7280" stroke-width="1"/>
+      <line x1="115" y1="230" x2="122" y2="230" stroke="#6b7280" stroke-width="1"/>
+    </g>
+    
+    <!-- Legal documents stack (center) -->
+    <g transform="translate(300, 150)" filter="url(#softShadow)">
+      <!-- Document 1 (back) -->
+      <rect x="0" y="10" width="180" height="240" rx="8" fill="white" filter="url(#docShadow)"/>
+      <rect x="15" y="30" width="150" height="8" rx="2" fill="#e5e7eb"/>
+      <rect x="15" y="50" width="120" height="6" rx="1" fill="#9ca3af"/>
+      <rect x="15" y="65" width="140" height="6" rx="1" fill="#9ca3af"/>
+      <rect x="15" y="80" width="100" height="6" rx="1" fill="#9ca3af"/>
+      
+      <!-- Legal sections -->
+      <rect x="15" y="110" width="150" height="4" rx="1" fill="#3b82f6"/>
+      <rect x="15" y="125" width="130" height="3" rx="1" fill="#6b7280"/>
+      <rect x="15" y="135" width="145" height="3" rx="1" fill="#6b7280"/>
+      <rect x="15" y="145" width="110" height="3" rx="1" fill="#6b7280"/>
+      
+      <rect x="15" y="170" width="150" height="4" rx="1" fill="#10b981"/>
+      <rect x="15" y="185" width="125" height="3" rx="1" fill="#6b7280"/>
+      <rect x="15" y="195" width="140" height="3" rx="1" fill="#6b7280"/>
+      
+      <!-- Document 2 (middle) -->
+      <rect x="25" y="5" width="180" height="240" rx="8" fill="white" filter="url(#docShadow)"/>
+      <rect x="40" y="25" width="150" height="10" rx="2" fill="url(#primaryGradient)"/>
+      <text x="115" y="35" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="8" font-weight="bold">LEGAL NOTICE</text>
+      
+      <rect x="40" y="50" width="120" height="6" rx="1" fill="#374151"/>
+      <rect x="40" y="65" width="140" height="4" rx="1" fill="#6b7280"/>
+      <rect x="40" y="75" width="100" height="4" rx="1" fill="#6b7280"/>
+      
+      <!-- Signature line -->
+      <line x1="40" y1="200" x2="160" y2="200" stroke="#9ca3af" stroke-width="1" stroke-dasharray="2,2"/>
+      <text x="100" y="215" text-anchor="middle" fill="#6b7280" font-family="Arial, sans-serif" font-size="6">Signature</text>
+      
+      <!-- Document 3 (front) -->
+      <rect x="50" y="0" width="180" height="240" rx="8" fill="white" filter="url(#docShadow)"/>
+      <rect x="65" y="20" width="150" height="12" rx="3" fill="url(#secondaryGradient)"/>
+      <text x="140" y="30" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="9" font-weight="bold">NOTICE TEMPLATE</text>
+      
+      <!-- Form fields -->
+      <rect x="65" y="50" width="80" height="20" rx="4" fill="#f3f4f6" stroke="#d1d5db"/>
+      <text x="70" y="46" fill="#6b7280" font-family="Arial, sans-serif" font-size="6">TO:</text>
+      <text x="70" y="63" fill="#374151" font-family="Arial, sans-serif" font-size="7">_____________</text>
+      
+      <rect x="155" y="50" width="60" height="20" rx="4" fill="#f3f4f6" stroke="#d1d5db"/>
+      <text x="160" y="46" fill="#6b7280" font-family="Arial, sans-serif" font-size="6">DATE:</text>
+      <text x="160" y="63" fill="#374151" font-family="Arial, sans-serif" font-size="7">_______</text>
+      
+      <!-- Template content -->
+      <rect x="65" y="85" width="150" height="4" rx="1" fill="#ef4444"/>
+      <rect x="65" y="95" width="140" height="3" rx="1" fill="#374151"/>
+      <rect x="65" y="105" width="135" height="3" rx="1" fill="#374151"/>
+      <rect x="65" y="115" width="120" height="3" rx="1" fill="#374151"/>
+      
+      <rect x="65" y="135" width="150" height="4" rx="1" fill="#f59e0b"/>
+      <rect x="65" y="145" width="130" height="3" rx="1" fill="#374151"/>
+      <rect x="65" y="155" width="145" height="3" rx="1" fill="#374151"/>
+    </g>
+    
+    <!-- Scales of justice (right side) -->
+    <g transform="translate(650, 120)" filter="url(#softShadow)">
+      <!-- Base -->
+      <rect x="85" y="280" width="30" height="15" rx="7" fill="#6b7280"/>
+      
+      <!-- Main pole -->
+      <rect x="98" y="120" width="4" height="165" fill="#6b7280"/>
+      
+      <!-- Cross bar -->
+      <rect x="60" y="145" width="80" height="3" fill="#6b7280"/>
+      
+      <!-- Left chain -->
+      <line x1="70" y1="148" x2="70" y2="180" stroke="#9ca3af" stroke-width="1"/>
+      <line x1="68" y1="148" x2="68" y2="180" stroke="#9ca3af" stroke-width="1"/>
+      <line x1="72" y1="148" x2="72" y2="180" stroke="#9ca3af" stroke-width="1"/>
+      
+      <!-- Right chain -->
+      <line x1="130" y1="148" x2="130" y2="180" stroke="#9ca3af" stroke-width="1"/>
+      <line x1="128" y1="148" x2="128" y2="180" stroke="#9ca3af" stroke-width="1"/>
+      <line x1="132" y1="148" x2="132" y2="180" stroke="#9ca3af" stroke-width="1"/>
+      
+      <!-- Left scale (slightly lower - representing imbalance before legal action) -->
+      <ellipse cx="70" cy="185" rx="25" ry="8" fill="url(#primaryGradient)"/>
+      
+      <!-- Right scale (higher - representing justice served) -->
+      <ellipse cx="130" cy="175" rx="25" ry="8" fill="url(#secondaryGradient)"/>
+      
+      <!-- Justice symbols in scales -->
+      <text x="70" y="188" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="8">⚖</text>
+      <text x="130" y="178" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="8">✓</text>
+    </g>
+    
+    <!-- Floating empowerment elements -->
+    <g opacity="0.8">
+      <!-- Shield icon -->
+      <g transform="translate(200, 80)">
+        <path d="M 20 10 Q 30 5 40 10 L 40 25 Q 40 35 30 40 Q 20 35 20 25 Z" fill="url(#secondaryGradient)"/>
+        <text x="30" y="28" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="12" font-weight="bold">✓</text>
+      </g>
+      
+      <!-- Speed lines (representing quick action) -->
+      <g transform="translate(550, 100)" opacity="0.6">
+        <line x1="0" y1="0" x2="30" y2="0" stroke="url(#primaryGradient)" stroke-width="3" stroke-linecap="round"/>
+        <line x1="0" y1="10" x2="25" y2="10" stroke="url(#primaryGradient)" stroke-width="2" stroke-linecap="round"/>
+        <line x1="0" y1="20" x2="20" y2="20" stroke="url(#primaryGradient)" stroke-width="2" stroke-linecap="round"/>
+      </g>
+      
+      <!-- Success checkmark -->
+      <g transform="translate(750, 80)">
+        <circle cx="15" cy="15" r="15" fill="url(#secondaryGradient)"/>
+        <path d="M 8 15 L 12 19 L 22 9" stroke="white" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+    </g>
+    
+    <!-- Accessibility text (hidden but present for screen readers) -->
+    <text x="0" y="0" opacity="0" font-size="1">
+      Professional illustration showing legal document drafting process with confident person, 
+      legal notice templates, and scales of justice representing accessible legal empowerment
+    </text>
+    
+  </g>
+  
+  <!-- Modern decorative elements -->
+  <g opacity="0.1">
+    <circle cx="1050" cy="100" r="80" fill="url(#primaryGradient)"/>
+    <circle cx="150" cy="500" r="60" fill="url(#secondaryGradient)"/>
+    <rect x="900" y="450" width="100" height="100" rx="20" fill="url(#primaryGradient)" transform="rotate(15 950 500)"/>
+  </g>
+</svg>
