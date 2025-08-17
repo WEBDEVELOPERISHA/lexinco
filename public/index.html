@@ -3,7 +3,6 @@
 
 <head>
     <!-- Open Graph for Facebook/LinkedIn -->
-    <!-- Open Graph for Facebook/LinkedIn -->
     <meta property="og:title" content="Lexinco - Draft Legal Notices in Minutes">
     <meta property="og:description"
         content="Generate professional legal notices in minutes — smart, fast, and affordable with Lexinco.">
@@ -18,10 +17,17 @@
         content="Generate professional legal notices in minutes — smart, fast, and affordable with Lexinco.">
     <meta name="twitter:image" content="https://www.lexinco.com/social-preview-v2.jpeg">
 
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lexinco - Your Voice. Your Rights. Made Legal.</title>
+    <!-- AOS for Scroll Animations -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+    <!-- Swiper for Feedback Carousel -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+
     <link rel="stylesheet" href="css/landing.css">
     <link rel="stylesheet" href="css/whatsapp.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -36,7 +42,7 @@
         gtag('config', 'G-ZEHSS991MC');
     </script>
     <style>
-        /* Modal Styles for Consultation Form (unchanged) */
+        /* Modal Styles for Consultation Form */
         .consultation-modal {
             display: none;
             position: fixed;
@@ -425,6 +431,81 @@
             font-weight: bold;
         }
 
+        /* Testimonials Section Styles */
+        .testimonials {
+            padding: 80px 0;
+            background: var(--white);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: var(--primary-color);
+        }
+
+        .testimonial-carousel {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .swiper-slide {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.5rem;
+            background: var(--white);
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            opacity: 0.7;
+            transform: scale(0.95);
+            min-height: 200px;
+        }
+
+        .swiper-slide-active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .testimonial-content {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .testimonial-content p {
+            font-size: 1rem;
+            color: #475569;
+            line-height: 1.5;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .author-info h4 {
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            margin-bottom: 0.3rem;
+        }
+
+        .author-info p {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .swiper-pagination-bullet {
+            background: var(--secondary-color);
+            opacity: 0.5;
+        }
+
+        .swiper-pagination-bullet-active {
+            opacity: 1;
+        }
+
         @media (max-width: 768px) {
             .nav-links {
                 display: none;
@@ -441,6 +522,56 @@
 
             .mobile-sticky {
                 display: block;
+            }
+
+            .testimonial-carousel {
+                max-width: 100%;
+                padding: 0 0.5rem;
+            }
+
+            .swiper-slide {
+                padding: 1rem;
+                min-height: 180px;
+            }
+
+            .testimonial-content p {
+                font-size: 0.9rem;
+                line-height: 1.4;
+            }
+
+            .author-info h4 {
+                font-size: 1rem;
+            }
+
+            .author-info p {
+                font-size: 0.7rem;
+            }
+
+            .swiper-pagination {
+                margin-top: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .testimonial-carousel {
+                padding: 0 0.3rem;
+            }
+
+            .swiper-slide {
+                padding: 0.8rem;
+                min-height: 160px;
+            }
+
+            .testimonial-content p {
+                font-size: 0.85rem;
+            }
+
+            .author-info h4 {
+                font-size: 0.9rem;
+            }
+
+            .author-info p {
+                font-size: 0.65rem;
             }
         }
 
@@ -465,19 +596,19 @@
 <body>
     <!-- Navigation -->
     <nav class="navbar">
-        <div class="container" style="display:flex;justify-content:space-between">
+        <div class="container nav-content">
             <a href="index.html" class="logo">
-                <img src="/assets/logo.svg" alt="Lexinco Logo" width="200">
+                <img src="/assets/logo.svg" alt="Lexinco Logo" width="180">
             </a>
-            <div class="nav-links">
+            <div class="nav-links" id="navLinks">
                 <a href="#home">Home</a>
                 <a href="#how-it-works">How It Works</a>
                 <a href="#advocate-verified">Advocate Verified</a>
                 <a href="#contact">Contact</a>
-                <!-- <a href="signup.html" class="btn secondary">Sign Up</a> -->
                 <a href="legal-notice.html" class="btn primary">Start Legal Notice</a>
+                <a href="#consultation" class="btn secondary" id="bookConsultation">Book My Consultation</a>
             </div>
-            <button class="mobile-menu-btn">
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
                 <i class="fas fa-bars"></i>
             </button>
         </div>
@@ -553,18 +684,54 @@
     <!-- Hero Section -->
     <section class="hero" id="home">
         <div class="hero-container">
-            <div class="hero-content">
+            <div class="hero-content" data-aos="fade-right">
                 <h1>Cheated? Ignored? Harassed? Don’t Stay Silent.</h1>
-                <h2>Generate a legal notice in minutes — No lawyer needed. </h2>
-                <ul class="features-list">
+                <h2 data-aos="fade-up" data-aos-delay="200">Generate a legal notice in minutes — No lawyer needed.</h2>
+                <ul class="features-list" data-aos="fade-up" data-aos-delay="400">
                     <li><i class="fas fa-check"></i> Reviewed by registered advocates</li>
                     <li><i class="fas fa-check"></i> 1000+ notices created</li>
                     <li><i class="fas fa-check"></i> Hindi & English supported</li>
                 </ul>
-                <a href="legal-notice.html" class="btn primary">📲 Start My Notice Now</a>
-                <a href="#consultationModal" class="btn primary" id="bookConsultation">Book a Consultation</a>
+                <a href="legal-notice.html" class="btn primary hero-cta" data-aos="zoom-in" data-aos-delay="600">📲 Start My
+                    Notice Now</a>
+                <a href="#consultation" class="btn secondary hero-cta" id="bookConsultationHero" data-aos="zoom-in" data-aos-delay="800">Book My Consultation</a>
             </div>
+        </div>
+    </section>
 
+    <!-- Testimonials Section -->
+    <section class="testimonials" id="testimonials">
+        <div class="container" data-aos="fade-up">
+            <h2 class="section-title">What Our Users Say</h2>
+            <div class="testimonial-carousel swiper">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide" data-aos="fade-up" data-aos-delay="100">
+                        <div class="testimonial-content">
+                            <p>Very prompt as well as timely support</p>
+                        </div>
+                        <div class="testimonial-author">
+                            <div class="author-info">
+                                <h4>Rajesh Kumar</h4>
+                                <p>Small Business Owner</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="swiper-slide" data-aos="fade-up" data-aos-delay="200">
+                        <div class="testimonial-content">
+                            <p>Advocate Shalini L. Tripathi understood my case in depth and acted swiftly. Her drafting and
+                                release of the legal notice was handled with precision and professionalism. Truly fantastic
+                                work — highly recommend her expertise!</p>
+                        </div>
+                        <div class="testimonial-author">
+                            <div class="author-info">
+                                <h4>Anil Agarwal</h4>
+                                <p>Client</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="swiper-pagination"></div>
+            </div>
         </div>
     </section>
 
@@ -671,17 +838,6 @@
         </div>
     </section>
 
-    <!-- Video Section -->
-    <!-- <section class="video-section">
-        <div class="container">
-            <h2 class="section-title">🎥 How Does It Work?</h2>
-            <div class="video-placeholder">
-                <i class="fas fa-play-circle"></i>
-            </div>
-            <p>1-minute walkthrough of the entire process</p>
-        </div>
-    </section> -->
-
     <!-- FAQ Section -->
     <section class="faq-section">
         <div class="container">
@@ -723,7 +879,6 @@
                     affordable price.
                 </div>
             </div>
-
             <div class="faq-item">
                 <button class="faq-question" onclick="toggleFAQ(4)">
                     Can I get a refund? <i class="fas fa-chevron-down"></i>
@@ -731,39 +886,6 @@
                 <div class="faq-answer">
                     Yes, we offer a 100% money-back guarantee if you’re not satisfied with the quality of your legal
                     notice.
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Testimonials Section -->
-    <section class="testimonials">
-        <div class="container">
-            <h2 class="section-title">What Our Users Say</h2>
-            <div class="testimonial-carousel">
-                <div class="testimonial">
-                    <div class="testimonial-content">
-                        <p>"Lexinco made it so easy to draft a notice. It felt like talking to a friend, and the result
-                            was professional!"</p>
-                    </div>
-                    <div class="testimonial-author">
-                        <div class="author-info">
-                            <h4>Rajesh Kumar</h4>
-                            <p>Small Business Owner</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="testimonial">
-                    <div class="testimonial-content">
-                        <p>"As a lawyer, I was impressed by how accurate and user-friendly the platform is. Highly
-                            recommend!"</p>
-                    </div>
-                    <div class="testimonial-author">
-                        <div class="author-info">
-                            <h4>Priya Sharma</h4>
-                            <p>Corporate Lawyer</p>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -822,6 +944,7 @@
         // Consultation Modal Handling
         const consultationModal = document.getElementById('consultationModal');
         const bookConsultationBtn = document.getElementById('bookConsultation');
+        const bookConsultationHeroBtn = document.getElementById('bookConsultationHero');
         const closeConsultationModal = document.getElementById('closeConsultationModal');
         const cancelConsultationBtn = document.getElementById('cancelConsultation');
         const consultationForm = document.getElementById('consultationForm');
@@ -829,11 +952,16 @@
         const submitButton = document.getElementById('submitConsultation');
         const BASE_URL = window.location.origin;
 
-        bookConsultationBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            consultationModal.style.display = 'flex';
-            consultationForm.style.display = 'block';
-            successMessage.style.display = 'none';
+        // Event listeners for both consultation buttons
+        [bookConsultationBtn, bookConsultationHeroBtn].forEach(btn => {
+            if (btn) {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    consultationModal.style.display = 'flex';
+                    consultationForm.style.display = 'block';
+                    successMessage.style.display = 'none';
+                });
+            }
         });
 
         closeConsultationModal.addEventListener('click', () => {
@@ -912,6 +1040,30 @@
             answers.forEach(a => a.classList.remove('active'));
             if (!isActive) answer.classList.add('active');
         }
+
+        // Swiper Initialization for Testimonials
+        const swiper = new Swiper('.testimonial-carousel', {
+            loop: true,
+            autoplay: {
+                delay: 5000,
+                disableOnInteraction: false
+            },
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true
+            },
+            effect: 'fade',
+            fadeEffect: {
+                crossFade: true
+            },
+            speed: 800
+        });
+
+        // AOS Initialization
+        AOS.init({
+            duration: 1000,
+            once: true
+        });
     </script>
 </body>
 
