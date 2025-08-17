@@ -506,6 +506,56 @@
             opacity: 1;
         }
 
+        /* How It Works Section Styles */
+        .how-it-works {
+            padding: 80px 0;
+            background: var(--white);
+        }
+
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto 3rem;
+        }
+
+        .step {
+            flex: 1;
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .step:hover {
+            transform: translateY(-5px);
+        }
+
+        .step-icon {
+            font-size: 3rem;
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+        }
+
+        .step h3 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .step p {
+            font-size: 1rem;
+            color: #475569;
+            line-height: 1.5;
+        }
+
         @media (max-width: 768px) {
             .nav-links {
                 display: none;
@@ -550,6 +600,29 @@
             .swiper-pagination {
                 margin-top: 1rem;
             }
+
+            .steps {
+                flex-direction: column;
+                gap: 1.5rem;
+                padding: 0 1rem;
+            }
+
+            .step {
+                padding: 1.5rem;
+                min-height: 200px;
+            }
+
+            .step-icon {
+                font-size: 2.5rem;
+            }
+
+            .step h3 {
+                font-size: 1.3rem;
+            }
+
+            .step p {
+                font-size: 0.9rem;
+            }
         }
 
         @media (max-width: 480px) {
@@ -572,6 +645,28 @@
 
             .author-info p {
                 font-size: 0.65rem;
+            }
+
+            .steps {
+                gap: 1rem;
+                padding: 0 0.5rem;
+            }
+
+            .step {
+                padding: 1rem;
+                min-height: 180px;
+            }
+
+            .step-icon {
+                font-size: 2rem;
+            }
+
+            .step h3 {
+                font-size: 1.2rem;
+            }
+
+            .step p {
+                font-size: 0.85rem;
             }
         }
 
@@ -740,21 +835,21 @@
         <div class="container">
             <h2 class="section-title">How It Works</h2>
             <div class="steps">
-                <div class="step">
+                <div class="step" data-aos="fade-up" data-aos-delay="100">
                     <div class="step-icon">
                         <i class="fas fa-comments"></i>
                     </div>
                     <h3>Tell Us Your Issue</h3>
                     <p>Like telling a friend - simple and conversational</p>
                 </div>
-                <div class="step">
+                <div class="step" data-aos="fade-up" data-aos-delay="200">
                     <div class="step-icon">
                         <i class="fas fa-file-alt"></i>
                     </div>
                     <h3>We Prepare a Legal Notice</h3>
                     <p>Verified by a real lawyer in proper legal format</p>
                 </div>
-                <div class="step">
+                <div class="step" data-aos="fade-up" data-aos-delay="300">
                     <div class="step-icon">
                         <i class="fas fa-download"></i>
                     </div>
