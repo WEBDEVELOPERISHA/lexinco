@@ -1,117 +1,20 @@
-<svg viewBox="0 0 1920 800" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+<svg viewBox="0 0 1200 600" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" class="w-full h-full">
+  <!-- Background gradient -->
+  <rect width="100%" height="100%" fill="url(#bgGradient)" />
+  
+  <!-- Dotted overlay -->
+  <rect width="100%" height="100%" fill="url(#dots)" />
+
   <defs>
-    <!-- Main gradient background -->
-    <linearGradient id="heroGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#f8fafc;stop-opacity:1" />
-      <stop offset="50%" style="stop-color:#e2e8f0;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#cbd5e1;stop-opacity:1" />
+    <!-- Gradient -->
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#1e3a8a" />
     </linearGradient>
-    
-    <!-- Accent gradients for shapes -->
-    <linearGradient id="accent1" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:0.1" />
-      <stop offset="100%" style="stop-color:#1d4ed8;stop-opacity:0.05" />
-    </linearGradient>
-    
-    <linearGradient id="accent2" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#10b981;stop-opacity:0.08" />
-      <stop offset="100%" style="stop-color:#059669;stop-opacity:0.03" />
-    </linearGradient>
-    
-    <linearGradient id="accent3" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#6366f1;stop-opacity:0.06" />
-      <stop offset="100%" style="stop-color:#4f46e5;stop-opacity:0.02" />
-    </linearGradient>
-    
-    <!-- Subtle pattern -->
-    <pattern id="gridPattern" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
-      <circle cx="30" cy="30" r="1" fill="#94a3b8" opacity="0.2"/>
-      <circle cx="0" cy="0" r="0.5" fill="#94a3b8" opacity="0.15"/>
-      <circle cx="60" cy="60" r="0.5" fill="#94a3b8" opacity="0.15"/>
+
+    <!-- Dots pattern -->
+    <pattern id="dots" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="2" fill="rgba(255,255,255,0.1)" />
     </pattern>
-    
-    <!-- Document pattern for legal theme -->
-    <pattern id="documentPattern" x="0" y="0" width="120" height="80" patternUnits="userSpaceOnUse">
-      <rect x="20" y="15" width="80" height="50" rx="4" fill="none" stroke="#e2e8f0" stroke-width="0.5" opacity="0.3"/>
-      <line x1="30" y1="25" x2="70" y2="25" stroke="#cbd5e1" stroke-width="0.5" opacity="0.4"/>
-      <line x1="30" y1="32" x2="90" y2="32" stroke="#cbd5e1" stroke-width="0.5" opacity="0.3"/>
-      <line x1="30" y1="39" x2="85" y2="39" stroke="#cbd5e1" stroke-width="0.5" opacity="0.3"/>
-    </pattern>
-    
-    <!-- Soft blur filter -->
-    <filter id="softBlur" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur in="SourceGraphic" stdDeviation="2"/>
-    </filter>
   </defs>
-  
-  <!-- Main background -->
-  <rect width="1920" height="800" fill="url(#heroGradient)"/>
-  
-  <!-- Subtle pattern overlay -->
-  <rect width="1920" height="800" fill="url(#gridPattern)" opacity="0.4"/>
-  
-  <!-- Abstract geometric shapes for visual interest -->
-  <!-- Large background shapes -->
-  <g opacity="0.6">
-    <!-- Top left abstract shape -->
-    <path d="M 0 0 Q 300 100 400 0 L 400 200 Q 200 300 0 250 Z" fill="url(#accent1)" filter="url(#softBlur)"/>
-    
-    <!-- Top right legal-inspired shape -->
-    <path d="M 1520 0 Q 1720 50 1920 0 L 1920 300 Q 1700 200 1520 250 Z" fill="url(#accent2)" filter="url(#softBlur)"/>
-    
-    <!-- Bottom flowing shape -->
-    <path d="M 0 600 Q 400 500 800 550 Q 1200 600 1920 500 L 1920 800 L 0 800 Z" fill="url(#accent3)" filter="url(#softBlur)"/>
-  </g>
-  
-  <!-- Medium decorative elements -->
-  <g opacity="0.4">
-    <!-- Circular elements suggesting balance/justice -->
-    <circle cx="1600" cy="150" r="100" fill="url(#accent1)" filter="url(#softBlur)"/>
-    <circle cx="300" cy="600" r="120" fill="url(#accent2)" filter="url(#softBlur)"/>
-    
-    <!-- Rectangular elements suggesting documents -->
-    <rect x="1200" y="400" width="200" height="150" rx="20" fill="url(#accent3)" transform="rotate(-15 1300 475)" filter="url(#softBlur)"/>
-    <rect x="100" y="300" width="180" height="120" rx="15" fill="url(#accent1)" transform="rotate(10 190 360)" filter="url(#softBlur)"/>
-  </g>
-  
-  <!-- Subtle document pattern overlay in specific areas -->
-  <g opacity="0.3">
-    <rect x="800" y="100" width="400" height="200" fill="url(#documentPattern)"/>
-    <rect x="200" y="450" width="300" height="150" fill="url(#documentPattern)"/>
-  </g>
-  
-  <!-- Fine detail elements -->
-  <g opacity="0.2">
-    <!-- Small accent dots -->
-    <circle cx="450" cy="200" r="8" fill="#3b82f6"/>
-    <circle cx="1350" cy="300" r="6" fill="#10b981"/>
-    <circle cx="750" cy="500" r="10" fill="#6366f1"/>
-    <circle cx="1100" cy="150" r="4" fill="#3b82f6"/>
-    <circle cx="250" cy="450" r="7" fill="#10b981"/>
-    
-    <!-- Subtle connecting lines -->
-    <line x1="450" y1="200" x2="550" y2="180" stroke="#3b82f6" stroke-width="1" opacity="0.3"/>
-    <line x1="1350" y1="300" x2="1450" y2="320" stroke="#10b981" stroke-width="1" opacity="0.3"/>
-    
-    <!-- Small geometric shapes -->
-    <polygon points="900,250 910,270 890,270" fill="#6366f1" opacity="0.4"/>
-    <polygon points="1500,450 1515,465 1485,465" fill="#3b82f6" opacity="0.4"/>
-    <rect x="600" y="350" width="12" height="12" rx="2" fill="#10b981" transform="rotate(45 606 356)" opacity="0.4"/>
-  </g>
-  
-  <!-- Content-safe overlay zones (darker areas where text will be more readable) -->
-  <g opacity="0.1">
-    <!-- Left text zone -->
-    <rect x="0" y="200" width="800" height="400" fill="linear-gradient(90deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.05) 70%, rgba(0,0,0,0) 100%)"/>
-    
-    <!-- Center focal area -->
-    <ellipse cx="960" cy="400" rx="400" ry="200" fill="radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%)"/>
-  </g>
-  
-  <!-- Accessibility description (hidden) -->
-  <desc>
-    Professional website backdrop featuring abstract legal-themed design elements including 
-    document patterns, balanced geometric shapes, and modern gradients in blue and green tones, 
-    optimized for text overlay and responsive design
-  </desc>
 </svg>
