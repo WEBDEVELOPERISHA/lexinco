@@ -9,25 +9,23 @@
     <meta property="og:image" content="https://www.lexinco.com/social-preview-v2.jpeg">
     <meta property="og:url" content="https://lexinco.com">
     <meta property="og:type" content="website">
-
-    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Lexinco - Draft Legal Notices in Minutes">
     <meta name="twitter:description"
         content="Generate professional legal notices in minutes — smart, fast, and affordable with Lexinco.">
     <meta name="twitter:image" content="https://www.lexinco.com/social-preview-v2.jpeg">
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lexinco - Your Voice. Your Rights. Made Legal.</title>
-    <!-- AOS for Scroll Animations -->
+    <!-- AOS for Scroll Animations (retained for other sections) -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-
     <!-- Swiper for Feedback Carousel -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
-
+    <!-- GSAP and ScrollTrigger -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <link rel="stylesheet" href="css/landing.css">
     <link rel="stylesheet" href="css/whatsapp.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -234,15 +232,15 @@
 
         /* Hero Section */
         .hero {
-            background:
-                url('/assets/legal-document-illustration.svg') no-repeat center/cover,
-                linear-gradient(135deg, #f3f4f6 0%, #e2e8f0 100%);
+            background: url('/assets/legal-document-illustration.svg') no-repeat center/cover, linear-gradient(135deg, #f3f4f6 0%, #e2e8f0 100%);
             padding: 120px 0 80px;
             min-height: 100vh;
             display: flex;
             align-items: center;
             position: relative;
             overflow: hidden;
+            animation: backgroundMove 10s ease-in-out infinite;
+            will-change: background-position, transform;
         }
 
 
@@ -254,9 +252,9 @@
             width: 100%;
             height: 100%;
             background: rgba(30, 41, 59, 0.65);
-            /* dark overlay */
             z-index: 0;
         }
+
 
         .hero-container {
             max-width: 900px;
@@ -267,7 +265,10 @@
             align-items: center;
             justify-content: center;
             text-align: center;
+            position: relative;
+            z-index: 1;
         }
+
 
         .hero-buttons {
             display: flex;
@@ -275,7 +276,7 @@
             justify-content: center;
             margin-top: 1.5rem;
             flex-wrap: wrap;
-            /* stack on mobile */
+            will-change: transform, opacity;
         }
 
 
@@ -284,29 +285,27 @@
             position: relative;
             z-index: 1;
             text-align: center;
-            /* center text */
             color: #fff;
-            /* make text white for contrast */
+            will-change: transform, opacity;
         }
 
         .hero-content h1 {
             font-size: 3.8rem;
             font-weight: 700;
             color: #ffffff;
-            /* Changed to white for better contrast */
             margin-bottom: 1rem;
             line-height: 1.2;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-            /* Enhanced shadow for readability */
+            will-change: transform, opacity;
         }
 
         .hero-content h2 {
             font-size: 1.6rem;
             color: #ffffff;
-            /* Changed to white for consistency */
             margin-bottom: 2rem;
             font-weight: 400;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            will-change: transform, opacity;
         }
 
         .features-list {
@@ -315,7 +314,9 @@
             background: rgba(255, 255, 255, 0.8);
             padding: 1rem;
             border-radius: 10px;
+            will-change: transform, opacity;
         }
+
 
         .features-list li {
             display: flex;
@@ -334,9 +335,9 @@
         .hero-cta {
             font-size: 1.2rem;
             padding: 1rem 2.5rem;
-            margin-bottom: 1rem;
             display: inline-block;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            will-change: transform, opacity;
         }
 
         .hero-cta.primary {
@@ -347,8 +348,8 @@
         }
 
         .hero-cta.primary:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+            transform: scale(1.1) translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
         }
 
         .hero-cta.secondary {
@@ -361,7 +362,8 @@
         .hero-cta.secondary:hover {
             background: var(--secondary-color);
             color: var(--white);
-            transform: scale(1.1);
+            transform: scale(1.1) translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
         }
 
         .hero-visual {
@@ -371,13 +373,14 @@
         .trust-badge {
             display: flex;
             align-items: center;
-            justify-content: flex-start;
+            justify-content: center;
             margin-top: 1.5rem;
             color: #475569;
             font-size: 1rem;
             background: rgba(255, 255, 255, 0.8);
             padding: 0.5rem 1rem;
             border-radius: 10px;
+            will-change: transform, opacity;
         }
 
         .trust-badge i {
@@ -646,8 +649,35 @@
             line-height: 1.5;
         }
 
+        @media (prefers-reduced-motion: reduce) {
+            .hero {
+                animation: none;
+            }
+        }
+
         /* Media Queries */
         @media (max-width: 768px) {
+            .hero {
+                padding: 80px 0 60px;
+            }
+
+            @keyframes backgroundMove {
+                0% {
+                    background-position: center;
+                    transform: scale(1);
+                }
+
+                50% {
+                    background-position: 51% 51%;
+                    transform: scale(1.03);
+                }
+
+                100% {
+                    background-position: center;
+                    transform: scale(1);
+                }
+            }
+
             .consultation-modal-content {
                 width: 95%;
                 padding: 15px;
@@ -757,6 +787,23 @@
                 padding: 80px 0 60px;
             }
 
+            @keyframes backgroundMove {
+                0% {
+                    background-position: center;
+                    transform: scale(1);
+                }
+
+                50% {
+                    background-position: 50.5% 50.5%;
+                    transform: scale(1.02);
+                }
+
+                100% {
+                    background-position: center;
+                    transform: scale(1);
+                }
+            }
+
             .hero-content {
                 padding: 1rem;
                 background-size: contain;
@@ -837,6 +884,23 @@
             to {
                 opacity: 1;
                 transform: translateY(0);
+            }
+        }
+
+        @keyframes backgroundMove {
+            0% {
+                background-position: center;
+                transform: scale(1);
+            }
+
+            50% {
+                background-position: 52% 52%;
+                transform: scale(1.05);
+            }
+
+            100% {
+                background-position: center;
+                transform: scale(1);
             }
         }
 
@@ -955,10 +1019,10 @@
     <!-- Hero Section -->
     <section class="hero" id="home">
         <div class="hero-container">
-            <div class="hero-content" data-aos="fade-right">
+            <div class="hero-content">
                 <h1>Cheated? Ignored? Harassed? Don’t Stay Silent.</h1>
-                <h2 data-aos="fade-up" data-aos-delay="200">Generate a legal notice in minutes — No lawyer needed.</h2>
-                <ul class="features-list" data-aos="fade-up" data-aos-delay="400">
+                <h2>Generate a legal notice in minutes.</h2>
+                <ul class="features-list">
                     <li><i class="fas fa-check"></i> Reviewed by registered advocates</li>
                     <li><i class="fas fa-check"></i> 1000+ notices created</li>
                     <li><i class="fas fa-check"></i> Hindi & English supported</li>
@@ -967,12 +1031,11 @@
                     <a href="legal-notice.html" class="btn primary hero-cta">📲 Start My Notice Now</a>
                     <a href="#consultation" class="btn primary hero-cta">Book My Consultation</a>
                 </div>
-
-                <div class="trust-badge" data-aos="fade-up" data-aos-delay="1000">
+                <div class="trust-badge">
                     <i class="fas fa-star"></i> Trusted by 10,000+ users
                 </div>
             </div>
-            <div class="hero-visual" data-aos="fade-left" data-aos-delay="200">
+            <div class="hero-visual">
                 <!-- Empty to maintain grid layout -->
             </div>
         </div>
@@ -1220,6 +1283,77 @@
 
     <script src="js/landing.js"></script>
     <script>
+        // GSAP Animations for Hero Section
+        gsap.registerPlugin(ScrollTrigger);
+        gsap.set('.hero-content h1, .hero-content h2, .features-list, .hero-cta, .trust-badge', { opacity: 0, y: 50 });
+        gsap.set('.hero-cta', { scale: 0.9 });
+
+        gsap.to('.hero-content h1', {
+            opacity: 1,
+            y: 0,
+            duration: 1,
+            ease: 'power2.out',
+            scrollTrigger: {
+                trigger: '.hero-content',
+                start: 'top 80%',
+                toggleActions: 'play none none none'
+            }
+        });
+
+        gsap.to('.hero-content h2', {
+            opacity: 1,
+            y: 0,
+            duration: 1,
+            ease: 'power2.out',
+            delay: 0.2,
+            scrollTrigger: {
+                trigger: '.hero-content',
+                start: 'top 80%',
+                toggleActions: 'play none none none'
+            }
+        });
+
+        gsap.to('.features-list', {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 1,
+            ease: 'power2.out',
+            delay: 0.4,
+            scrollTrigger: {
+                trigger: '.hero-content',
+                start: 'top 80%',
+                toggleActions: 'play none none none'
+            }
+        });
+
+        gsap.to('.hero-cta', {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 1,
+            ease: 'power2.out',
+            delay: 0.6,
+            stagger: 0.2,
+            scrollTrigger: {
+                trigger: '.hero-content',
+                start: 'top 80%',
+                toggleActions: 'play none none none'
+            }
+        });
+
+        gsap.to('.trust-badge', {
+            opacity: 1,
+            y: 0,
+            duration: 1,
+            ease: 'power2.out',
+            delay: 0.8,
+            scrollTrigger: {
+                trigger: '.hero-content',
+                start: 'top 80%',
+                toggleActions: 'play none none none'
+            }
+        });
         // Consultation Modal Handling
         const consultationModal = document.getElementById('consultationModal');
         const bookConsultationBtn = document.getElementById('bookConsultation');
