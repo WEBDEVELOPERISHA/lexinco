@@ -565,7 +565,7 @@ async function generatePDFBlob(noticeContent) {
         doc.setTextColor(150);
         doc.text(pageText, pageX, pageHeight - 10);
 
-        yOffsetPx += renderHeightPx;
+        yOffsetPx += renderHeightPx - overlap;
         if (yOffsetPx < totalHeight) {
             doc.addPage();
         }

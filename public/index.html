@@ -198,6 +198,190 @@
             width: 80%;
         }
 
+        /* Blogs Section */
+        .blogs-section {
+            padding: 80px 0;
+            background: var(--white);
+        }
+
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .blog-card {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .blog-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .blog-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .blog-card h3 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .blog-card p {
+            font-size: 1rem;
+            color: #475569;
+            margin-bottom: 1rem;
+        }
+
+        .blog-card .btn {
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            background-color: var(--secondary-color);
+            color: var(--white);
+            text-decoration: none;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .blog-card .btn:hover {
+            background-color: #2980b9;
+            transform: scale(1.05);
+        }
+
+        /* Blog Access Modal */
+        .blog-access-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 2, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .blog-access-modal-content {
+            background: var(--white);
+            border-radius: 25px;
+            box-shadow: var(--shadow);
+            padding: 20px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            margin: 20px;
+        }
+
+        .blog-access-modal-content h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .blog-access-modal-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-light);
+            cursor: pointer;
+        }
+
+        .blog-access-modal-close:hover {
+            color: var(--primary-color);
+        }
+
+        .blog-access-form .form-group {
+            margin-bottom: 20px;
+        }
+
+        .blog-access-form label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+
+        .blog-access-form label.required::after {
+            content: ' *';
+            color: var(--accent-color);
+        }
+
+        .blog-access-form input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+        }
+
+        .blog-access-form input:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+        }
+
+        .blog-access-form .form-navigation {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .blog-access-form .btn {
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            position: relative;
+        }
+
+        .blog-access-form .btn.primary {
+            background-color: var(--secondary-color);
+            color: var(--white);
+            border: none;
+        }
+
+        .blog-access-form .btn.primary:hover {
+            background-color: #2980b9;
+            transform: scale(1.05);
+        }
+
+        .blog-access-form .btn.primary:disabled {
+            background-color: #7f8c8d;
+            cursor: not-allowed;
+        }
+
+        .blog-access-form .btn.secondary {
+            background-color: var(--white);
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .blog-access-form .btn.secondary:hover {
+            background-color: var(--gray);
+            transform: scale(1.05);
+        }
+
         .loader {
             display: none;
             border: 3px solid #f3f3f3;
@@ -938,7 +1122,7 @@
             <div class="nav-links" id="navLinks">
                 <a href="#home">Home</a>
                 <a href="#how-it-works">How It Works</a>
-                <a href="#advocate-verified">Advocate Verified</a>
+                <a href="#blogs">Blogs</a>
                 <a href="#contact">Contact</a>
                 <a href="legal-notice.html" class="btn primary">Start Legal Notice</a>
                 <a href="#consultation" class="btn secondary" id="bookConsultation">Book My Consultation</a>
@@ -1012,6 +1196,39 @@
             </form>
             <div class="success-message" id="successMessage">
                 Your consultation request has been submitted successfully! Our Advocate will contact you soon.
+            </div>
+        </div>
+    </div>
+    <!-- Blog Access Modal -->
+    <div class="blog-access-modal" id="blogAccessModal">
+        <div class="blog-access-modal-content">
+            <button class="blog-access-modal-close" id="closeBlogAccessModal" aria-label="Close modal">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2>Access the Blog Post</h2>
+            <form id="blogAccessForm" class="blog-access-form">
+                <div class="form-group">
+                    <label for="blogName" class="required">Full Name</label>
+                    <input type="text" id="blogName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="blogPhone" class="required">Phone Number</label>
+                    <input type="tel" id="blogPhone" name="phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="blogEmail" class="required">Email Address</label>
+                    <input type="email" id="blogEmail" name="email" required>
+                </div>
+                <div class="form-navigation">
+                    <button type="submit" class="btn primary" id="submitBlogAccess">
+                        <span>Access Blog</span>
+                        <div class="loader"></div>
+                    </button>
+                    <button type="button" class="btn secondary" id="cancelBlogAccess">Cancel</button>
+                </div>
+            </form>
+            <div class="success-message" id="blogSuccessMessage">
+                Thank you! You can now access the blog post.
             </div>
         </div>
     </div>
@@ -1207,6 +1424,22 @@
             </div>
         </div>
     </section>
+    <!-- Blogs Section -->
+    <section class="blogs-section" id="blogs">
+        <div class="container">
+            <h2 class="section-title">Explore Our Blogs</h2>
+            <div class="blog-grid">
+                <div class="blog-card" data-aos="fade-up" data-aos-delay="100">
+                    <img src="https://www.lexinco.com/social-preview-v2.jpeg" alt="Legal Rights Awareness">
+                    <h3>Legal Rights Awareness</h3>
+                    <p>Learn about your legal rights and how to protect them with our comprehensive guide.</p>
+                    <a href="#" class="btn primary"
+                        onclick="openBlogAccessModal('https://claude.ai/public/artifacts/8c65ed95-4f7f-4450-9c82-5a48a0c2df6e')">Read
+                        More</a>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <!-- Trust Section -->
     <section class="trust-section" id="advocate-verified">
@@ -1313,6 +1546,7 @@
                     <ul>
                         <li><a href="index.html">Home</a></li>
                         <li><a href="legal-notice.html">Generator</a></li>
+                        <li><a href="index.html#blogs">Blogs</a></li>
                         <li><a href="index.html#features">Features</a></li>
                         <li><a href="index.html#how-it-works">How It Works</a></li>
                     </ul>
@@ -1417,6 +1651,86 @@
                 trigger: '.hero-content',
                 start: 'top 80%',
                 toggleActions: 'play none none none'
+            }
+        });
+        // Blog Access Modal Handling
+        const blogAccessModal = document.getElementById('blogAccessModal');
+        const closeBlogAccessModal = document.getElementById('closeBlogAccessModal');
+        const cancelBlogAccessBtn = document.getElementById('cancelBlogAccess');
+        const blogAccessForm = document.getElementById('blogAccessForm');
+        const blogSuccessMessage = document.getElementById('blogSuccessMessage');
+        const submitBlogAccess = document.getElementById('submitBlogAccess');
+        let blogUrl = '';
+
+        function openBlogAccessModal(url) {
+            blogUrl = url;
+            blogAccessModal.style.display = 'flex';
+            blogAccessForm.style.display = 'block';
+            blogSuccessMessage.style.display = 'none';
+            submitBlogAccess.classList.remove('loading');
+            submitBlogAccess.disabled = false;
+        }
+
+        closeBlogAccessModal.addEventListener('click', () => {
+            blogAccessModal.style.display = 'none';
+            blogAccessForm.reset();
+            blogAccessForm.style.display = 'block';
+            blogSuccessMessage.style.display = 'none';
+            submitBlogAccess.classList.remove('loading');
+            submitBlogAccess.disabled = false;
+        });
+
+        cancelBlogAccessBtn.addEventListener('click', () => {
+            blogAccessModal.style.display = 'none';
+            blogAccessForm.reset();
+            blogAccessForm.style.display = 'block';
+            blogSuccessMessage.style.display = 'none';
+            submitBlogAccess.classList.remove('loading');
+            submitBlogAccess.disabled = false;
+        });
+
+        blogAccessForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            submitBlogAccess.classList.add('loading');
+            submitBlogAccess.disabled = true;
+
+            const formData = new FormData(blogAccessForm);
+            const data = {
+                name: formData.get('name'),
+                phone: formData.get('phone'),
+                email: formData.get('email'),
+                blogUrl: blogUrl,
+                timestamp: new Date().toISOString()
+            };
+
+            try {
+                const response = await fetch(`${BASE_URL}/api/proxy/blog-access`, {
+                    method: 'POST',
+                    body: JSON.stringify(data),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const responseData = await response.json();
+                submitBlogAccess.classList.remove('loading');
+                submitBlogAccess.disabled = false;
+
+                if (response.ok && responseData.status === 'success') {
+                    blogAccessForm.style.display = 'none';
+                    blogSuccessMessage.style.display = 'block';
+                    setTimeout(() => {
+                        blogAccessModal.style.display = 'none';
+                        blogAccessForm.style.display = 'block';
+                        blogSuccessMessage.style.display = 'none';
+                        blogAccessForm.reset();
+                        window.location.href = blogUrl;
+                    }, 2000);
+                } else {
+                    throw new Error(responseData.error || 'Failed to submit blog access request');
+                }
+            } catch (error) {
+                submitBlogAccess.classList.remove('loading');
+                submitBlogAccess.disabled = false;
+                console.error('Error submitting blog access:', error);
+                alert(`Error submitting blog access request: ${error.message}. Please try again or contact support.`);
             }
         });
         // Consultation Modal Handling

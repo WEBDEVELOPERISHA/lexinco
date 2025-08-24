@@ -505,8 +505,8 @@ app.post('/api/save-notice', upload.single('pdf'), async (req, res) => {
         if (req.file && fs.existsSync(req.file.path)) {
             fs.unlinkSync(req.file.path);
         }
-        const errorDetails = error.message.includes('value too long') ? 
-            `Database error: ${error.message}. Check column lengths in notices table.` : 
+        const errorDetails = error.message.includes('value too long') ?
+            `Database error: ${error.message}. Check column lengths in notices table.` :
             error.message;
         res.status(500).json({ error: 'Failed to save notice', details: errorDetails });
     }
@@ -628,6 +628,18 @@ app.post('/api/proxy/consultation', async (req, res) => {
     } catch (error) {
         console.error('Proxy Error:', error.response ? error.response.data : error.message);
         res.status(500).json({ error: 'Failed to submit consultation request', details: error.message });
+    }
+});
+app.post('/api/proxy/blog-access', async (req, res) => {
+    try {
+        const googleAppsScriptUrl = 'https://script.google.com/macros/s/AKfycbxYqGabKKf6ImXqmiPHMeeWiI7WGFqDob46Ped4DuPSmQCz9MN8rKCQZAkKzaBH7zL-/exec'; // Replace with your Google Apps Script URL
+        const response = await axios.post(googleAppsScriptUrl, req.body, {
+            headers: { 'Content-Type': 'application/json' }
+        });
+        res.json(response.data);
+    } catch (error) {
+        console.error('Blog Access Proxy Error:', error.response ? error.response.data : error.message);
+        res.status(500).json({ error: 'Failed to submit blog access request', details: error.message });
     }
 });
 
