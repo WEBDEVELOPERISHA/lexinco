@@ -82,9 +82,9 @@ function initializeSignaturePad() {
         return;
     }
 
-    // Ensure canvas is visible
+    // Ensure canvas is visible and has proper dimensions
     signaturePadCanvas.style.display = 'block';
-    signaturePadCanvas.style.backgroundColor = '#ffffff'; // Explicitly set background
+    signaturePadCanvas.style.backgroundColor = '#ffffff';
 
     const ratio = Math.max(window.devicePixelRatio || 1, 1);
     signaturePadCanvas.width = signaturePadCanvas.offsetWidth * ratio;
@@ -93,31 +93,32 @@ function initializeSignaturePad() {
     ctx.scale(ratio, ratio);
 
     // Initialize SignaturePad
-    signaturePad = new SignaturePad(signaturePadCanvas, {
-        backgroundColor: 'rgb(255, 255, 255)',
-        penColor: 'rgb(0, 0, 0)',
-        minWidth: 1,
-        maxWidth: 2.5,
-        throttle: 16
-    });
+    try {
+        signaturePad = new SignaturePad(signaturePadCanvas, {
+            backgroundColor: 'rgb(255, 255, 255)',
+            penColor: 'rgb(0, 0, 0)',
+            minWidth: 1,
+            maxWidth: 2.5,
+            throttle: 16
+        });
+        console.log('SignaturePad initialized. Canvas dimensions:', signaturePadCanvas.width, signaturePadCanvas.height);
 
-    // Log initialization
-    console.log('SignaturePad initialized. Canvas dimensions:', signaturePadCanvas.width, signaturePadCanvas.height);
+        // Clear the canvas to ensure a clean state
+        signaturePad.clear();
 
-    // Test rendering a dot to confirm visibility
-    signaturePad.dotSize = 1;
-    signaturePad.penColor = 'rgb(0, 0, 0)';
-    signaturePad.clear(); // Clear any existing content
-    signaturePad.fromData([[{ x: 50, y: 50, time: Date.now(), color: 'rgb(0, 0, 0)' }]]); // Draw a test dot
+        // Add event listeners for debugging
+        signaturePad.addEventListener('beginStroke', () => {
+            console.log('Drawing started');
+        });
+        signaturePad.addEventListener('endStroke', () => {
+            console.log('Drawing ended. Signature data:', signaturePad.toData());
+        });
+    } catch (error) {
+        console.error('Failed to initialize SignaturePad:', error);
+        alert('Failed to initialize signature pad. Please try again.');
+    }
 
-    // Add event listener to log drawing
-    signaturePad.addEventListener('beginStroke', () => {
-        console.log('Drawing started');
-    });
-    signaturePad.addEventListener('endStroke', () => {
-        console.log('Drawing ended. Signature data:', signaturePad.toData());
-    });
-
+    // Handle window resize
     window.addEventListener('resize', handleCanvasResize);
 }
 
@@ -220,32 +221,37 @@ async function loadNoticeDetails(noticeId) {
 function showStep(stepIndex) {
     const index = parseInt(stepIndex) - 1;
     console.log('showStep called with stepIndex:', stepIndex, 'index:', index);
+
     if (index < 0 || index >= steps.length) {
-        console.log('Invalid step index, returning');
+        console.error('Invalid step index:', index);
+        isNextStepProcessing = false;
         return;
     }
 
     currentStep = index;
 
+    // Update step visibility
     steps.forEach((step, i) => {
-        step.classList.toggle('active', i === currentStep);
-        step.style.display = i === currentStep ? 'block' : 'none';
-        console.log(`Step ${i} display:`, step.style.display);
+        const isActive = i === currentStep;
+        step.classList.toggle('active', isActive);
+        step.style.display = isActive ? 'block' : 'none';
+        console.log(`Step ${i + 1} display:`, step.style.display);
     });
 
+    // Update progress bar and step title
     const stepNumber = currentStep + 1;
     document.getElementById('currentStep').textContent = stepNumber;
-    const percentage = (stepNumber / 6) * 100;
+    document.getElementById('stepTitle').textContent = steps[currentStep].dataset.title;
+    const percentage = (stepNumber / steps.length) * 100;
     document.getElementById('progressFill').style.width = `${percentage}%`;
-    const currentTitle = steps[currentStep].dataset.title;
-    document.getElementById('stepTitle').textContent = currentTitle;
 
-    // Re-initialize signature pad when showing Step 6
+    // Re-initialize signature pad for step 6
     if (stepNumber === 6) {
         console.log('Re-initializing signature pad for Step 6');
         initializeSignaturePad();
     }
 
+    // Smooth scroll to the form
     window.scrollTo({
         top: form.offsetTop - 100,
         behavior: 'smooth'
@@ -253,36 +259,49 @@ function showStep(stepIndex) {
 }
 
 function nextStep() {
+    console.log('nextStep called. Current step:', currentStep, 'isNextStepProcessing:', isNextStepProcessing);
+
     if (isNextStepProcessing) {
-        console.log('nextStep already processing, ignoring call');
+        console.log('nextStep is already processing, ignoring call');
         return;
     }
+
     isNextStepProcessing = true;
 
-    console.log('Current Step Before:', currentStep);
+    // Validate the current step if it has been interacted with
     if (stepInteracted[currentStep] && !validateStep(currentStep)) {
         console.log('Validation failed for step:', currentStep);
         isNextStepProcessing = false;
         return;
     }
-    currentStep++;
-    console.log('Current Step After:', currentStep);
-    if (currentStep >= steps.length) {
-        currentStep = steps.length - 1;
-        console.log('Clamped currentStep to:', currentStep);
-    }
-    showStep(currentStep + 1);
-    console.log('Showing step:', currentStep + 1);
 
+    // Increment step and ensure it stays within bounds
+    currentStep = Math.min(currentStep + 1, steps.length - 1);
+    console.log('Moving to step:', currentStep + 1);
+
+    // Show the new step
+    showStep(currentStep + 1);
+
+    // Reset the processing flag
     setTimeout(() => {
         isNextStepProcessing = false;
+        console.log('isNextStepProcessing reset to false');
     }, 300);
 }
 
 function prevStep() {
-    currentStep--;
-    if (currentStep < 0) currentStep = 0;
+    console.log('prevStep called. Current step:', currentStep);
+
+    // Decrement step and ensure it stays within bounds
+    currentStep = Math.max(currentStep - 1, 0);
+    console.log('Moving to step:', currentStep + 1);
+
+    // Show the new step
     showStep(currentStep + 1);
+
+    // Ensure isNextStepProcessing is reset when going back
+    isNextStepProcessing = false;
+    console.log('isNextStepProcessing reset to false (prevStep)');
 }
 
 function validateStep(stepIndex) {
@@ -340,9 +359,21 @@ form.addEventListener('submit', async function (e) {
 });
 
 async function generateLegalNotice() {
+    console.log('Starting generateLegalNotice');
     showLoading(true);
     try {
-        const signatureData = signaturePad && !signaturePad.isEmpty() ? signaturePad.toDataURL() : null;
+        if (!signaturePad || signaturePad.isEmpty()) {
+            alert('Please provide your signature.');
+            return;
+        }
+        if (!document.getElementById('confirmDetails').checked || !document.getElementById('privacyPolicy').checked) {
+            alert('Please confirm the details and agree to the privacy policy.');
+            return;
+        }
+
+        const signatureData = signaturePad.toDataURL();
+        console.log('Signature data captured:', signatureData.substring(0, 50) + '...');
+
         const formData = {
             client: {
                 name: document.getElementById('senderName').value,
@@ -364,20 +395,27 @@ async function generateLegalNotice() {
                 tone: ''
             }
         };
+        console.log('Form data prepared:', formData);
 
+        console.log('Fetching notice from /api/generate-notice');
         const response = await fetch('/api/generate-notice', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData)
         });
         const data = await response.json();
-        if (!data.content) throw new Error(data.error || 'Failed to generate notice');
+        if (!data.content) {
+            throw new Error(data.error || 'Failed to generate notice');
+        }
+        console.log('Notice content received:', data.content.substring(0, 100) + '...');
 
         const noticeContent = DOMPurify.sanitize(data.content);
-        formData.signature = signatureData;
-        formData.content = noticeContent;
+        console.log('Notice content sanitized');
 
+        console.log('Generating PDF blob');
         const pdfBlob = await generatePDFBlob(noticeContent);
+        console.log('PDF blob generated');
+
         const pdfFormData = new FormData();
         pdfFormData.append('pdf', pdfBlob, 'legal_notice.pdf');
         pdfFormData.append('client', JSON.stringify(formData.client));
@@ -385,23 +423,32 @@ async function generateLegalNotice() {
         pdfFormData.append('dispute', JSON.stringify(formData.dispute));
         pdfFormData.append('signature', signatureData);
         pdfFormData.append('content', noticeContent);
+        console.log('PDF form data prepared');
 
+        console.log('Saving notice to /api/save-notice');
         const saveResponse = await fetch('/api/save-notice', {
             method: 'POST',
             body: pdfFormData
         });
         const saveData = await saveResponse.json();
-        if (!saveData.success) throw new Error(saveData.details || saveData.error || 'Failed to save notice');
+        if (!saveData.success) {
+            throw new Error(saveData.details || saveData.error || 'Failed to save notice');
+        }
+        console.log('Notice saved, noticeId:', saveData.noticeId);
 
         currentNoticeId = saveData.noticeId;
         localStorage.setItem('lastNoticeId', currentNoticeId);
         window.history.pushState({}, '', `?id=${currentNoticeId}`);
+        console.log('Notice ID set and URL updated:', currentNoticeId);
 
+        console.log('Loading notice details');
         await loadNoticeDetails(currentNoticeId);
+        console.log('Notice details loaded');
     } catch (error) {
-        console.error('Error generating notice:', error);
-        alert(`Error generating notice: ${error.message}\nDetails: ${error.response?.data?.details || 'No details available'}`);
+        console.error('Error in generateLegalNotice:', error);
+        alert(`Error generating notice: ${error.message}`);
     } finally {
+        console.log('Hiding loading overlay');
         showLoading(false);
     }
 }
@@ -427,6 +474,7 @@ async function getLawyerSignatureBase64(imageUrl) {
 }
 
 async function generatePDFBlob(noticeContent) {
+    console.log('Starting generatePDFBlob');
     if (typeof window.jspdf === 'undefined') throw new Error('jsPDF library not loaded.');
     if (typeof html2canvas === 'undefined') throw new Error('html2canvas library not loaded.');
 
@@ -441,50 +489,21 @@ async function generatePDFBlob(noticeContent) {
     const headerHeight = 50;
     const maxHeightPerPage = pageHeight - marginTop - footerHeight - headerHeight;
 
-    const svgString = `
-  <svg width="800" height="220" xmlns="http://www.w3.org/2000/svg">
-    <rect width="100%" height="100%" fill="#ffffff"/>
-    <line x1="20" y1="210" x2="780" y2="210" stroke="#000000" stroke-width="2"/>
-    
-    <text x="50%" y="50" font-size="24" font-weight="bold" text-anchor="middle" fill="#000000">
-      Adv. Shalini L Tripathi
-    </text>
-    <text x="50%" y="75" font-size="16" text-anchor="middle" fill="#333333">
-      B.Com, LLB
-    </text>
-    <text x="50%" y="105" font-size="14" text-anchor="middle" fill="#000000">
-      Contact: 9552446231 | Email: adv.shalinitripathi@gmail.com
-    </text>
-    <text x="50%" y="130" font-size="14" text-anchor="middle" fill="#000000">
-      03, 1st Floor, Navkar Paradise Building, Bihind Vimal Interior Hub
-    </text>
-    <text x="50%" y="150" font-size="14" text-anchor="middle" fill="#000000">
-      Near Laxmi Chaya Building, Babhai Naka, Lt. Loait, Borivali(W), Mumbai 400092
-    </text>
-    <text x="50%" y="175" font-size="14" text-anchor="middle" fill="#000000">
-      License No: MAH/9337/2024
-    </text>
-  </svg>
-`;
+    console.log('Converting SVG letterhead to data URL');
+    const letterheadBase64 = await svgToDataUrl(svgLetterhead);
+    console.log('Letterhead data URL generated');
 
-    const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
-    const svgUrl = URL.createObjectURL(svgBlob);
-    const img = new Image();
-    img.src = svgUrl;
-    await new Promise((resolve) => { img.onload = resolve; });
+    console.log('Fetching lawyer signature');
+    let lawyerSignatureBase64;
+    try {
+        lawyerSignatureBase64 = await getLawyerSignatureBase64('/signature (2).jpeg');
+        console.log('Lawyer signature loaded');
+    } catch (error) {
+        console.error('Failed to load lawyer signature:', error);
+        throw new Error('Could not load lawyer signature');
+    }
 
-    const canvasHeader = document.createElement('canvas');
-    canvasHeader.width = img.width;
-    canvasHeader.height = img.height;
-    const ctxHeader = canvasHeader.getContext('2d');
-    ctxHeader.fillStyle = '#ffffff';
-    ctxHeader.fillRect(0, 0, canvasHeader.width, canvasHeader.height);
-    ctxHeader.drawImage(img, 0, 0);
-    const letterheadBase64 = canvasHeader.toDataURL('image/png');
-    URL.revokeObjectURL(svgUrl);
-
-    const lawyerSignatureBase64 = await getLawyerSignatureBase64('/signature (2).jpeg');
-
+    console.log('Creating temporary div for notice content');
     const clonedDiv = document.createElement('div');
     clonedDiv.innerHTML = noticeContent;
     clonedDiv.style.position = 'fixed';
@@ -501,16 +520,25 @@ async function generatePDFBlob(noticeContent) {
     clonedDiv.style.color = '#000';
     document.body.appendChild(clonedDiv);
 
-    const scale = 3;
-    const canvas = await html2canvas(clonedDiv, {
-        scale,
-        useCORS: true,
-        allowTaint: true,
-        windowWidth: clonedDiv.scrollWidth,
-        windowHeight: clonedDiv.scrollHeight,
-        backgroundColor: '#ffffff'
-    });
-    document.body.removeChild(clonedDiv);
+    console.log('Rendering notice content with html2canvas');
+    let canvas;
+    try {
+        canvas = await html2canvas(clonedDiv, {
+            scale: 3,
+            useCORS: true,
+            allowTaint: true,
+            windowWidth: clonedDiv.scrollWidth,
+            windowHeight: clonedDiv.scrollHeight,
+            backgroundColor: '#ffffff'
+        });
+        console.log('html2canvas rendering complete');
+    } catch (error) {
+        console.error('html2canvas error:', error);
+        throw new Error('Failed to render notice content');
+    } finally {
+        document.body.removeChild(clonedDiv);
+        console.log('Temporary div removed');
+    }
 
     const imgWidth = pageWidth - 2 * marginLeft;
     const mmPerPx = imgWidth / canvas.width;
@@ -521,6 +549,7 @@ async function generatePDFBlob(noticeContent) {
     const overlap = 15;
     const totalHeight = canvas.height;
 
+    console.log('Starting PDF page generation');
     while (yOffsetPx < totalHeight) {
         pageCount++;
         const isFirstPage = pageCount === 1;
@@ -540,14 +569,17 @@ async function generatePDFBlob(noticeContent) {
         tempCtx.drawImage(canvas, 0, -(yOffsetPx - (pageCount > 1 && !isLastPage ? overlap : 0)));
 
         const imgData = tempCanvas.toDataURL('image/jpeg', 0.95);
+        console.log(`Generated image data for page ${pageCount}`);
 
         if (isFirstPage) {
             const letterheadHeight = 40;
             doc.addImage(letterheadBase64, 'PNG', marginLeft, 10, imgWidth, letterheadHeight);
+            console.log('Added letterhead to first page');
         }
 
         const contentTopOffset = isFirstPage ? 10 + headerHeight + 5 : marginTop;
         doc.addImage(imgData, 'JPEG', marginLeft, contentTopOffset, imgWidth, renderHeightMm, undefined, 'FAST');
+        console.log(`Added content image to page ${pageCount}`);
 
         const footerText = `Generated by `;
         const websiteText = `lexinco.com`;
@@ -564,10 +596,12 @@ async function generatePDFBlob(noticeContent) {
         const pageX = linkX + doc.getTextWidth(websiteText);
         doc.setTextColor(150);
         doc.text(pageText, pageX, pageHeight - 10);
+        console.log(`Added footer to page ${pageCount}`);
 
         yOffsetPx += renderHeightPx - overlap;
         if (yOffsetPx < totalHeight) {
             doc.addPage();
+            console.log(`Added new page ${pageCount + 1}`);
         }
     }
 
@@ -580,7 +614,9 @@ async function generatePDFBlob(noticeContent) {
     doc.setFontSize(12);
     doc.setTextColor(0);
     doc.text("Adv. Shalini L Tripathi", signatureX, signatureY + signatureHeight + 6);
+    console.log('Added lawyer signature to PDF');
 
+    console.log('PDF generation complete');
     return doc.output('blob');
 }
 
