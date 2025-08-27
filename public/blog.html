@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Know Your Rights: The Legal Guide Every Indian Citizen Needs</title>
+    <!-- AOS for Scroll Animations -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #1e293b;
+            --secondary-color: #3b82f6;
+            --accent-color: #ef4444;
+            --white: #ffffff;
+            --gray: #f1f5f9;
+            --text-light: #64748b;
+            --border-radius: 10px;
+            --shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--gray);
+            color: var(--primary-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: var(--white);
+            box-shadow: var(--shadow);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-links a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--secondary-color);
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--primary-color);
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: var(--white);
+            padding: 100px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="scales" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="8" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23scales)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero-subtitle {
+            font-size: 1.4rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+            animation: fadeInUp 1s ease-out 0.2s both;
+        }
+
+        .author-credit {
+            font-size: 1.1rem;
+            color: var(--gray);
+            margin-bottom: 40px;
+            animation: fadeInUp 1s ease-out 0.4s both;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: var(--accent-color);
+            color: var(--white);
+            padding: 18px 40px;
+            font-size: 1.2rem;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+            margin-top: 20px;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(239, 68, 68, 0.4);
+        }
+
+        .main-content {
+            background: var(--white);
+            padding: 80px 0;
+        }
+
+        .hook-section {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .hook-title {
+            font-size: 2.8rem;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .hook-title::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 4px;
+            background: var(--secondary-color);
+            margin: 20px auto;
+            border-radius: 2px;
+        }
+
+        .scenarios {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin: 60px 0;
+        }
+
+        .scenario-card {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            color: var(--white);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            transform: translateY(0);
+            transition: all 0.3s ease;
+        }
+
+        .scenario-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .scenario-emoji {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .scenario-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .scenario-text {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .stats-section {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            color: var(--white);
+            padding: 80px 0;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-top: 50px;
+        }
+
+        .stat-item {
+            padding: 20px;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .book-preview {
+            padding: 80px 0;
+            background: var(--gray);
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            margin-top: 40px;
+        }
+
+        .book-cover {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: var(--white);
+            padding: 60px 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transform: perspective(1000px) rotateY(-15deg);
+            transition: all 0.3s ease;
+        }
+
+        .book-cover:hover {
+            transform: perspective(1000px) rotateY(0deg);
+        }
+
+        .book-title {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .book-author {
+            font-size: 1.2rem;
+            color: var(--gray);
+            margin-bottom: 30px;
+        }
+
+        .book-pages {
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+
+        .features-list {
+            list-style: none;
+        }
+
+        .features-list li {
+            padding: 15px 0;
+            font-size: 1.2rem;
+            border-bottom: 1px solid var(--gray);
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .features-list li::before {
+            content: '⚖️';
+            position: absolute;
+            left: 0;
+            font-size: 1.5rem;
+        }
+
+        .testimonial-section {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: var(--white);
+            padding: 80px 0;
+            text-align: center;
+        }
+
+        .testimonial-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            margin: 40px 0;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .testimonial-text {
+            font-size: 1.3rem;
+            font-style: italic;
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+
+        .testimonial-author {
+            font-size: 1.1rem;
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        .final-cta {
+            background: var(--primary-color);
+            color: var(--white);
+            padding: 100px 0;
+            text-align: center;
+        }
+
+        .final-cta-title {
+            font-size: 3rem;
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+
+        .final-cta-text {
+            font-size: 1.3rem;
+            margin-bottom: 50px;
+            opacity: 0.9;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .download-benefits {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin: 50px 0;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .benefit-item {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+        }
+
+        .benefit-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .benefit-text {
+            font-size: 1.1rem;
+        }
+
+        .footer {
+            background: var(--primary-color);
+            color: var(--white);
+            padding: 60px 0 20px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .footer-brand p {
+            margin-top: 10px;
+            opacity: 0.8;
+        }
+
+        .footer-links h4,
+        .footer-contact h4 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+
+        .footer-links ul,
+        .footer-contact ul {
+            list-style: none;
+        }
+
+        .footer-links ul li,
+        .footer-contact ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-links ul li a,
+        .footer-contact ul li a {
+            color: var(--white);
+            text-decoration: none;
+            opacity: 0.8;
+        }
+
+        .footer-links ul li a:hover,
+        .footer-contact ul li a:hover {
+            opacity: 1;
+            color: var(--secondary-color);
+        }
+
+        .footer-bottom {
+            margin-top: 40px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 20px;
+        }
+
+        .social-links {
+            margin-top: 10px;
+        }
+
+        .social-links a {
+            color: var(--white);
+            margin: 0 10px;
+            font-size: 1.2rem;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+
+        .social-links a:hover {
+            opacity: 1;
+            color: var(--secondary-color);
+        }
+
+        .whatsapp-help {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #25D366;
+            color: var(--white);
+            padding: 10px 20px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+        }
+
+        .whatsapp-help:hover {
+            background: #20c057;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 8px 25px rgba(239, 68, 68, 0.6);
+            }
+
+            100% {
+                box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hook-title {
+                font-size: 2rem;
+            }
+
+            .preview-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .book-cover {
+                transform: none;
+            }
+
+            .final-cta-title {
+                font-size: 2rem;
+            }
+
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 60px;
+                left: 0;
+                right: 0;
+                background: var(--white);
+                padding: 20px;
+                box-shadow: var(--shadow);
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+
+            .cta-button {
+                font-size: 1rem;
+                padding: 14px 30px;
+            }
+
+            .hook-title {
+                font-size: 1.8rem;
+            }
+
+            .scenario-card {
+                padding: 20px;
+            }
+
+            .scenario-emoji {
+                font-size: 2.5rem;
+            }
+
+            .scenario-title {
+                font-size: 1.3rem;
+            }
+
+            .scenario-text {
+                font-size: 1rem;
+            }
+
+            .stat-number {
+                font-size: 2.5rem;
+            }
+
+            .stat-label {
+                font-size: 1.1rem;
+            }
+
+            .book-title {
+                font-size: 1.8rem;
+            }
+
+            .book-author {
+                font-size: 1.1rem;
+            }
+
+            .book-pages {
+                font-size: 1rem;
+            }
+
+            .features-list li {
+                font-size: 1.1rem;
+                padding-left: 30px;
+            }
+
+            .features-list li::before {
+                font-size: 1.3rem;
+            }
+
+            .testimonial-text {
+                font-size: 1.2rem;
+            }
+
+            .testimonial-author {
+                font-size: 1rem;
+            }
+
+            .final-cta-title {
+                font-size: 1.8rem;
+            }
+
+            .final-cta-text {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container nav-content">
+            <a href="index.html" class="logo">
+                <img src="/assets/logo.svg" alt="Lexinco Logo" width="180">
+            </a>
+            <div class="nav-links" id="navLinks">
+                <a href="index.html">Home</a>
+                <a href="index.html#how-it-works">How It Works</a>
+                <a href="index.html#advocate-verified">Advocate Verified</a>
+                <a href="index.html#contact">Contact</a>
+                <a href="blog.html">Blog</a>
+                <a href="legal-notice.html" class="btn primary">Start Legal Notice</a>
+                <a href="#consultation" class="btn secondary" id="bookConsultation">Book My Consultation</a>
+            </div>
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section" data-aos="fade-up">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">STOP Being Taken Advantage Of!</h1>
+                <p class="hero-subtitle">The ONE Book That Could Save You Thousands of Rupees and Years of Legal Trouble
+                </p>
+                <p class="author-credit">By Miss Shalini Tripathi, Advocate, Bombay High Court</p>
+                <a href="#download" class="cta-button">🔥 GET YOUR FREE COPY NOW 🔥</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container">
+            <!-- Hook Section -->
+            <section class="hook-section" data-aos="fade-up">
+                <h2 class="hook-title">These Could Be YOU Tomorrow...</h2>
+
+                <div class="scenarios">
+                    <div class="scenario-card" data-aos="fade-up" data-aos-delay="100">
+                        <span class="scenario-emoji">💸</span>
+                        <h3 class="scenario-title">Your Friend Refuses to Return ₹2 Lakh</h3>
+                        <p class="scenario-text">"It was a gift, not a loan!" - Without knowing money lending laws, you
+                            could lose your hard-earned savings forever.</p>
+                    </div>
+
+                    <div class="scenario-card" data-aos="fade-up" data-aos-delay="200">
+                        <span class="scenario-emoji">🏠</span>
+                        <h3 class="scenario-title">Landlord Suddenly Demands Double Rent</h3>
+                        <p class="scenario-text">Threatened with eviction if you don't pay. Do you give in or fight
+                            back? Most people don't know they have rights!</p>
+                    </div>
+
+                    <div class="scenario-card" data-aos="fade-up" data-aos-delay="300">
+                        <span class="scenario-emoji">👮</span>
+                        <h3 class="scenario-title">Government Officer Demands ₹10,000 Bribe</h3>
+                        <p class="scenario-text">"This is the system" - Millions pay bribes daily because they don't
+                            know how to fight corruption legally.</p>
+                    </div>
+
+                    <div class="scenario-card" data-aos="fade-up" data-aos-delay="400">
+                        <span class="scenario-emoji">💔</span>
+                        <h3 class="scenario-title">Workplace Harassment Ignored</h3>
+                        <p class="scenario-text">Your boss creates a hostile environment. You suffer in silence because
+                            you think there's no legal protection.</p>
+                    </div>
+
+                    <div class="scenario-card" data-aos="fade-up" data-aos-delay="500">
+                        <span class="scenario-emoji">🛒</span>
+                        <h3 class="scenario-title">₹25,000 Phone Stops Working</h3>
+                        <p class="scenario-text">Company refuses replacement. "Online sales final!" Most people give up,
+                            not knowing consumer courts exist.</p>
+                    </div>
+
+                    <div class="scenario-card" data-aos="fade-up" data-aos-delay="600">
+                        <span class="scenario-emoji">📱</span>
+                        <h3 class="scenario-title">Cyber Fraud Drains Your Account</h3>
+                        <p class="scenario-text">₹50,000 gone in minutes. Police say "Nothing we can do." But there ARE
+                            legal remedies you don't know about!</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Stats Section -->
+    <section class="stats-section" data-aos="fade-up">
+        <div class="container">
+            <h2 style="font-size: 2.5rem; margin-bottom: 20px;">The SHOCKING Truth About Legal Awareness in India</h2>
+            <p style="font-size: 1.2rem; opacity: 0.9;">These numbers will make you realize why you NEED this book...
+            </p>
+
+            <div class="stats-grid">
+                <div class="stat-item" data-aos="fade-up" data-aos-delay="100">
+                    <div class="stat-number">73%</div>
+                    <div class="stat-label">Indians Don't Know Their Basic Constitutional Rights</div>
+                </div>
+                <div class="stat-item" data-aos="fade-up" data-aos-delay="200">
+                    <div class="stat-number">₹847 Crore</div>
+                    <div class="stat-label">Lost Annually Due to Consumer Fraud That Could Be Prevented</div>
+                </div>
+                <div class="stat-item" data-aos="fade-up" data-aos-delay="300">
+                    <div class="stat-number">89%</div>
+                    <div class="stat-label">People Pay Bribes Instead of Fighting Corruption Legally</div>
+                </div>
+                <div class="stat-item" data-aos="fade-up" data-aos-delay="400">
+                    <div class="stat-number">45 Minutes</div>
+                    <div class="stat-label">Average Time to Read This Book and Change Your Life</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Book Preview -->
+    <section class="book-preview" data-aos="fade-up">
+        <div class="container">
+            <h2 style="font-size: 2.5rem; text-align: center; margin-bottom: 20px; color: var(--primary-color);">Meet
+                Your Legal Guardian Angel</h2>
+            <p style="text-align: center; font-size: 1.2rem; color: var(--text-light); margin-bottom: 40px;">Written by
+                a practicing advocate who has seen thousands of cases of legal ignorance</p>
+
+            <div class="preview-grid">
+                <div class="book-cover">
+                    <h3 class="book-title">Know Your Rights</h3>
+                    <p class="book-author">Miss Shalini Tripathi<br>Advocate, Bombay High Court</p>
+                    <p class="book-pages">50+ Pages of Life-Changing Legal Knowledge</p>
+                </div>
+
+                <div>
+                    <h3 style="font-size: 2rem; color: var(--primary-color); margin-bottom: 30px;">What's Inside This
+                        Legal Lifesaver?</h3>
+                    <ul class="features-list">
+                        <li>Your Constitutional Rights (Most Indians Don't Know These!)</li>
+                        <li>Consumer Protection Laws That Can Get You Refunds</li>
+                        <li>How to Fight Workplace Harassment Legally</li>
+                        <li>Money Lending & Recovery Laws (Save Your Friendships & Money)</li>
+                        <li>Anti-Corruption Laws (Stop Paying Bribes Forever!)</li>
+                        <li>Property Rights & Tenant Protection</li>
+                        <li>Family Law Essentials</li>
+                        <li>Cyber Crime Protection & Digital Rights</li>
+                        <li>Traffic Laws & Your Rights During Police Stops</li>
+                        <li>How to Use RTI as Your Legal Weapon</li>
+                        <li>Emergency Legal Contacts & Quick Reference</li>
+                        <li>50+ Real-Life Examples & Case Studies</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonial -->
+    <section class="testimonial-section" data-aos="fade-up">
+        <div class="container">
+            <h2 style="font-size: 2.5rem; margin-bottom: 30px;">What People Are Saying...</h2>
+
+            <div class="testimonial-card">
+                <p class="testimonial-text">"I wish I had this book 5 years ago when I lost ₹3 lakh to a property fraud.
+                    Miss Shalini's explanations are so clear that even my teenage daughter understood the legal
+                    concepts. This should be mandatory reading for every Indian family."</p>
+                <p class="testimonial-author">- Rajesh Kumar, Mumbai</p>
+            </div>
+
+            <div class="testimonial-card">
+                <p class="testimonial-text">"As a small business owner, I was constantly being cheated by clients who
+                    wouldn't pay. Using the cheque bounce laws explained in Chapter 10, I recovered ₹2.3 lakh in pending
+                    payments within 6 months. This book is worth its weight in gold!"</p>
+                <p class="testimonial-author">- Priya Sharma, Delhi</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="final-cta" id="download" data-aos="fade-up">
+        <div class="container">
+            <h2 class="final-cta-title">Don't Let Legal Ignorance Cost You Another Rupee!</h2>
+            <p class="final-cta-text">
+                Every day you delay learning your rights, you're vulnerable to exploitation, fraud, and injustice.
+                This book has already helped thousands of Indians fight back and WIN.
+                Your turn starts NOW.
+            </p>
+
+            <div class="download-benefits">
+                <div class="benefit-item">
+                    <div class="benefit-icon">💯</div>
+                    <div class="benefit-text">Completely FREE</div>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">📱</div>
+                    <div class="benefit-text">Instant Download</div>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">⚡</div>
+                    <div class="benefit-text">50 Pages of Power</div>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">🎯</div>
+                    <div class="benefit-text">Written by Expert Advocate</div>
+                </div>
+            </div>
+
+            <a href="javascript:void(0)" onclick="downloadBook()" class="cta-button"
+                style="font-size: 1.5rem; padding: 25px 60px;">
+                📚 DOWNLOAD YOUR FREE COPY NOW 📚
+            </a>
+
+            <p style="margin-top: 30px; font-size: 1.1rem; opacity: 0.8;">
+                🔥 Over 10,000+ Downloads in the First Month! 🔥<br>
+                ⚡ Join the Legal Awareness Revolution ⚡
+            </p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="index.html" class="logo">
+                        <img src="/assets/logo.svg" alt="Lexinco Logo">
+                    </a>
+                    <p>Making legal documentation accessible and efficient.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="legal-notice.html">Generator</a></li>
+                        <li><a href="index.html#features">Features</a></li>
+                        <li><a href="index.html#how-it-works">How It Works</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h4>Need Help?</h4>
+                    <ul>
+                        <li><i class="fas fa-envelope"></i> support@lexinco.com</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2025 Lexinco. All rights reserved.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- WhatsApp Help Button -->
+    <a href="https://wa.me/+918329186509?text=Hello,%20I%20need%20assistance%20with%20Lexinco's%20legal%20notice%20generator."
+        class="whatsapp-help" target="_blank">
+        <i class="fab fa-whatsapp"></i> May I Help You?
+    </a>
+
+    <script>
+        function downloadBook() {
+            const button = document.querySelector('#download .cta-button');
+            const originalText = button.innerHTML;
+
+            button.innerHTML = '⏳ Preparing Your Download...';
+            button.style.background = 'var(--secondary-color)';
+
+            setTimeout(() => {
+                button.innerHTML = '✅ DOWNLOAD READY!';
+
+                // Create a temporary anchor element to trigger the download
+                const link = document.createElement('a');
+                link.href = '/assets/know-your-rights.pdf';
+                link.download = 'Know_Your_Rights.pdf'; // Optional: specify the filename for download
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                // Show success message
+                const successMessage = `
+                    <div style="background: var(--secondary-color); color: var(--white); padding: 40px; border-radius: 20px; margin-top: 40px; text-align: center;">
+                        <h3 style="margin-bottom: 20px;">🎉 Download Started! 🎉</h3>
+                        <p style="margin-bottom: 15px;">Your copy of "Know Your Rights" by Miss Shalini Tripathi is downloading.</p>
+                        <p style="margin-bottom: 15px;">Check your downloads folder or browser's download manager.</p>
+                        <p style="font-size: 1.1rem;"><strong>Thank you for joining the Legal Awareness Revolution!</strong></p>
+                    </div>
+                `;
+
+                button.insertAdjacentHTML('afterend', successMessage);
+
+                // Fallback alert in case the download doesn't start
+                setTimeout(() => {
+                    if (!link.href.includes('know-your-rights.pdf')) {
+                        alert('There was an issue starting the download. Please ensure the file is available at /assets/know-your-rights.pdf or contact support@lexinco.com.');
+                    }
+                }, 1000);
+
+            }, 2000);
+        }
+
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // AOS Initialization
+        AOS.init({
+            duration: 1000,
+            once: true
+        });
+
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const navLinks = document.getElementById('navLinks');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+    </script>
+</body>
+
+</html>
