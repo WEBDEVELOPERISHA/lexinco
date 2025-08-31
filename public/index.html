@@ -2,7 +2,9 @@
 <html lang="en">
 
 <head>
-    <!-- Open Graph for Facebook/LinkedIn -->
+    <!-- Meta Tags -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta property="og:title" content="Lexinco - Draft Legal Notices in Minutes">
     <meta property="og:description"
         content="Generate professional legal notices in minutes — smart, fast, and affordable with Lexinco.">
@@ -14,9 +16,32 @@
     <meta name="twitter:description"
         content="Generate professional legal notices in minutes — smart, fast, and affordable with Lexinco.">
     <meta name="twitter:image" content="https://www.lexinco.com/social-preview-v2.jpeg">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lexinco - Your Voice. Your Rights. Made Legal.</title>
+
+    <!-- Meta Pixel Code -->
+    <script>
+        !function(f,b,e,v,n,t,s)
+        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+        n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t,s)}(window, document,'script',
+        'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '2762495943943491');
+        fbq('track', 'PageView');
+    </script>
+
+    <!-- Google Tag Manager -->
+    <script>
+        (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','GTM-N7C4SRQS');
+    </script>
+    <!-- End Google Tag Manager -->
+
     <!-- AOS for Scroll Animations (retained for other sections) -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
@@ -243,7 +268,6 @@
             will-change: background-position, transform;
         }
 
-
         .hero::before {
             content: '';
             position: absolute;
@@ -254,7 +278,6 @@
             background: rgba(30, 41, 59, 0.65);
             z-index: 0;
         }
-
 
         .hero-container {
             max-width: 900px;
@@ -269,7 +292,6 @@
             z-index: 1;
         }
 
-
         .hero-buttons {
             display: flex;
             gap: 1rem;
@@ -278,8 +300,6 @@
             flex-wrap: wrap;
             will-change: transform, opacity;
         }
-
-
 
         .hero-content {
             position: relative;
@@ -316,7 +336,6 @@
             border-radius: 10px;
             will-change: transform, opacity;
         }
-
 
         .features-list li {
             display: flex;
@@ -929,6 +948,19 @@
 </head>
 
 <body>
+    <!-- Meta Pixel (noscript) -->
+    <noscript>
+        <img height="1" width="1" style="display:none"
+             src="https://www.facebook.com/tr?id=2762495943943491&ev=PageView&noscript=1" />
+    </noscript>
+
+    <!-- Google Tag Manager (noscript) -->
+    <noscript>
+        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-N7C4SRQS"
+                height="0" width="0" style="display:none;visibility:hidden"></iframe>
+    </noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
     <!-- Navigation -->
     <nav class="navbar">
         <div class="container nav-content">
@@ -939,6 +971,7 @@
                 <a href="#home">Home</a>
                 <a href="#how-it-works">How It Works</a>
                 <a href="blog.html">Blog</a>
+                <a href="advocate.html">Drafting Tool</a>   
                 <a href="#contact">Contact</a>
                 <a href="legal-notice.html" class="btn primary">Start Legal Notice</a>
                 <a href="#consultation" class="btn secondary" id="bookConsultation">Book My Consultation</a>
@@ -1140,7 +1173,6 @@
             </div>
         </div>
     </section>
-
 
     <!-- How It Works -->
     <section class="how-it-works" id="how-it-works">

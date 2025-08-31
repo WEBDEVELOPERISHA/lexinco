@@ -25,11 +25,6 @@ app.use(cors({
 }));
 app.use(bodyParser.json());
 
-app.use(express.static(path.join(__dirname, '..', 'public')));
-app.use('/assets', express.static(path.join(__dirname, '..', 'assets')));
-app.use('/css', express.static(path.join(__dirname, '..', 'public', 'css')));
-app.use('/js', express.static(path.join(__dirname, '..', 'public', 'js')));
-
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: process.env.DATABASE_URL.includes('localhost') ? false : { rejectUnauthorized: false }
@@ -54,19 +49,198 @@ function generateOTP() {
     return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-app.get('/', (req, res) => {
-    const indexPath = path.join(__dirname, '..', 'public', 'index.html');
-    if (fs.existsSync(indexPath)) {
-        res.sendFile(indexPath);
-    } else {
-        res.sendFile(path.join(__dirname, '..', 'public', 'legal-notice.html'));
-    }
-});
+function numberToWords(number) {
+    const units = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+    const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+    const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+    const thousands = ['', 'Thousand', 'Lakh', 'Crore'];
 
+    if (number === 0) return 'Zero';
+    if (number < 0) return 'Minus ' + numberToWords(Math.abs(number));
+
+    let words = '';
+    let crore = Math.floor(number / 10000000);
+    number %= 10000000;
+    let lakh = Math.floor(number / 100000);
+    number %= 100000;
+    let thousand = Math.floor(number / 1000);
+    number %= 1000;
+    let hundred = Math.floor(number / 100);
+    number %= 100;
+    let ten = Math.floor(number / 10);
+    let unit = number % 10;
+
+    if (crore) words += numberToWords(crore) + ' Crore ';
+    if (lakh) words += numberToWords(lakh) + ' Lakh ';
+    if (thousand) words += numberToWords(thousand) + ' Thousand ';
+    if (hundred) words += units[hundred] + ' Hundred ';
+    if (ten || unit) {
+        if (ten < 1) words += units[unit];
+        else if (ten === 1) words += teens[unit];
+        else words += tens[ten] + (unit ? ' ' + units[unit] : '');
+    }
+    return words.trim() + ' Only';
+}
+
+// API Routes
 app.get('/api/config', (req, res) => {
     res.json({});
 });
 
+app.post('/api/generate-sale-agreement', async (req, res) => {
+    console.log('Received request to /api/generate-sale-agreement with body:', req.body);
+    const formData = req.body;
+    const todayDate = new Date().toLocaleDateString('en-US', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    });
+
+    if (!formData.seller || !formData.buyer || !formData.product || !formData.delivery || !formData.paymentMode) {
+        console.error('Invalid form data:', formData);
+        return res.status(400).json({ error: 'Invalid form data', details: 'Missing seller, buyer, product, delivery, or paymentMode data' });
+    }
+
+    if (!Number.isFinite(formData.product.totalPrice) || formData.product.totalPrice < 0) {
+        console.error('Invalid totalPrice:', formData.product.totalPrice);
+        return res.status(400).json({ error: 'Invalid totalPrice', details: 'Total price must be a valid non-negative number' });
+    }
+
+    const template = `
+SALES AGREEMENT
+
+THIS SALES AGREEMENT (“Agreement”) is made and executed on this ${todayDate} at ${formData.executionPlace || 'Mumbai'},
+BY AND BETWEEN:
+
+**${formData.seller.name}**, son/daughter of ${formData.seller.fatherName}, residing at ${formData.seller.address}, hereinafter referred to as the "Seller" (which expression shall, unless repugnant to the context or meaning thereof, include his/her heirs, legal representatives, successors, and assigns);
+
+AND
+
+**${formData.buyer.name}**, son/daughter of ${formData.buyer.fatherName}, residing at ${formData.buyer.address}, hereinafter referred to as the "Buyer" (which expression shall, unless repugnant to the context or meaning thereof, include his/her heirs, legal representatives, successors, and assigns).
+
+(The Seller and the Buyer are hereinafter collectively referred to as the "Parties" and individually as a "Party").
+
+WHEREAS:
+
+1. The Seller is the absolute owner and in lawful possession of the goods more particularly described hereunder.
+2. The Buyer has approached the Seller to purchase the said goods, and the Seller has agreed to sell the same subject to the terms and conditions contained herein.
+
+NOW THIS AGREEMENT WITNESSETH AS FOLLOWS:
+
+**1. DESCRIPTION OF GOODS**
+The Seller agrees to sell, transfer, and deliver to the Buyer the following goods:
+${formData.product.description}.
+
+**2. CONSIDERATION & PAYMENT**
+a) The total consideration for the sale of the aforesaid goods shall be Rs. ${formData.product.totalPrice} (Rupees ${numberToWords(formData.product.totalPrice)}).
+b) The Buyer agrees to pay the aforesaid consideration to the Seller as follows:
+   i. Rs. ${formData.product.price} per unit for a total of ${formData.product.quantity} units.
+   ii. Mode of payment: ${formData.paymentMode}.
+c) The Parties agree that time is the essence of payment. Delay in payment shall attract interest at 1% per month until realization.
+
+**3. DELIVERY**
+a) The Seller shall deliver the goods to the Buyer at ${formData.delivery.address} on or before ${formData.delivery.date}.
+b) Risk in respect of the goods shall pass to the Buyer upon delivery.
+c) Title shall pass only upon full and final payment of consideration.
+
+**4. REPRESENTATIONS & WARRANTIES**
+The Seller hereby covenants, represents, and warrants that:
+a) The goods are free from all encumbrances, liens, or third-party claims.
+b) The goods conform to the description and are fit for the intended purpose.
+c) The Seller has full authority to sell the goods and execute this Agreement.
+
+**5. INDEMNITY**
+The Seller shall indemnify and keep indemnified the Buyer against any claims, demands, losses, damages, or expenses arising due to defect in title or breach of the Seller’s warranties.
+
+**6. BREACH & REMEDIES**
+a) In the event of breach of any term of this Agreement, the aggrieved Party shall be entitled to specific performance, damages, or such other remedies as available under the Indian Contract Act, 1872 and the Sale of Goods Act, 1930.
+b) The defaulting Party shall also be liable to bear all costs, charges, and expenses including legal costs incurred by the aggrieved Party.
+
+**7. GOVERNING LAW & JURISDICTION**
+This Agreement shall be governed by and construed in accordance with the laws of India. The Courts at ${formData.jurisdiction || 'Mumbai'} shall have exclusive jurisdiction over any disputes arising out of or in connection with this Agreement.
+
+IN WITNESS WHEREOF, the Parties hereto have hereunto set their respective hands on the day, month, and year first above written.
+
+__________________________          __________________________
+Seller (Signature & Name)           Buyer (Signature & Name)
+`;
+
+    const prompt = `
+You are a senior legal assistant with 20+ years of experience in Indian commercial law.
+
+Your task is to draft a **formal Sales Agreement** based on the provided form data. The agreement must:
+- Be **legally enforceable** under Indian law.
+- Use **precise legal terminology** (e.g., "party of the first part", "covenants", "indemnify", "consideration", "specific performance").
+- Reference applicable laws such as the **Indian Contract Act, 1872** and the **Sale of Goods Act, 1930**.
+- Strictly follow the structure of the template provided below. Do not add or remove sections.
+- Expand each section into detailed contractual clauses suitable for a professional legal agreement.
+
+**Form Data**:
+- Seller: ${formData.seller.name}, ${formData.seller.address}, ${formData.seller.contact}
+- Buyer: ${formData.buyer.name}, ${formData.buyer.address}, ${formData.buyer.contact}
+- Product: ${formData.product.description}, Quantity: ${formData.product.quantity}, Price per unit: Rs. ${formData.product.price}, Total: Rs. ${formData.product.totalPrice}
+- Delivery: ${formData.delivery.address}, Date: ${formData.delivery.date}
+- Payment Mode: ${formData.paymentMode}
+
+**Template to Follow**:
+${template}
+
+**Instructions**:
+1. Insert detailed legal drafting language for each clause while keeping the structure intact.
+2. Use Indian legal style (formal, verbose, contractual).
+3. Do not add commentary, explanations, or formatting outside the Agreement text.
+4. Output only the completed Agreement.
+`;
+
+    try {
+        if (!process.env.OPENAI_API_KEY) {
+            throw new Error('OPENAI_API_KEY is not set in environment variables');
+        }
+
+        console.log('Sending request to OpenAI API...');
+        const response = await axios.post('https://api.openai.com/v1/chat/completions', {
+            model: "gpt-4",
+            messages: [{ role: "user", content: prompt }],
+            temperature: 0.1,
+            max_tokens: 4096
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+            }
+        });
+
+        console.log('Received response from OpenAI:', response.data);
+        let content = response.data.choices[0].message.content;
+
+        const expectedStart = `SALES AGREEMENT`;
+        const expectedEnd = `Seller (Signature & Name)           Buyer (Signature & Name)`;
+        if (!content.startsWith(expectedStart) || !content.endsWith(expectedEnd)) {
+            console.warn('OpenAI response does not match expected structure:', content.substring(0, 100) + '...');
+            content = template;
+        }
+
+        content = content
+            .replace(/\n\n/g, '<p>')
+            .replace(/\n/g, '<br>')
+            .replace(/\t/g, '    ')
+            .replace('[Insert Amount in Words]', numberToWords(formData.product.totalPrice));
+
+        res.json({ content });
+    } catch (error) {
+        console.error('OpenAI API Error:', {
+            message: error.message,
+            response: error.response ? error.response.data : null,
+            status: error.response ? error.response.status : null
+        });
+        res.status(500).json({
+            error: 'Failed to generate sale agreement',
+            details: error.response?.data?.error?.message || error.message
+        });
+    }
+});
+
+// Other API Routes (unchanged from your original server.js)
 app.post('/api/generate-notice', async (req, res) => {
     const formData = req.body;
     const todayDate = new Date().toLocaleDateString('en-US', {
@@ -181,7 +355,7 @@ ${template}
         content = content
             .replace(/\n\n/g, '<p>')
             .replace(/\n/g, '<br>')
-            .replace(/\t/g, '    ');
+            .replace(/\t/g, '    ');
 
         res.json({ content });
     } catch (error) {
@@ -484,7 +658,6 @@ app.post('/api/save-notice', upload.single('pdf'), async (req, res) => {
 
         await pool.query(query, values);
 
-        // Send email to advocate
         await transporter.sendMail({
             from: `"Lexinco" <${process.env.EMAIL_USER}>`,
             to: 'info@lexinco.com',
@@ -542,7 +715,6 @@ app.post('/api/send-notice/:id', async (req, res) => {
     }
 });
 
-app.use('/uploads', express.static(path.join(__dirname, 'Uploads')));
 app.post('/api/upload-pdf', upload.single('pdf'), async (req, res) => {
     try {
         const file = req.file;
@@ -561,30 +733,13 @@ app.post('/api/upload-pdf', upload.single('pdf'), async (req, res) => {
             [newPath, expiresAt]
         );
 
-        const fileUrl = `${process.env.HEROKU_APP_URL || `http://localhost:${PORT}`}/uploads/${newFilename}`;
+        const fileUrl = `${process.env.HEROKU_APP_URL || `http://localhost:${process.env.PORT || 3000}`}/Uploads/${newFilename}`;
         res.json({ success: true, url: fileUrl });
     } catch (error) {
         console.error('Upload PDF Error:', error);
         res.status(500).json({ error: 'Failed to upload PDF', details: error.message });
     }
 });
-
-setInterval(async () => {
-    try {
-        const now = new Date();
-        const result = await pool.query('SELECT id, file_path FROM files WHERE expires_at < $1', [now]);
-        for (const file of result.rows) {
-            try {
-                fs.unlinkSync(file.file_path);
-                await pool.query('DELETE FROM files WHERE id = $1', [file.id]);
-            } catch (error) {
-                console.error('Error deleting file:', error);
-            }
-        }
-    } catch (error) {
-        console.error('Cleanup Error:', error);
-    }
-}, 60 * 60 * 1000);
 
 app.get('/test-email', async (req, res) => {
     try {
@@ -630,9 +785,10 @@ app.post('/api/proxy/consultation', async (req, res) => {
         res.status(500).json({ error: 'Failed to submit consultation request', details: error.message });
     }
 });
+
 app.post('/api/proxy/blog-access', async (req, res) => {
     try {
-        const googleAppsScriptUrl = 'https://script.google.com/macros/s/AKfycbxYqGabKKf6ImXqmiPHMeeWiI7WGFqDob46Ped4DuPSmQCz9MN8rKCQZAkKzaBH7zL-/exec'; // Replace with your Google Apps Script URL
+        const googleAppsScriptUrl = 'https://script.google.com/macros/s/AKfycbxYqGabKKf6ImXqmiPHMeeWiI7WGFqDob46Ped4DuPSmQCz9MN8rKCQZAkKzaBH7zL-/exec';
         const response = await axios.post(googleAppsScriptUrl, req.body, {
             headers: { 'Content-Type': 'application/json' }
         });
@@ -641,6 +797,18 @@ app.post('/api/proxy/blog-access', async (req, res) => {
         console.error('Blog Access Proxy Error:', error.response ? error.response.data : error.message);
         res.status(500).json({ error: 'Failed to submit blog access request', details: error.message });
     }
+});
+
+// Static Middleware (moved after API routes)
+app.use(express.static(path.join(__dirname, '..', 'public')));
+app.use('/assets', express.static(path.join(__dirname, '..', 'assets')));
+app.use('/css', express.static(path.join(__dirname, '..', 'public', 'css')));
+app.use('/js', express.static(path.join(__dirname, '..', 'public', 'js')));
+app.use('/Uploads', express.static(path.join(__dirname, 'Uploads')));
+
+// Catch-all route for unmatched requests
+app.use((req, res) => {
+    res.status(404).json({ error: 'Route not found' });
 });
 
 const PORT = process.env.PORT || 3000;
