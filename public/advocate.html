@@ -23,9 +23,8 @@
     <!-- GSAP and ScrollTrigger -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-    <!-- jsPDF and html2canvas for PDF generation -->
+    <!-- jsPDF for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <!-- DOMPurify for sanitizing content -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.4.0/purify.min.js"></script>
     <link rel="stylesheet" href="css/landing.css">
@@ -390,7 +389,7 @@
                     <button class="doc-type-btn active" onclick="showSection('welcome')">
                         📋 Get Started
                     </button>
-                    <button class="doc-type-btn" onclick="showSection('contract')">
+                    <button class="doc-type-btn" onclick="showSection('sale')">
                         📄 Sale Agreement
                     </button>
                     <button class="doc-type-btn" onclick="showSection('notice')">
@@ -418,7 +417,7 @@
                         <li><i class="fas fa-check"></i> AI-powered clause suggestions</li>
                     </div>
                 </div>
-                <div id="contract" class="form-section">
+                <div id="sale" class="form-section">
                     <h2>Sale Agreement</h2>
                     <p>Generate a comprehensive sale agreement for property transactions in accordance with Indian law.
                     </p>
@@ -520,14 +519,9 @@
                             <input type="text" id="jurisdiction" placeholder="Enter jurisdiction (e.g., Mumbai)">
                         </div>
                         <div class="action-buttons">
-                            <button type="button" class="btn primary" onclick="generateDocument('sale')">
-                                Generate Sale Agreement
-                            </button>
-                            <button type="button" class="btn secondary" onclick="previewTemplate('sale')">
-                                Preview Template
-                            </button>
-                            <button type="button" class="btn secondary" onclick="fillTestData()"> Fill Test Data
-                            </button>
+                            <button type="button" class="btn primary">Generate Sale Agreement</button>
+                            <button type="button" class="btn secondary">Preview Template</button>
+                            <!-- <button type="button" class="btn secondary">Fill Test Data</button> -->
                         </div>
                     </form>
                     <div id="salePreview" class="document-preview">
@@ -536,15 +530,15 @@
                         <div class="action-buttons">
                             <button type="button" class="btn primary" onclick="downloadPDF('sale')">Download as
                                 PDF</button>
-                            <button type="button" class="btn secondary" onclick="hidePreview()">Close Preview</button>
-
+                            <button type="button" class="btn secondary" onclick="hidePreview('sale')">Close
+                                Preview</button>
                         </div>
                     </div>
                 </div>
                 <div id="notice" class="form-section">
                     <h2>Legal Notice</h2>
                     <p>Create a formal legal notice under Indian law for various purposes.</p>
-                    <form class="form-grid">
+                    <form class="form-grid" id="legalNoticeForm">
                         <div class="form-group">
                             <label class="required">Client Name</label>
                             <input type="text" placeholder="Enter client's full name" required>
@@ -565,7 +559,7 @@
                             <label class="required">Notice Type</label>
                             <select required>
                                 <option value="">Select notice type</option>
-                                <option>Breach of Contract</option>
+                                <option>Contractual</option>
                                 <option>Recovery of Money</option>
                                 <option>Defamation</option>
                             </select>
@@ -580,17 +574,26 @@
                                 required></textarea>
                         </div>
                         <div class="action-buttons">
-                            <button type="button" class="btn primary" onclick="generateDocument('notice')">
-                                Generate Legal Notice
-                            </button>
+                            <button type="button" class="btn primary">Generate Legal Notice</button>
                             <button type="button" class="btn secondary">Preview Template</button>
+                            <!-- <button type="button" class="btn secondary">Fill Test Data</button> -->
                         </div>
                     </form>
+                    <div id="noticePreview" class="document-preview">
+                        <h3>Legal Notice Preview</h3>
+                        <div id="noticePreviewContent" class="document-preview-content"></div>
+                        <div class="action-buttons">
+                            <button type="button" class="btn primary" onclick="downloadPDF('notice')">Download as
+                                PDF</button>
+                            <button type="button" class="btn secondary" onclick="hidePreview('notice')">Close
+                                Preview</button>
+                        </div>
+                    </div>
                 </div>
                 <div id="power-of-attorney" class="form-section">
                     <h2>Power of Attorney</h2>
                     <p>Create a Power of Attorney document to delegate authority under Indian law.</p>
-                    <form class="form-grid">
+                    <form class="form-grid" id="powerOfAttorneyForm">
                         <div class="form-group">
                             <label class="required">Principal Name</label>
                             <input type="text" placeholder="Enter principal's full name" required>
@@ -624,17 +627,26 @@
                             <input type="text" placeholder="e.g., 1 year or until revoked" required>
                         </div>
                         <div class="action-buttons">
-                            <button type="button" class="btn primary" onclick="generateDocument('power-of-attorney')">
-                                Generate Power of Attorney
-                            </button>
+                            <button type="button" class="btn primary">Generate Power of Attorney</button>
                             <button type="button" class="btn secondary">Preview Template</button>
+                            <!-- <button type="button" class="btn secondary">Fill Test Data</button> -->
                         </div>
                     </form>
+                    <div id="power-of-attorneyPreview" class="document-preview">
+                        <h3>Power of Attorney Preview</h3>
+                        <div id="power-of-attorneyPreviewContent" class="document-preview-content"></div>
+                        <div class="action-buttons">
+                            <button type="button" class="btn primary"
+                                onclick="downloadPDF('power-of-attorney')">Download as PDF</button>
+                            <button type="button" class="btn secondary" onclick="hidePreview('power-of-attorney')">Close
+                                Preview</button>
+                        </div>
+                    </div>
                 </div>
                 <div id="partnership" class="form-section">
                     <h2>Partnership Agreement</h2>
                     <p>Draft a partnership agreement for business collaborations under Indian law.</p>
-                    <form class="form-grid">
+                    <form class="form-grid" id="partnershipAgreementForm">
                         <div class="form-group">
                             <label class="required">Partnership Name</label>
                             <input type="text" placeholder="Enter partnership name" required>
@@ -668,17 +680,26 @@
                             <textarea placeholder="Specify key terms and conditions" required></textarea>
                         </div>
                         <div class="action-buttons">
-                            <button type="button" class="btn primary" onclick="generateDocument('partnership')">
-                                Generate Partnership Agreement
-                            </button>
+                            <button type="button" class="btn primary">Generate Partnership Agreement</button>
                             <button type="button" class="btn secondary">Preview Template</button>
+                            <!-- <button type="button" class="btn secondary">Fill Test Data</button> -->
                         </div>
                     </form>
+                    <div id="partnershipPreview" class="document-preview">
+                        <h3>Partnership Agreement Preview</h3>
+                        <div id="partnershipPreviewContent" class="document-preview-content"></div>
+                        <div class="action-buttons">
+                            <button type="button" class="btn primary" onclick="downloadPDF('partnership')">Download as
+                                PDF</button>
+                            <button type="button" class="btn secondary" onclick="hidePreview('partnership')">Close
+                                Preview</button>
+                        </div>
+                    </div>
                 </div>
                 <div id="lease" class="form-section">
                     <h2>Lease Agreement</h2>
                     <p>Create a lease agreement for property rentals in accordance with Indian law.</p>
-                    <form class="form-grid">
+                    <form class="form-grid" id="leaseAgreementForm">
                         <div class="form-group">
                             <label class="required">Lessor Name</label>
                             <input type="text" placeholder="Enter lessor's full name" required>
@@ -720,12 +741,21 @@
                             <textarea placeholder="Specify lease terms and conditions" required></textarea>
                         </div>
                         <div class="action-buttons">
-                            <button type="button" class="btn primary" onclick="generateDocument('lease')">
-                                Generate Lease Agreement
-                            </button>
+                            <button type="button" class="btn primary">Generate Lease Agreement</button>
                             <button type="button" class="btn secondary">Preview Template</button>
+                            <!-- <button type="button" class="btn secondary">Fill Test Data</button> -->
                         </div>
                     </form>
+                    <div id="leasePreview" class="document-preview">
+                        <h3>Lease Agreement Preview</h3>
+                        <div id="leasePreviewContent" class="document-preview-content"></div>
+                        <div class="action-buttons">
+                            <button type="button" class="btn primary" onclick="downloadPDF('lease')">Download as
+                                PDF</button>
+                            <button type="button" class="btn secondary" onclick="hidePreview('lease')">Close
+                                Preview</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -733,39 +763,17 @@
             AI Assistant Ready
         </div>
     </section>
-
     <script>
-        // Initialize AOS
-        AOS.init({
-            duration: 800,
-            once: true,
-        });
+        // Form IDs for document types
+        const formIds = {
+            'sale': 'saleAgreementForm',
+            'notice': 'legalNoticeForm',
+            'power-of-attorney': 'powerOfAttorneyForm',
+            'partnership': 'partnershipAgreementForm',
+            'lease': 'leaseAgreementForm'
+        };
 
-        // GSAP Animations
-        gsap.from('.advocate-sidebar', {
-            scrollTrigger: {
-                trigger: '.advocate-sidebar',
-                start: 'top 80%',
-            },
-            y: 50,
-            opacity: 0,
-            duration: 1,
-            ease: 'power2.out',
-        });
-
-        gsap.from('.advocate-main-panel', {
-            scrollTrigger: {
-                trigger: '.advocate-main-panel',
-                start: 'top 80%',
-            },
-            y: 50,
-            opacity: 0,
-            duration: 1,
-            ease: 'power2.out',
-            delay: 0.2,
-        });
-
-        // Document Type Switching
+        // Show specific section
         function showSection(sectionId) {
             document.querySelectorAll('.form-section').forEach(section => {
                 section.classList.remove('active');
@@ -773,12 +781,11 @@
             document.querySelectorAll('.doc-type-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
-            document.querySelector(`#${sectionId}`).classList.add('active');
+            document.getElementById(sectionId).classList.add('active');
             document.querySelector(`button[onclick="showSection('${sectionId}')"]`).classList.add('active');
-            hidePreview();
         }
 
-        // Validate Form
+        // Validate form inputs
         function validateForm(formId) {
             const form = document.getElementById(formId);
             const requiredInputs = form.querySelectorAll('input[required], select[required], textarea[required]');
@@ -794,163 +801,198 @@
             return isValid;
         }
 
-        // Number to Words Conversion
-        function numberToWords(number) {
-            const units = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
-            const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
-            const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
-            const thousands = ['', 'Thousand', 'Lakh', 'Crore'];
-
-            if (number === 0) return 'Zero';
-            if (number < 0) return 'Minus ' + numberToWords(Math.abs(number));
-
-            let words = '';
-            let crore = Math.floor(number / 10000000);
-            number %= 10000000;
-            let lakh = Math.floor(number / 100000);
-            number %= 100000;
-            let thousand = Math.floor(number / 1000);
-            number %= 1000;
-            let hundred = Math.floor(number / 100);
-            number %= 100;
-            let ten = Math.floor(number / 10);
-            let unit = number % 10;
-
-            if (crore) words += numberToWords(crore) + ' Crore ';
-            if (lakh) words += numberToWords(lakh) + ' Lakh ';
-            if (thousand) words += numberToWords(thousand) + ' Thousand ';
-            if (hundred) words += units[hundred] + ' Hundred ';
-            if (ten || unit) {
-                if (ten < 1) words += units[unit];
-                else if (ten === 1) words += teens[unit];
-                else words += tens[ten] + (unit ? ' ' + units[unit] : '');
+        // Fill test data for forms
+        function fillTestData(type) {
+            if (type === 'power-of-attorney') {
+                document.querySelector('#power-of-attorney input[placeholder="Enter principal\'s full name"]').value = 'Rahul Desai';
+                document.querySelector('#power-of-attorney textarea[placeholder="Enter principal\'s complete address"]').value = '789, Ocean View, Juhu, Mumbai 400049';
+                document.querySelector('#power-of-attorney input[placeholder="Enter attorney\'s full name"]').value = 'Neha Gupta';
+                document.querySelector('#power-of-attorney textarea[placeholder="Enter attorney\'s complete address"]').value = '101, Star Residency, Dadar, Mumbai 400014';
+                document.querySelector('#power-of-attorney select').value = 'General Power of Attorney';
+                document.querySelector('#power-of-attorney textarea[placeholder="Specify the purpose and scope of authority"]').value = 'To manage all financial and legal matters related to property transactions';
+                document.querySelector('#power-of-attorney input[placeholder="e.g., 1 year or until revoked"]').value = '1 year';
+            } else if (type === 'partnership') {
+                document.querySelector('#partnership input[placeholder="Enter partnership name"]').value = 'Desai & Gupta Enterprises';
+                document.querySelector('#partnership textarea[placeholder="Enter business address"]').value = '456, Commercial Complex, Andheri East, Mumbai 400069';
+                document.querySelector('#partnership input[placeholder="Enter first partner\'s full name"]').value = 'Rahul Desai';
+                document.querySelector('#partnership input[placeholder="Enter second partner\'s full name"]').value = 'Neha Gupta';
+                document.querySelector('#partnership textarea[placeholder="Describe the business purpose"]').value = 'To engage in retail trading of electronic goods';
+                document.querySelector('#partnership input[placeholder="Enter total capital contribution"]').value = '5000000';
+                document.querySelector('#partnership input[placeholder="e.g., 50:50"]').value = '50:50';
+                document.querySelector('#partnership textarea[placeholder="Specify key terms and conditions"]').value = 'Equal management rights, profit sharing as per ratio, dissolution by mutual consent';
+            } else if (type === 'lease') {
+                document.querySelector('#lease input[placeholder="Enter lessor\'s full name"]').value = 'Amit Sharma';
+                document.querySelector('#lease textarea[placeholder="Enter lessor\'s complete address"]').value = '123, Sunshine Apartments, Andheri West, Mumbai 400053';
+                document.querySelector('#lease input[placeholder="Enter lessee\'s full name"]').value = 'Priya Patel';
+                document.querySelector('#lease textarea[placeholder="Enter lessee\'s complete address"]').value = '456, Green Valley, Bandra East, Mumbai 400051';
+                document.querySelector('#lease select').value = 'Residential';
+                document.querySelector('#lease textarea[placeholder="Enter property address"]').value = '123, Sunshine Apartments, Andheri West, Mumbai 400053';
+                document.querySelector('#lease input[placeholder="Enter monthly rent"]').value = '25000';
+                document.querySelector('#lease input[placeholder="e.g., 11 months"]').value = '11 months';
+                document.querySelector('#lease textarea[placeholder="Specify lease terms and conditions"]').value = 'No subletting, maintenance by lessee, 2-month security deposit';
+            } else if (type === 'sale') {
+                document.getElementById('sellerName').value = 'Amit Sharma';
+                document.getElementById('sellerFatherName').value = 'Rakesh Sharma';
+                document.getElementById('sellerAddress').value = '123, Sunshine Apartments, Andheri West, Mumbai 400053';
+                document.getElementById('sellerContact').value = '9876543210';
+                document.getElementById('sellerEmail').value = 'amit.sharma@example.com';
+                document.getElementById('buyerName').value = 'Priya Patel';
+                document.getElementById('buyerFatherName').value = 'Vikram Patel';
+                document.getElementById('buyerAddress').value = '456, Green Valley, Bandra East, Mumbai 400051';
+                document.getElementById('buyerContact').value = '8765432109';
+                document.getElementById('buyerEmail').value = 'priya.patel@example.com';
+                document.getElementById('propertyType').value = 'Apartment/Flat';
+                document.getElementById('propertyDescription').value = '2 BHK Apartment, 800 sq.ft, located at Sunshine Apartments, Andheri West';
+                document.getElementById('propertyQuantity').value = '1';
+                document.getElementById('propertyPrice').value = '15000000';
+                document.getElementById('totalPrice').value = '15000000';
+                document.getElementById('paymentMode').value = 'Bank Transfer';
+                document.getElementById('deliveryAddress').value = 'Sunshine Apartments, Andheri West, Mumbai 400053';
+                document.getElementById('deliveryDate').value = '2025-12-01';
+                document.getElementById('executionPlace').value = 'Mumbai';
+                document.getElementById('jurisdiction').value = 'Mumbai';
+            } else if (type === 'notice') {
+                document.querySelector('#notice input[placeholder="Enter client\'s full name"]').value = 'Amit Sharma';
+                document.querySelector('#notice textarea[placeholder="Enter client\'s complete address"]').value = '123, Sunshine Apartments, Andheri West, Mumbai 400053';
+                document.querySelector('#notice input[placeholder="Enter respondent\'s name"]').value = 'Vikram Singh';
+                document.querySelector('#notice textarea[placeholder="Enter respondent\'s address (if known)"]').value = '789, Hill Road, Bandra West, Mumbai 400050';
+                document.querySelector('#notice select').value = 'Contractual';
+                document.querySelector('#notice textarea[placeholder="Describe the issue in detail"]').value = 'Non-payment of dues amounting to Rs. 500,000 for services rendered on 01/06/2025.';
+                document.querySelector('#notice textarea[placeholder="Specify what action you want the respondent to take"]').value = 'Immediate payment of Rs. 500,000 within 7 days.';
             }
-            return words.trim() + ' Only';
-        }
-        function fillTestData() {
-            document.getElementById('sellerName').value = 'Amit Sharma';
-            document.getElementById('sellerFatherName').value = 'Rakesh Sharma';
-            document.getElementById('sellerAddress').value = '123, Sunshine Apartments, Andheri West, Mumbai 400053';
-            document.getElementById('sellerContact').value = '9876543210';
-            document.getElementById('sellerEmail').value = 'amit.sharma@example.com';
-            document.getElementById('buyerName').value = 'Priya Patel';
-            document.getElementById('buyerFatherName').value = 'Vikram Patel';
-            document.getElementById('buyerAddress').value = '456, Green Valley, Bandra East, Mumbai 400051';
-            document.getElementById('buyerContact').value = '8765432109';
-            document.getElementById('buyerEmail').value = 'priya.patel@example.com';
-            document.getElementById('propertyType').value = 'Apartment/Flat';
-            document.getElementById('propertyDescription').value = '2 BHK Apartment, 800 sq.ft, located at Sunshine Apartments, Andheri West';
-            document.getElementById('propertyQuantity').value = '1';
-            document.getElementById('propertyPrice').value = '15000000';
-            document.getElementById('totalPrice').value = '15000000';
-            document.getElementById('paymentMode').value = 'Bank Transfer';
-            document.getElementById('deliveryAddress').value = 'Sunshine Apartments, Andheri West, Mumbai 400053';
-            document.getElementById('deliveryDate').value = '2025-12-01';
-            document.getElementById('executionPlace').value = 'Mumbai';
-            document.getElementById('jurisdiction').value = 'Mumbai';
         }
 
-        // SVG Letterhead
-        const svgLetterhead = `
-            <svg width="800" height="220" xmlns="http://www.w3.org/2000/svg">
-                <rect width="100%" height="100%" fill="#ffffff"/>
-                <line x1="20" y1="210" x2="780" y2="210" stroke="#000000" stroke-width="2"/>
-                <text x="50%" y="50" font-size="24" font-family="Times New Roman, serif" font-weight="bold" text-anchor="middle" fill="#000000">
-                    Adv. Shalini L Tripathi
-                </text>
-                <text x="50%" y="75" font-size="16" font-family="Times New Roman, serif" text-anchor="middle" fill="#333333">
-                    B.Com, LLB
-                </text>
-                <text x="50%" y="105" font-size="14" font-family="Times New Roman, serif" text-anchor="middle" fill="#000000">
-                    Contact: 9552446231 | Email: adv.shalinitripathi@gmail.com
-                </text>
-                <text x="50%" y="130" font-size="14" font-family="Times New Roman, serif" text-anchor="middle" fill="#000000">
-                    03, 1st Floor, Navkar Paradise Building, Bihind Vimal Interior Hub
-                </text>
-                <text x="50%" y="150" font-size="14" font-family="Times New Roman, serif" text-anchor="middle" fill="#000000">
-                    Near Laxmi Chaya Building, Babhai Naka, Lt. Loait, Borivali(W), Mumbai 400092
-                </text>
-                <text x="50%" y="175" font-size="14" font-family="Times New Roman, serif" text-anchor="middle" fill="#000000">
-                    License No: MAH/9337/2024
-                </text>
-            </svg>
-        `;
-
-        // SVG to Data URL
-        async function svgToDataUrl(svgStr) {
-            const canvas = document.createElement('canvas');
-            canvas.width = 800;
-            canvas.height = 200;
-            const ctx = canvas.getContext('2d');
-            const img = new Image();
-            const svgBlob = new Blob([svgStr], { type: 'image/svg+xml' });
-            const url = URL.createObjectURL(svgBlob);
-            await new Promise(resolve => {
-                img.onload = () => {
-                    ctx.drawImage(img, 0, 0);
-                    URL.revokeObjectURL(url);
-                    resolve();
-                };
-                img.src = url;
-            });
-            return canvas.toDataURL('image/png');
-        }
-
+        // Generate document
         async function generateDocument(type) {
-            if (type !== 'sale') {
-                alert(`Generating ${type === 'notice' ? 'Legal Notice' : type === 'power-of-attorney' ? 'Power of Attorney' : type === 'partnership' ? 'Partnership Agreement' : 'Lease Agreement'}... (Functionality not yet implemented)`);
-                return;
-            }
-
-            if (!validateForm('saleAgreementForm')) {
+            const formId = formIds[type] || 'saleAgreementForm';
+            if (!validateForm(formId)) {
                 alert('Please fill all required fields.');
                 return;
             }
 
-            const formData = {
-                seller: {
-                    name: document.getElementById('sellerName').value,
-                    fatherName: document.getElementById('sellerFatherName').value || 'Not Provided',
-                    address: document.getElementById('sellerAddress').value,
-                    contact: document.getElementById('sellerContact').value,
-                    email: document.getElementById('sellerEmail').value
-                },
-                buyer: {
-                    name: document.getElementById('buyerName').value,
-                    fatherName: document.getElementById('buyerFatherName').value || 'Not Provided',
-                    address: document.getElementById('buyerAddress').value,
-                    contact: document.getElementById('buyerContact').value,
-                    email: document.getElementById('buyerEmail').value
-                },
-                product: {
-                    description: document.getElementById('propertyDescription').value,
-                    quantity: parseInt(document.getElementById('propertyQuantity').value),
-                    price: parseFloat(document.getElementById('propertyPrice').value),
-                    totalPrice: parseFloat(document.getElementById('totalPrice').value)
-                },
-                delivery: {
-                    address: document.getElementById('deliveryAddress').value,
-                    date: document.getElementById('deliveryDate').value
-                },
-                executionPlace: document.getElementById('executionPlace').value || 'Mumbai',
-                jurisdiction: document.getElementById('jurisdiction').value || 'Mumbai',
-                paymentMode: document.getElementById('paymentMode').value || 'Not Specified' // Added paymentMode
-            };
+            let formData;
+            if (type === 'sale') {
+                formData = {
+                    seller: {
+                        name: document.getElementById('sellerName').value,
+                        fatherName: document.getElementById('sellerFatherName').value || 'Not Provided',
+                        address: document.getElementById('sellerAddress').value,
+                        contact: document.getElementById('sellerContact').value,
+                        email: document.getElementById('sellerEmail').value
+                    },
+                    buyer: {
+                        name: document.getElementById('buyerName').value,
+                        fatherName: document.getElementById('buyerFatherName').value || 'Not Provided',
+                        address: document.getElementById('buyerAddress').value,
+                        contact: document.getElementById('buyerContact').value,
+                        email: document.getElementById('buyerEmail').value
+                    },
+                    product: {
+                        description: document.getElementById('propertyDescription').value,
+                        quantity: parseInt(document.getElementById('propertyQuantity').value),
+                        price: parseFloat(document.getElementById('propertyPrice').value),
+                        totalPrice: parseFloat(document.getElementById('totalPrice').value)
+                    },
+                    delivery: {
+                        address: document.getElementById('deliveryAddress').value,
+                        date: document.getElementById('deliveryDate').value
+                    },
+                    executionPlace: document.getElementById('executionPlace').value || 'Mumbai',
+                    jurisdiction: document.getElementById('jurisdiction').value || 'Mumbai',
+                    paymentMode: document.getElementById('paymentMode').value || 'Not Specified'
+                };
+            } else if (type === 'power-of-attorney') {
+                formData = {
+                    principal: {
+                        name: document.querySelector('#power-of-attorney input[placeholder="Enter principal\'s full name"]').value,
+                        address: document.querySelector('#power-of-attorney textarea[placeholder="Enter principal\'s complete address"]').value
+                    },
+                    attorney: {
+                        name: document.querySelector('#power-of-attorney input[placeholder="Enter attorney\'s full name"]').value,
+                        address: document.querySelector('#power-of-attorney textarea[placeholder="Enter attorney\'s complete address"]').value
+                    },
+                    powerType: document.querySelector('#power-of-attorney select').value,
+                    purpose: document.querySelector('#power-of-attorney textarea[placeholder="Specify the purpose and scope of authority"]').value,
+                    duration: document.querySelector('#power-of-attorney input[placeholder="e.g., 1 year or until revoked"]').value
+                };
+            } else if (type === 'partnership') {
+                formData = {
+                    partnership: {
+                        name: document.querySelector('#partnership input[placeholder="Enter partnership name"]').value,
+                        address: document.querySelector('#partnership textarea[placeholder="Enter business address"]').value
+                    },
+                    partner1: {
+                        name: document.querySelector('#partnership input[placeholder="Enter first partner\'s full name"]').value
+                    },
+                    partner2: {
+                        name: document.querySelector('#partnership input[placeholder="Enter second partner\'s full name"]').value
+                    },
+                    businessPurpose: document.querySelector('#partnership textarea[placeholder="Describe the business purpose"]').value,
+                    capitalContribution: parseFloat(document.querySelector('#partnership input[placeholder="Enter total capital contribution"]').value),
+                    profitSharingRatio: document.querySelector('#partnership input[placeholder="e.g., 50:50"]').value,
+                    terms: document.querySelector('#partnership textarea[placeholder="Specify key terms and conditions"]').value
+                };
+            } else if (type === 'lease') {
+                formData = {
+                    lessor: {
+                        name: document.querySelector('#lease input[placeholder="Enter lessor\'s full name"]').value,
+                        address: document.querySelector('#lease textarea[placeholder="Enter lessor\'s complete address"]').value
+                    },
+                    lessee: {
+                        name: document.querySelector('#lease input[placeholder="Enter lessee\'s full name"]').value,
+                        address: document.querySelector('#lease textarea[placeholder="Enter lessee\'s complete address"]').value
+                    },
+                    property: {
+                        type: document.querySelector('#lease select').value,
+                        address: document.querySelector('#lease textarea[placeholder="Enter property address"]').value
+                    },
+                    rent: parseFloat(document.querySelector('#lease input[placeholder="Enter monthly rent"]').value),
+                    leaseTerm: document.querySelector('#lease input[placeholder="e.g., 11 months"]').value,
+                    terms: document.querySelector('#lease textarea[placeholder="Specify lease terms and conditions"]').value
+                };
+            } else if (type === 'notice') {
+                formData = {
+                    client: {
+                        name: document.querySelector('#notice input[placeholder="Enter client\'s full name"]').value,
+                        address: document.querySelector('#notice textarea[placeholder="Enter client\'s complete address"]').value
+                    },
+                    recipient: {
+                        name: document.querySelector('#notice input[placeholder="Enter respondent\'s name"]').value,
+                        address: document.querySelector('#notice textarea[placeholder="Enter respondent\'s address (if known)"]').value
+                    },
+                    dispute: {
+                        relationship: document.querySelector('#notice select').value,
+                        issueDescription: document.querySelector('#notice textarea[placeholder="Describe the issue in detail"]').value,
+                        damages: document.querySelector('#notice textarea[placeholder="Specify what action you want the respondent to take"]').value,
+                        tone: 'formal'
+                    }
+                };
+            }
 
             try {
                 document.querySelector('.ai-indicator').textContent = 'Generating...';
-                const response = await fetch('/api/generate-sale-agreement', {
+                const endpoints = {
+                    'sale': '/api/generate-sale-agreement',
+                    'notice': '/api/generate-notice',
+                    'power-of-attorney': '/api/generate-power-of-attorney',
+                    'partnership': '/api/generate-partnership-agreement',
+                    'lease': '/api/generate-lease-agreement'
+                };
+                const endpoint = endpoints[type];
+                if (!endpoint) {
+                    throw new Error('Invalid document type');
+                }
+                const response = await fetch(endpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formData)
                 });
 
-                // Check if response is JSON
                 const contentType = response.headers.get('content-type');
                 if (!contentType || !contentType.includes('application/json')) {
                     const text = await response.text();
                     console.error('Non-JSON response received:', text.substring(0, 100));
-                    throw new Error('Server returned non-JSON response, possibly due to a misconfigured route or server error.');
+                    throw new Error('Server returned non-JSON response.');
                 }
 
                 const data = await response.json();
@@ -958,37 +1000,42 @@
                     throw new Error(data.details || data.error || `HTTP error! Status: ${response.status}`);
                 }
                 if (!data.content) {
-                    throw new Error(data.details || data.error || 'Failed to generate agreement: No content returned');
+                    throw new Error(data.details || data.error || 'Failed to generate document: No content returned');
                 }
 
-                const previewDiv = document.getElementById('salePreview');
-                const previewContent = document.getElementById('salePreviewContent');
+                const previewDiv = document.getElementById(`${type}Preview`);
+                const previewContent = document.getElementById(`${type}PreviewContent`);
                 previewContent.innerHTML = DOMPurify.sanitize(data.content.replace(/\n/g, '<br>'));
                 previewDiv.classList.add('active');
                 window.scrollTo({ top: previewDiv.offsetTop, behavior: 'smooth' });
-                window.currentSaleAgreementContent = data.content; // Store for PDF generation
+                window[`current${type.charAt(0).toUpperCase() + type.slice(1).replace(/-([a-z])/g, (g) => g[1].toUpperCase())}Content`] = data.content;
             } catch (error) {
-                console.error('Error generating sale agreement:', error);
-                alert(`Error generating sale agreement: ${error.message}`);
+                console.error(`Error generating ${type} document:`, error);
+                alert(`Error generating ${type.replace(/-/g, ' ')} document: ${error.message}`);
             } finally {
                 document.querySelector('.ai-indicator').innerHTML = 'AI Assistant Ready';
             }
         }
 
-        // Preview Template (Placeholder)
+        // Preview template
         function previewTemplate(type) {
-            alert(`Previewing ${type === 'sale' ? 'Sale Agreement' : type === 'notice' ? 'Legal Notice' : type === 'power-of-attorney' ? 'Power of Attorney' : type === 'partnership' ? 'Partnership Agreement' : 'Lease Agreement'} template... (Functionality not yet implemented)`);
+            const previewDiv = document.getElementById(`${type}Preview`);
+            const previewContent = document.getElementById(`${type}PreviewContent`);
+            previewContent.innerHTML = DOMPurify.sanitize('Sample preview content for ' + type.replace(/-/g, ' ') + '. Full template will be generated upon submission.');
+            previewDiv.classList.add('active');
+            window.scrollTo({ top: previewDiv.offsetTop, behavior: 'smooth' });
         }
 
-        // Hide Preview
-        function hidePreview() {
-            document.getElementById('salePreview').classList.remove('active');
+        // Hide preview
+        function hidePreview(type) {
+            document.getElementById(`${type}Preview`).classList.remove('active');
         }
 
-        // Generate PDF
+        // Download PDF
         async function downloadPDF(type) {
-            if (type !== 'sale' || !window.currentSaleAgreementContent) {
-                alert('No sale agreement content available to download.');
+            const contentKey = `current${type.charAt(0).toUpperCase() + type.slice(1).replace(/-([a-z])/g, (g) => g[1].toUpperCase())}Content`;
+            if (!window[contentKey]) {
+                alert(`No ${type.replace(/-/g, ' ')} content available to download. Please generate the document first.`);
                 return;
             }
 
@@ -996,108 +1043,93 @@
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
                 const marginLeft = 20;
-                const marginTop = 30;
+                const marginTop = 20;
                 const pageWidth = 210;
                 const pageHeight = 297;
                 const footerHeight = 20;
-                const headerHeight = 50;
-                const maxHeightPerPage = pageHeight - marginTop - footerHeight - headerHeight;
+                const maxWidth = pageWidth - 2 * marginLeft;
 
-                const letterheadBase64 = await svgToDataUrl(svgLetterhead);
-                const lawyerSignatureBase64 = '/signature (2).jpeg'; // Placeholder, ideally fetched dynamically
-
-                const clonedDiv = document.createElement('div');
-                clonedDiv.innerHTML = DOMPurify.sanitize(window.currentSaleAgreementContent.replace(/\n/g, '<br>'));
-                clonedDiv.style.position = 'fixed';
-                clonedDiv.style.top = '0';
-                clonedDiv.style.left = '0';
-                clonedDiv.style.width = `${pageWidth - 2 * marginLeft}mm`;
-                clonedDiv.style.backgroundColor = '#ffffff';
-                clonedDiv.style.padding = '10px';
-                clonedDiv.style.zIndex = '-1';
-                clonedDiv.style.fontFamily = 'Times New Roman, Times, serif';
-                clonedDiv.style.fontSize = '12pt';
-                clonedDiv.style.lineHeight = '1.5';
-                clonedDiv.style.color = '#000';
-                document.body.appendChild(clonedDiv);
-
-                const canvas = await html2canvas(clonedDiv, {
-                    scale: 3,
-                    useCORS: true,
-                    allowTaint: true,
-                    windowWidth: clonedDiv.scrollWidth,
-                    windowHeight: clonedDiv.scrollHeight,
-                    backgroundColor: '#ffffff'
-                });
-                document.body.removeChild(clonedDiv);
-
-                const imgWidth = pageWidth - 2 * marginLeft;
-                const mmPerPx = imgWidth / canvas.width;
-                const pageHeightPx = maxHeightPerPage / mmPerPx;
-                let yOffsetPx = 0;
-                let pageCount = 0;
-                const overlap = 15;
-                const totalHeight = canvas.height;
-
-                while (yOffsetPx < totalHeight) {
-                    pageCount++;
-                    const isFirstPage = pageCount === 1;
-                    const isLastPage = (totalHeight - yOffsetPx) <= pageHeightPx;
-                    let renderHeightPx = Math.min(pageHeightPx, totalHeight - yOffsetPx);
-                    if (isLastPage) renderHeightPx = totalHeight - yOffsetPx;
-
-                    const renderHeightMm = renderHeightPx * mmPerPx;
-                    const tempCanvas = document.createElement('canvas');
-                    tempCanvas.width = canvas.width;
-                    tempCanvas.height = renderHeightPx + (pageCount > 1 && !isLastPage ? overlap : 0);
-                    const tempCtx = tempCanvas.getContext('2d');
-                    tempCtx.fillStyle = '#ffffff';
-                    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-                    tempCtx.drawImage(canvas, 0, -(yOffsetPx - (pageCount > 1 && !isLastPage ? overlap : 0)));
-
-                    const imgData = tempCanvas.toDataURL('image/jpeg', 0.95);
-                    if (isFirstPage) {
-                        const letterheadHeight = 40;
-                        doc.addImage(letterheadBase64, 'PNG', marginLeft, 10, imgWidth, letterheadHeight);
-                    }
-
-                    const contentTopOffset = isFirstPage ? 10 + headerHeight + 5 : marginTop;
-                    doc.addImage(imgData, 'JPEG', marginLeft, contentTopOffset, imgWidth, renderHeightMm, undefined, 'FAST');
-
-                    const footerText = `Generated by `;
-                    const websiteText = `lexinco.com`;
-                    const pageText = ` - Page ${pageCount}`;
-                    doc.setFontSize(8);
-                    doc.setTextColor(150);
-                    doc.text(footerText, marginLeft, pageHeight - 10);
-                    const linkX = marginLeft + doc.getTextWidth(footerText);
-                    doc.setTextColor(0, 0, 255);
-                    doc.textWithLink(websiteText, linkX, pageHeight - 10, { url: 'https://lexinco.com' });
-                    const pageX = linkX + doc.getTextWidth(websiteText);
-                    doc.setTextColor(150);
-                    doc.text(pageText, pageX, pageHeight - 10);
-
-                    yOffsetPx += renderHeightPx - overlap;
-                    if (yOffsetPx < totalHeight) {
-                        doc.addPage();
-                    }
-                }
-
-                const signatureWidth = 40;
-                const signatureHeight = 15;
-                const signatureX = pageWidth - marginLeft - signatureWidth;
-                const signatureY = pageHeight - 50;
-                doc.addImage(lawyerSignatureBase64, 'JPEG', signatureX, signatureY, signatureWidth, signatureHeight);
+                // Set font and styles
+                doc.setFont('times', 'normal');
                 doc.setFontSize(12);
                 doc.setTextColor(0);
-                doc.text("Adv. Shalini L Tripathi", signatureX, signatureY + signatureHeight + 6);
 
-                doc.save('sale_agreement.pdf');
+                // Get and clean the content
+                let content = window[contentKey];
+                // Remove <br>, <p>, </p> tags
+                content = content.replace(/<br\s*\/?>/gi, '\n').replace(/<\/?p>/gi, '');
+                // Normalize multiple newlines and trim
+                content = content.replace(/\n\s*\n+/g, '\n\n').trim();
+                const lines = doc.splitTextToSize(content, maxWidth);
+
+                let yOffset = marginTop;
+                let pageCount = 1;
+
+                // Add content to PDF
+                for (let i = 0; i < lines.length; i++) {
+                    if (yOffset + 10 > pageHeight - footerHeight) {
+                        // Add footer to current page
+                        doc.setFontSize(8);
+                        doc.setTextColor(150);
+                        const footerText = `Generated by `;
+                        const websiteText = `lexinco.com`;
+                        const pageText = ` - Page ${pageCount}`;
+                        doc.text(footerText, marginLeft, pageHeight - 10);
+                        const linkX = marginLeft + doc.getTextWidth(footerText);
+                        doc.setTextColor(0, 0, 255);
+                        doc.textWithLink(websiteText, linkX, pageHeight - 10, { url: 'https://www.lexinco.com' });
+                        const pageX = linkX + doc.getTextWidth(websiteText);
+                        doc.setTextColor(150);
+                        doc.text(pageText, pageX, pageHeight - 10);
+
+                        // Reset for new page
+                        doc.addPage();
+                        pageCount++;
+                        yOffset = marginTop;
+                        doc.setFont('times', 'normal');
+                        doc.setFontSize(12);
+                        doc.setTextColor(0);
+                    }
+                    doc.text(lines[i], marginLeft, yOffset);
+                    yOffset += 7; // Line height
+                }
+
+                // Add footer to final page
+                doc.setFontSize(8);
+                doc.setTextColor(150);
+                const footerText = `Generated by `;
+                const websiteText = `lexinco.com`;
+                const pageText = ` - Page ${pageCount}`;
+                doc.text(footerText, marginLeft, pageHeight - 10);
+                const linkX = marginLeft + doc.getTextWidth(footerText);
+                doc.setTextColor(0, 0, 255);
+                doc.textWithLink(websiteText, linkX, pageHeight - 10, { url: 'https://www.lexinco.com' });
+                const pageX = linkX + doc.getTextWidth(websiteText);
+                doc.setTextColor(150);
+                doc.text(pageText, pageX, pageHeight - 10);
+
+                // Save the PDF
+                doc.save(`${type.replace(/-/g, '_')}.pdf`);
             } catch (error) {
-                console.error('Error generating PDF:', error);
-                alert(`Error generating PDF: ${error.message}`);
+                console.error(`Error generating PDF for ${type}:`, error);
+                alert(`Error generating PDF: ${error.message}. Please ensure the document is generated and try again.`);
             }
         }
+
+        // Event listeners for buttons
+        document.querySelectorAll('.action-buttons button').forEach(button => {
+            const section = button.closest('.form-section').id;
+            if (button.textContent.includes('Generate')) {
+                button.onclick = () => generateDocument(section);
+            } else if (button.textContent.includes('Preview Template')) {
+                button.onclick = () => previewTemplate(section);
+            } else if (button.textContent.includes('Fill Test Data')) {
+                button.onclick = () => fillTestData(section);
+            }
+        });
+
+        // Initialize AOS
+        AOS.init();
     </script>
 </body>
 
