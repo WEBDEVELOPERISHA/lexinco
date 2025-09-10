@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -118,7 +119,7 @@
             font-size: 3.5rem;
             font-weight: 700;
             margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
             animation: fadeInUp 1s ease-out;
         }
 
@@ -202,7 +203,7 @@
 
         .scenario-card:hover {
             transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
         }
 
         .scenario-emoji {
@@ -324,12 +325,12 @@
         }
 
         .testimonial-card {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
             padding: 40px;
             border-radius: 20px;
             margin: 40px 0;
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .testimonial-text {
@@ -379,7 +380,7 @@
 
         .benefit-item {
             padding: 20px;
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
             backdrop-filter: blur(5px);
         }
@@ -445,7 +446,7 @@
         .footer-bottom {
             margin-top: 40px;
             text-align: center;
-            border-top: 1px solid rgba(255,255,255,0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
             padding-top: 20px;
         }
 
@@ -487,11 +488,190 @@
             background: #20c057;
         }
 
+        /* Modal Styles for Consultation Form */
+        .consultation-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 2, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .consultation-modal-content {
+            background: var(--white);
+            border-radius: 25px;
+            box-shadow: var(--shadow);
+            padding: 20px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            margin: 20px;
+        }
+
+        .consultation-modal-content h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .consultation-modal-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-light);
+            cursor: pointer;
+        }
+
+        .consultation-modal-close:hover {
+            color: var(--primary-color);
+        }
+
+        .consultation-form .form-group {
+            margin-bottom: 20px;
+        }
+
+        .consultation-form label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+
+        .consultation-form label.required::after {
+            content: ' *';
+            color: var(--accent-color);
+        }
+
+        .consultation-form input,
+        .consultation-form select,
+        .consultation-form textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+        }
+
+        .consultation-form input:focus,
+        .consultation-form select:focus,
+        .consultation-form textarea:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+        }
+
+        .consultation-form textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .consultation-form .form-navigation {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .consultation-form .btn {
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            position: relative;
+        }
+
+        .consultation-form .btn.primary {
+            background-color: var(--secondary-color);
+            color: var(--white);
+            border: none;
+        }
+
+        .consultation-form .btn.primary:hover {
+            background-color: #2980b9;
+            transform: scale(1.05);
+        }
+
+        .consultation-form .btn.primary:disabled {
+            background-color: #7f8c8d;
+            cursor: not-allowed;
+        }
+
+        .consultation-form .btn.secondary {
+            background-color: var(--white);
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .consultation-form .btn.secondary:hover {
+            background-color: var(--gray);
+            transform: scale(1.05);
+        }
+
+        .success-message {
+            display: none;
+            text-align: center;
+            color: var(--secondary-color);
+            font-size: 1.1rem;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e8f4f8;
+            border-radius: var(--border-radius);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+        }
+
+        .loader {
+            display: none;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--secondary-color);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes spin {
+            0% {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+
+            100% {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
+        }
+
+        .btn.primary.loading .loader {
+            display: inline-block;
+        }
+
+        .btn.primary.loading span {
+            visibility: hidden;
+        }
+
         @keyframes fadeInUp {
             from {
                 opacity: 0;
                 transform: translateY(30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -499,9 +679,17 @@
         }
 
         @keyframes pulse {
-            0% { box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3); }
-            50% { box-shadow: 0 8px 25px rgba(239, 68, 68, 0.6); }
-            100% { box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3); }
+            0% {
+                box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 8px 25px rgba(239, 68, 68, 0.6);
+            }
+
+            100% {
+                box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
+            }
         }
 
         @media (max-width: 768px) {
@@ -628,6 +816,7 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Navigation -->
     <nav class="navbar">
@@ -639,7 +828,7 @@
                 <a href="index.html">Home</a>
                 <a href="index.html#how-it-works">How It Works</a>
                 <a href="index.html#advocate-verified">Advocate Verified</a>
-                <a href="index.html#contact">Contact</a>
+                <!-- <a href="index.html#contact">Contact</a> -->
                 <a href="blog.html">Blog</a>
                 <a href="legal-notice.html" class="btn primary">Start Legal Notice</a>
                 <a href="#consultation" class="btn secondary" id="bookConsultation">Book My Consultation</a>
@@ -649,13 +838,60 @@
             </button>
         </div>
     </nav>
+    <!-- Consultation Modal -->
+    <div class="consultation-modal" id="consultationModal">
+        <div class="consultation-modal-content">
+            <button class="consultation-modal-close" id="closeConsultationModal" aria-label="Close modal">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2>Book a Consultation with a Registered Advocate</h2>
+            <form id="consultationForm" class="consultation-form">
+                <div class="form-group">
+                    <label for="consultName" class="required">Full Name</label>
+                    <input type="text" id="consultName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="consultPhone" class="required">Phone Number</label>
+                    <input type="tel" id="consultPhone" name="phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="consultEmail" class="required">Email Address</label>
+                    <input type="email" id="consultEmail" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="consultMatter" class="required">Matter in Brief</label>
+                    <textarea id="consultMatter" name="matter" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="consultTimeSlot" class="required">Preferred Time Slot</label>
+                    <select id="consultTimeSlot" name="timeslot" required>
+                        <option value="" disabled selected>Select a time slot</option>
+                        <option value="Morning (9 AM - 12 PM)">Morning (9 AM - 12 PM)</option>
+                        <option value="Afternoon (12 PM - 3 PM)">Afternoon (12 PM - 3 PM)</option>
+                        <option value="Evening (3 PM - 6 PM)">Evening (3 PM - 6 PM)</option>
+                    </select>
+                </div>
+                <div class="form-navigation">
+                    <button type="submit" class="btn primary" id="submitConsultation">
+                        <span>Submit</span>
+                        <div class="loader"></div>
+                    </button>
+                    <button type="button" class="btn secondary" id="cancelConsultation">Cancel</button>
+                </div>
+            </form>
+            <div class="success-message" id="successMessage">
+                Your consultation request has been submitted successfully! Our Advocate will contact you soon.
+            </div>
+        </div>
+    </div>
 
     <!-- Hero Section -->
     <section class="hero-section" data-aos="fade-up">
         <div class="container">
             <div class="hero-content">
                 <h1 class="hero-title">STOP Being Taken Advantage Of!</h1>
-                <p class="hero-subtitle">The ONE Book That Could Save You Thousands of Rupees and Years of Legal Trouble</p>
+                <p class="hero-subtitle">The ONE Book That Could Save You Thousands of Rupees and Years of Legal Trouble
+                </p>
                 <p class="author-credit">By Miss Shalini Tripathi, Advocate, Bombay High Court</p>
                 <a href="#download" class="cta-button">🔥 GET YOUR FREE COPY NOW 🔥</a>
             </div>
@@ -668,42 +904,48 @@
             <!-- Hook Section -->
             <section class="hook-section" data-aos="fade-up">
                 <h2 class="hook-title">These Could Be YOU Tomorrow...</h2>
-                
+
                 <div class="scenarios">
                     <div class="scenario-card" data-aos="fade-up" data-aos-delay="100">
                         <span class="scenario-emoji">💸</span>
                         <h3 class="scenario-title">Your Friend Refuses to Return ₹2 Lakh</h3>
-                        <p class="scenario-text">"It was a gift, not a loan!" - Without knowing money lending laws, you could lose your hard-earned savings forever.</p>
+                        <p class="scenario-text">"It was a gift, not a loan!" - Without knowing money lending laws, you
+                            could lose your hard-earned savings forever.</p>
                     </div>
-                    
+
                     <div class="scenario-card" data-aos="fade-up" data-aos-delay="200">
                         <span class="scenario-emoji">🏠</span>
                         <h3 class="scenario-title">Landlord Suddenly Demands Double Rent</h3>
-                        <p class="scenario-text">Threatened with eviction if you don't pay. Do you give in or fight back? Most people don't know they have rights!</p>
+                        <p class="scenario-text">Threatened with eviction if you don't pay. Do you give in or fight
+                            back? Most people don't know they have rights!</p>
                     </div>
-                    
+
                     <div class="scenario-card" data-aos="fade-up" data-aos-delay="300">
                         <span class="scenario-emoji">👮</span>
                         <h3 class="scenario-title">Government Officer Demands ₹10,000 Bribe</h3>
-                        <p class="scenario-text">"This is the system" - Millions pay bribes daily because they don't know how to fight corruption legally.</p>
+                        <p class="scenario-text">"This is the system" - Millions pay bribes daily because they don't
+                            know how to fight corruption legally.</p>
                     </div>
-                    
+
                     <div class="scenario-card" data-aos="fade-up" data-aos-delay="400">
                         <span class="scenario-emoji">💔</span>
                         <h3 class="scenario-title">Workplace Harassment Ignored</h3>
-                        <p class="scenario-text">Your boss creates a hostile environment. You suffer in silence because you think there's no legal protection.</p>
+                        <p class="scenario-text">Your boss creates a hostile environment. You suffer in silence because
+                            you think there's no legal protection.</p>
                     </div>
-                    
+
                     <div class="scenario-card" data-aos="fade-up" data-aos-delay="500">
                         <span class="scenario-emoji">🛒</span>
                         <h3 class="scenario-title">₹25,000 Phone Stops Working</h3>
-                        <p class="scenario-text">Company refuses replacement. "Online sales final!" Most people give up, not knowing consumer courts exist.</p>
+                        <p class="scenario-text">Company refuses replacement. "Online sales final!" Most people give up,
+                            not knowing consumer courts exist.</p>
                     </div>
-                    
+
                     <div class="scenario-card" data-aos="fade-up" data-aos-delay="600">
                         <span class="scenario-emoji">📱</span>
                         <h3 class="scenario-title">Cyber Fraud Drains Your Account</h3>
-                        <p class="scenario-text">₹50,000 gone in minutes. Police say "Nothing we can do." But there ARE legal remedies you don't know about!</p>
+                        <p class="scenario-text">₹50,000 gone in minutes. Police say "Nothing we can do." But there ARE
+                            legal remedies you don't know about!</p>
                     </div>
                 </div>
             </section>
@@ -714,8 +956,9 @@
     <section class="stats-section" data-aos="fade-up">
         <div class="container">
             <h2 style="font-size: 2.5rem; margin-bottom: 20px;">The SHOCKING Truth About Legal Awareness in India</h2>
-            <p style="font-size: 1.2rem; opacity: 0.9;">These numbers will make you realize why you NEED this book...</p>
-            
+            <p style="font-size: 1.2rem; opacity: 0.9;">These numbers will make you realize why you NEED this book...
+            </p>
+
             <div class="stats-grid">
                 <div class="stat-item" data-aos="fade-up" data-aos-delay="100">
                     <div class="stat-number">73%</div>
@@ -740,18 +983,21 @@
     <!-- Book Preview -->
     <section class="book-preview" data-aos="fade-up">
         <div class="container">
-            <h2 style="font-size: 2.5rem; text-align: center; margin-bottom: 20px; color: var(--primary-color);">Meet Your Legal Guardian Angel</h2>
-            <p style="text-align: center; font-size: 1.2rem; color: var(--text-light); margin-bottom: 40px;">Written by a practicing advocate who has seen thousands of cases of legal ignorance</p>
-            
+            <h2 style="font-size: 2.5rem; text-align: center; margin-bottom: 20px; color: var(--primary-color);">Meet
+                Your Legal Guardian Angel</h2>
+            <p style="text-align: center; font-size: 1.2rem; color: var(--text-light); margin-bottom: 40px;">Written by
+                a practicing advocate who has seen thousands of cases of legal ignorance</p>
+
             <div class="preview-grid">
                 <div class="book-cover">
                     <h3 class="book-title">Know Your Rights</h3>
                     <p class="book-author">Miss Shalini Tripathi<br>Advocate, Bombay High Court</p>
                     <p class="book-pages">50+ Pages of Life-Changing Legal Knowledge</p>
                 </div>
-                
+
                 <div>
-                    <h3 style="font-size: 2rem; color: var(--primary-color); margin-bottom: 30px;">What's Inside This Legal Lifesaver?</h3>
+                    <h3 style="font-size: 2rem; color: var(--primary-color); margin-bottom: 30px;">What's Inside This
+                        Legal Lifesaver?</h3>
                     <ul class="features-list">
                         <li>Your Constitutional Rights (Most Indians Don't Know These!)</li>
                         <li>Consumer Protection Laws That Can Get You Refunds</li>
@@ -775,14 +1021,18 @@
     <section class="testimonial-section" data-aos="fade-up">
         <div class="container">
             <h2 style="font-size: 2.5rem; margin-bottom: 30px;">What People Are Saying...</h2>
-            
+
             <div class="testimonial-card">
-                <p class="testimonial-text">"I wish I had this book 5 years ago when I lost ₹3 lakh to a property fraud. Miss Shalini's explanations are so clear that even my teenage daughter understood the legal concepts. This should be mandatory reading for every Indian family."</p>
+                <p class="testimonial-text">"I wish I had this book 5 years ago when I lost ₹3 lakh to a property fraud.
+                    Miss Shalini's explanations are so clear that even my teenage daughter understood the legal
+                    concepts. This should be mandatory reading for every Indian family."</p>
                 <p class="testimonial-author">- Rajesh Kumar, Mumbai</p>
             </div>
-            
+
             <div class="testimonial-card">
-                <p class="testimonial-text">"As a small business owner, I was constantly being cheated by clients who wouldn't pay. Using the cheque bounce laws explained in Chapter 10, I recovered ₹2.3 lakh in pending payments within 6 months. This book is worth its weight in gold!"</p>
+                <p class="testimonial-text">"As a small business owner, I was constantly being cheated by clients who
+                    wouldn't pay. Using the cheque bounce laws explained in Chapter 10, I recovered ₹2.3 lakh in pending
+                    payments within 6 months. This book is worth its weight in gold!"</p>
                 <p class="testimonial-author">- Priya Sharma, Delhi</p>
             </div>
         </div>
@@ -793,11 +1043,11 @@
         <div class="container">
             <h2 class="final-cta-title">Don't Let Legal Ignorance Cost You Another Rupee!</h2>
             <p class="final-cta-text">
-                Every day you delay learning your rights, you're vulnerable to exploitation, fraud, and injustice. 
-                This book has already helped thousands of Indians fight back and WIN. 
+                Every day you delay learning your rights, you're vulnerable to exploitation, fraud, and injustice.
+                This book has already helped thousands of Indians fight back and WIN.
                 Your turn starts NOW.
             </p>
-            
+
             <div class="download-benefits">
                 <div class="benefit-item">
                     <div class="benefit-icon">💯</div>
@@ -816,11 +1066,12 @@
                     <div class="benefit-text">Written by Expert Advocate</div>
                 </div>
             </div>
-            
-            <a href="javascript:void(0)" onclick="downloadBook()" class="cta-button" style="font-size: 1.5rem; padding: 25px 60px;">
+
+            <a href="javascript:void(0)" onclick="downloadBook()" class="cta-button"
+                style="font-size: 1.5rem; padding: 25px 60px;">
                 📚 DOWNLOAD YOUR FREE COPY NOW 📚
             </a>
-            
+
             <p style="margin-top: 30px; font-size: 1.1rem; opacity: 0.8;">
                 🔥 Over 10,000+ Downloads in the First Month! 🔥<br>
                 ⚡ Join the Legal Awareness Revolution ⚡
@@ -969,5 +1220,95 @@
             navLinks.classList.toggle('active');
         });
     </script>
+    <script>
+        // Consultation Modal Handling
+        const consultationModal = document.getElementById('consultationModal');
+        const bookConsultationBtn = document.getElementById('bookConsultation');
+        const closeConsultationModal = document.getElementById('closeConsultationModal');
+        const cancelConsultationBtn = document.getElementById('cancelConsultation');
+        const consultationForm = document.getElementById('consultationForm');
+        const successMessage = document.getElementById('successMessage');
+        const submitButton = document.getElementById('submitConsultation');
+        const BASE_URL = window.location.origin;
+
+        if (bookConsultationBtn) {
+            bookConsultationBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                consultationModal.style.display = 'flex';
+                consultationForm.style.display = 'block';
+                successMessage.style.display = 'none';
+            });
+        }
+
+        if (closeConsultationModal) {
+            closeConsultationModal.addEventListener('click', () => {
+                consultationModal.style.display = 'none';
+                consultationForm.reset();
+                consultationForm.style.display = 'block';
+                successMessage.style.display = 'none';
+                submitButton.classList.remove('loading');
+                submitButton.disabled = false;
+            });
+        }
+
+        if (cancelConsultationBtn) {
+            cancelConsultationBtn.addEventListener('click', () => {
+                consultationModal.style.display = 'none';
+                consultationForm.reset();
+                consultationForm.style.display = 'block';
+                successMessage.style.display = 'none';
+                submitButton.classList.remove('loading');
+                submitButton.disabled = false;
+            });
+        }
+
+        if (consultationForm) {
+            consultationForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                submitButton.classList.add('loading');
+                submitButton.disabled = true;
+
+                const formData = new FormData(consultationForm);
+                const data = {
+                    name: formData.get('name'),
+                    phone: formData.get('phone'),
+                    email: formData.get('email'),
+                    matter: formData.get('matter'),
+                    timeslot: formData.get('timeslot'),
+                    timestamp: new Date().toISOString()
+                };
+
+                try {
+                    const response = await fetch(`${BASE_URL}/api/proxy/consultation`, {
+                        method: 'POST',
+                        body: JSON.stringify(data),
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    const responseData = await response.json();
+                    submitButton.classList.remove('loading');
+                    submitButton.disabled = false;
+
+                    if (response.ok && responseData.status === 'success') {
+                        consultationForm.style.display = 'none';
+                        successMessage.style.display = 'block';
+                        setTimeout(() => {
+                            consultationModal.style.display = 'none';
+                            consultationForm.style.display = 'block';
+                            successMessage.style.display = 'none';
+                            consultationForm.reset();
+                        }, 10000);
+                    } else {
+                        throw new Error(responseData.error || 'Failed to submit consultation request');
+                    }
+                } catch (error) {
+                    submitButton.classList.remove('loading');
+                    submitButton.disabled = false;
+                    console.error('Error submitting consultation:', error);
+                    alert(`Error submitting consultation request: ${error.message}. Please try again or contact support.`);
+                }
+            });
+        }
+    </script>
 </body>
+
 </html>

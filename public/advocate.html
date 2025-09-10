@@ -305,6 +305,184 @@
             }
         }
 
+        /* Modal Styles for Consultation Form */
+        .consultation-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 2, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .consultation-modal-content {
+            background: var(--white);
+            border-radius: 25px;
+            box-shadow: var(--shadow);
+            padding: 20px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            margin: 20px;
+        }
+
+        .consultation-modal-content h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .consultation-modal-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-light);
+            cursor: pointer;
+        }
+
+        .consultation-modal-close:hover {
+            color: var(--primary-color);
+        }
+
+        .consultation-form .form-group {
+            margin-bottom: 20px;
+        }
+
+        .consultation-form label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+
+        .consultation-form label.required::after {
+            content: ' *';
+            color: var(--accent-color);
+        }
+
+        .consultation-form input,
+        .consultation-form select,
+        .consultation-form textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+        }
+
+        .consultation-form input:focus,
+        .consultation-form select:focus,
+        .consultation-form textarea:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+        }
+
+        .consultation-form textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .consultation-form .form-navigation {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .consultation-form .btn {
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            position: relative;
+        }
+
+        .consultation-form .btn.primary {
+            background-color: var(--secondary-color);
+            color: var(--white);
+            border: none;
+        }
+
+        .consultation-form .btn.primary:hover {
+            background-color: #2980b9;
+            transform: scale(1.05);
+        }
+
+        .consultation-form .btn.primary:disabled {
+            background-color: #7f8c8d;
+            cursor: not-allowed;
+        }
+
+        .consultation-form .btn.secondary {
+            background-color: var(--white);
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .consultation-form .btn.secondary:hover {
+            background-color: var(--gray);
+            transform: scale(1.05);
+        }
+
+        .success-message {
+            display: none;
+            text-align: center;
+            color: var(--secondary-color);
+            font-size: 1.1rem;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e8f4f8;
+            border-radius: var(--border-radius);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+        }
+
+        .loader {
+            display: none;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--secondary-color);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes spin {
+            0% {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+
+            100% {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
+        }
+
+        .btn.primary.loading .loader {
+            display: inline-block;
+        }
+
+        .btn.primary.loading span {
+            visibility: hidden;
+        }
+
         @media (max-width: 480px) {
             .advocate-container {
                 padding: 0 1rem;
@@ -367,11 +545,11 @@
                 <img src="/assets/logo.svg" alt="Lexinco Logo" width="180">
             </a>
             <div class="nav-links" id="navLinks">
-                <a href="#home">Home</a>
-                <a href="#how-it-works">How It Works</a>
+                <a href="index.html#home">Home</a>
+                <a href="index.html#how-it-works">How It Works</a>
                 <a href="blog.html">Blog</a>
                 <a href="advocate.html">Drafting Tool</a>
-                <a href="#contact">Contact</a>
+                <!-- <a href="index.html#contact">Contact</a> -->
                 <a href="legal-notice.html" class="btn primary">Start Legal Notice</a>
                 <a href="#consultation" class="btn secondary" id="bookConsultation">Book My Consultation</a>
             </div>
@@ -380,6 +558,52 @@
             </button>
         </div>
     </nav>
+    <!-- Consultation Modal -->
+    <div class="consultation-modal" id="consultationModal">
+        <div class="consultation-modal-content">
+            <button class="consultation-modal-close" id="closeConsultationModal" aria-label="Close modal">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2>Book a Consultation with a Registered Advocate</h2>
+            <form id="consultationForm" class="consultation-form">
+                <div class="form-group">
+                    <label for="consultName" class="required">Full Name</label>
+                    <input type="text" id="consultName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="consultPhone" class="required">Phone Number</label>
+                    <input type="tel" id="consultPhone" name="phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="consultEmail" class="required">Email Address</label>
+                    <input type="email" id="consultEmail" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="consultMatter" class="required">Matter in Brief</label>
+                    <textarea id="consultMatter" name="matter" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="consultTimeSlot" class="required">Preferred Time Slot</label>
+                    <select id="consultTimeSlot" name="timeslot" required>
+                        <option value="" disabled selected>Select a time slot</option>
+                        <option value="Morning (9 AM - 12 PM)">Morning (9 AM - 12 PM)</option>
+                        <option value="Afternoon (12 PM - 3 PM)">Afternoon (12 PM - 3 PM)</option>
+                        <option value="Evening (3 PM - 6 PM)">Evening (3 PM - 6 PM)</option>
+                    </select>
+                </div>
+                <div class="form-navigation">
+                    <button type="submit" class="btn primary" id="submitConsultation">
+                        <span>Submit</span>
+                        <div class="loader"></div>
+                    </button>
+                    <button type="button" class="btn secondary" id="cancelConsultation">Cancel</button>
+                </div>
+            </form>
+            <div class="success-message" id="successMessage">
+                Your consultation request has been submitted successfully! Our Advocate will contact you soon.
+            </div>
+        </div>
+    </div>
     <!-- Advocate Section -->
     <section class="advocate-section" id="advocate">
         <div class="advocate-container" data-aos="fade-up">
@@ -1130,6 +1354,108 @@
 
         // Initialize AOS
         AOS.init();
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+    <script>
+        // Consultation Modal Handling
+        const consultationModal = document.getElementById('consultationModal');
+        const bookConsultationBtn = document.getElementById('bookConsultation');
+        const closeConsultationModal = document.getElementById('closeConsultationModal');
+        const cancelConsultationBtn = document.getElementById('cancelConsultation');
+        const consultationForm = document.getElementById('consultationForm');
+        const successMessage = document.getElementById('successMessage');
+        const submitButton = document.getElementById('submitConsultation');
+        const BASE_URL = window.location.origin;
+
+        if (bookConsultationBtn) {
+            bookConsultationBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                consultationModal.style.display = 'flex';
+                consultationForm.style.display = 'block';
+                successMessage.style.display = 'none';
+            });
+        }
+
+        if (closeConsultationModal) {
+            closeConsultationModal.addEventListener('click', () => {
+                consultationModal.style.display = 'none';
+                consultationForm.reset();
+                consultationForm.style.display = 'block';
+                successMessage.style.display = 'none';
+                submitButton.classList.remove('loading');
+                submitButton.disabled = false;
+            });
+        }
+
+        if (cancelConsultationBtn) {
+            cancelConsultationBtn.addEventListener('click', () => {
+                consultationModal.style.display = 'none';
+                consultationForm.reset();
+                consultationForm.style.display = 'block';
+                successMessage.style.display = 'none';
+                submitButton.classList.remove('loading');
+                submitButton.disabled = false;
+            });
+        }
+
+        if (consultationForm) {
+            consultationForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                submitButton.classList.add('loading');
+                submitButton.disabled = true;
+
+                const formData = new FormData(consultationForm);
+                const data = {
+                    name: formData.get('name'),
+                    phone: formData.get('phone'),
+                    email: formData.get('email'),
+                    matter: formData.get('matter'),
+                    timeslot: formData.get('timeslot'),
+                    timestamp: new Date().toISOString()
+                };
+
+                try {
+                    const response = await fetch(`${BASE_URL}/api/proxy/consultation`, {
+                        method: 'POST',
+                        body: JSON.stringify(data),
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    const responseData = await response.json();
+                    submitButton.classList.remove('loading');
+                    submitButton.disabled = false;
+
+                    if (response.ok && responseData.status === 'success') {
+                        consultationForm.style.display = 'none';
+                        successMessage.style.display = 'block';
+                        setTimeout(() => {
+                            consultationModal.style.display = 'none';
+                            consultationForm.style.display = 'block';
+                            successMessage.style.display = 'none';
+                            consultationForm.reset();
+                        }, 10000);
+                    } else {
+                        throw new Error(responseData.error || 'Failed to submit consultation request');
+                    }
+                } catch (error) {
+                    submitButton.classList.remove('loading');
+                    submitButton.disabled = false;
+                    console.error('Error submitting consultation:', error);
+                    alert(`Error submitting consultation request: ${error.message}. Please try again or contact support.`);
+                }
+            });
+        }
     </script>
 </body>
 
