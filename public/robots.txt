@@ -1,0 +1,1 @@
+User-agent: * Allow: / Disallow: /admin/ Disallow: /login/ Disallow: /Uploads/ Sitemap: https://www.lexinco.com/sitemap.xml
