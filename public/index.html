@@ -135,6 +135,54 @@
             margin-bottom: 20px;
         }
 
+        .testimonial-card {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 35px;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+            border-left: 6px solid #f1b800;
+        }
+
+        .testimonial-text {
+            flex: 1;
+            /* ensures text takes space */
+            color: #333;
+            /* ensures visibility */
+        }
+
+        .testimonial-text .quote {
+            font-size: 1rem;
+            font-style: italic;
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+
+        .testimonial-text .highlight {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #d35400;
+            margin-bottom: 8px;
+        }
+
+        .testimonial-text .author {
+            font-weight: 600;
+            color: #111;
+            margin-top: 5px;
+            font-size: 0.95rem;
+        }
+
+        .testimonial-text .author span {
+            font-weight: 400;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+
+
         .consultation-form label {
             display: block;
             margin-bottom: 8px;
@@ -478,6 +526,22 @@
             color: var(--white);
             text-align: center;
         }
+
+        .testimonial-photo img {
+            width: 80px;
+            /* adjust size */
+            height: 80px;
+            /* make it square */
+            border-radius: 50%;
+            /* circular */
+            object-fit: cover;
+            /* keeps it neat */
+            border: 3px solid #f1b800;
+            /* highlight border */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            /* subtle shadow */
+        }
+
 
         .video-placeholder {
             width: 100%;
@@ -1068,17 +1132,37 @@
                 </ul>
                 <div class="hero-buttons">
                     <a href="legal-notice.html" class="btn primary hero-cta">📲 Start My Notice Now</a>
-                    <a href="#consultation" class="btn primary hero-cta" id="bookConsultationHero">Book My Consultation</a>
+                    <a href="#consultation" class="btn primary hero-cta" id="bookConsultationHero">Book My
+                        Consultation</a>
                 </div>
                 <div class="trust-badge">
                     <i class="fas fa-star"></i> Trusted by 10,000+ users
                 </div>
+
+                <!-- ⭐ Testimonial Card -->
+                <div class="testimonial-card">
+                    <div class="testimonial-photo">
+                        <img src="../assets/dr-malpani.png" alt="Dr. Aniruddha Malpani">
+                    </div>
+                    <div class="testimonial-text">
+                        <p class="quote">
+                            Dr. Aniruddha Malpani, a leading IVF specialist and investor, recently used
+                            <strong>Lexinco.com</strong> to send a legal notice. He shared his positive
+                            experience on Twitter, highlighting how affordable and empowering the platform is.
+                        </p>
+                        <p class="highlight">If experts trust us, why not you?</p>
+                          <p class="author">— Case Study: Dr. Aniruddha Malpani, MD<br><span>IVF Specialist & Investor</span></p>
+                    </div>
+                </div>
+
+
             </div>
             <div class="hero-visual">
                 <!-- Empty to maintain grid layout -->
             </div>
         </div>
     </section>
+
 
     <!-- Testimonials Section -->
     <section class="testimonials" id="testimonials">
@@ -1181,7 +1265,7 @@
                         <div class="testimonial-author">
                             <div class="author-info">
                                 <h4>Happy Client</h4>
-                                
+
                             </div>
                         </div>
                     </div>
@@ -1196,12 +1280,12 @@
                                 recommend your services in case anyone
                                 Pois in need.
                                 Thank you
-                                </p>
+                            </p>
                         </div>
                         <div class="testimonial-author">
                             <div class="author-info">
                                 <h4>Happy Client</h4>
-                               
+
                             </div>
                         </div>
                     </div>
