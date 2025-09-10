@@ -370,147 +370,147 @@ ${template}
         });
     }
 });
-app.post('/api/generate-advocate-notice', async (req, res) => {
-    const formData = req.body;
-    const todayDate = new Date().toLocaleDateString('en-US', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
-    });
+// app.post('/api/generate-advocate-notice', async (req, res) => {
+//     const formData = req.body;
+//     const todayDate = new Date().toLocaleDateString('en-US', {
+//         day: 'numeric',
+//         month: 'long',
+//         year: 'numeric'
+//     });
 
-    // Validate form data
-    if (!formData.client || !formData.recipient || !formData.dispute) {
-        console.error('Invalid form data:', formData);
-        return res.status(400).json({ error: 'Invalid form data', details: 'Missing client, recipient, or dispute data' });
-    }
+//     // Validate form data
+//     if (!formData.client || !formData.recipient || !formData.dispute) {
+//         console.error('Invalid form data:', formData);
+//         return res.status(400).json({ error: 'Invalid form data', details: 'Missing client, recipient, or dispute data' });
+//     }
 
-    // Legal notice template
-    const template = `
-BY REGISTERED /POST/EMAIL
+//     // Legal notice template
+//     const template = `
+// BY REGISTERED /POST/EMAIL
 
-                                                             Date: ${todayDate}
+//                                                              Date: ${todayDate}
 
-To,  
-${formData.recipient.name}  
-${formData.recipient.address}
+// To,  
+// ${formData.recipient.name}  
+// ${formData.recipient.address}
 
-Subject: Legal Notice regarding ${formData.dispute.relationship.charAt(0).toUpperCase() + formData.dispute.relationship.slice(1).replace(/-/g, ' ')}
+// Subject: Legal Notice regarding ${formData.dispute.relationship.charAt(0).toUpperCase() + formData.dispute.relationship.slice(1).replace(/-/g, ' ')}
 
-Under the instructions and authority from my client ${formData.client.name}, residing at ${formData.client.address}, Mobile: ${formData.client.contact}, Email: ${formData.client.email}, I, Advocate Shalini L Tripathi, hereby address you as follows:
+// Under the instructions and authority from my client ${formData.client.name}, residing at ${formData.client.address}, Mobile: ${formData.client.contact}, Email: ${formData.client.email}, I, Advocate Shalini L Tripathi, hereby address you as follows:
 
-That my client and you entered into a transaction/understanding, as described: ${formData.dispute.issueDescription}.  
+// That my client and you entered into a transaction/understanding, as described: ${formData.dispute.issueDescription}.  
 
-That my client fulfilled all obligations as agreed under the understanding/transaction.  
+// That my client fulfilled all obligations as agreed under the understanding/transaction.  
 
-That you were obligated to act as per the understanding but failed to do so.  
+// That you were obligated to act as per the understanding but failed to do so.  
 
-That despite repeated follow-ups, no satisfactory resolution was offered.  
+// That despite repeated follow-ups, no satisfactory resolution was offered.  
 
-That such failure indicates breach of trust and/or contractual obligations.  
+// That such failure indicates breach of trust and/or contractual obligations.  
 
-That my client has suffered losses and inconvenience, as described: ${formData.dispute.damages}.  
+// That my client has suffered losses and inconvenience, as described: ${formData.dispute.damages}.  
 
-That your conduct constitutes a legal wrong under applicable Indian laws, including but not limited to the Indian Contract Act, 1872, and other relevant statutes.  
+// That your conduct constitutes a legal wrong under applicable Indian laws, including but not limited to the Indian Contract Act, 1872, and other relevant statutes.  
 
-That my client hereby demands that the dispute be resolved immediately by ${formData.dispute.damages}.  
+// That my client hereby demands that the dispute be resolved immediately by ${formData.dispute.damages}.  
 
-That if you fail to comply within 7 days from the receipt of this notice, legal proceedings (civil and/or criminal) will be initiated at your risk and cost.  
+// That if you fail to comply within 7 days from the receipt of this notice, legal proceedings (civil and/or criminal) will be initiated at your risk and cost.  
 
-That you shall be liable for all litigation costs, damages, and consequences arising from your failure to comply.  
+// That you shall be liable for all litigation costs, damages, and consequences arising from your failure to comply.  
 
-That this legal notice serves as a final opportunity for resolution.  
+// That this legal notice serves as a final opportunity for resolution.  
 
-This legal notice is issued to you without prejudice to all other legal rights and remedies available to my client under the law.
+// This legal notice is issued to you without prejudice to all other legal rights and remedies available to my client under the law.
 
-Kindly treat this as a final and urgent notice.
+// Kindly treat this as a final and urgent notice.
 
-For ${formData.client.name}  
-Through his Legal Counsel,  
+// For ${formData.client.name}  
+// Through his Legal Counsel,  
 
-(Advocate Shalini L Tripathi)
-`;
+// (Advocate Shalini L Tripathi)
+// `;
 
-    // Prompt for OpenAI
-    const prompt = `
-You are a senior legal assistant with 20+ years of experience in Indian civil and contractual legal matters, assisting Advocate Shalini L Tripathi.
+//     // Prompt for OpenAI
+//     const prompt = `
+// You are a senior legal assistant with 20+ years of experience in Indian civil and contractual legal matters, assisting Advocate Shalini L Tripathi.
 
-Your task is to draft a **formal legal notice** for an advocate based on the provided form data. The notice must:
-- Be comprehensive (approx. 1200–1500 words, around 4 A4 pages).
-- Use **Indian legal language** with a ${formData.dispute.tone} tone (formal, assertive, or conciliatory).
-- Be suitable for court/legal submission in India.
-- Reference relevant laws (e.g., Indian Contract Act, 1872, or other statutes like the Specific Relief Act, 1963, where applicable).
-- **EXACTLY** follow the structure provided below, without adding, removing, or modifying any sections, headers, or formatting. Every paragraph after the introductory statement must start with "That". Do not include any additional text, explanations, or markdown symbols outside the template. Do not include letterhead or signatures, as these are added separately by the frontend.
+// Your task is to draft a **formal legal notice** for an advocate based on the provided form data. The notice must:
+// - Be comprehensive (approx. 1200–1500 words, around 4 A4 pages).
+// - Use **Indian legal language** with a ${formData.dispute.tone} tone (formal, assertive, or conciliatory).
+// - Be suitable for court/legal submission in India.
+// - Reference relevant laws (e.g., Indian Contract Act, 1872, or other statutes like the Specific Relief Act, 1963, where applicable).
+// - **EXACTLY** follow the structure provided below, without adding, removing, or modifying any sections, headers, or formatting. Every paragraph after the introductory statement must start with "That". Do not include any additional text, explanations, or markdown symbols outside the template. Do not include letterhead or signatures, as these are added separately by the frontend.
 
-**Form Data**:
-- Client Name: ${formData.client.name}
-- Client Address: ${formData.client.address}
-- Client Contact: ${formData.client.contact}
-- Client Email: ${formData.client.email}
-- Recipient Name: ${formData.recipient.name}
-- Recipient Address: ${formData.recipient.address}
-- Recipient Contact: ${formData.recipient.contact}
-- Recipient Email: ${formData.recipient.email}
-- Notice Type: ${formData.dispute.relationship}
-- Issue Description: ${formData.dispute.issueDescription}
-- Key Events: ${formData.dispute.keyEvents}
-- Damages Sought: ${formData.dispute.damages}
-- Tone: ${formData.dispute.tone}
+// **Form Data**:
+// - Client Name: ${formData.client.name}
+// - Client Address: ${formData.client.address}
+// - Client Contact: ${formData.client.contact}
+// - Client Email: ${formData.client.email}
+// - Recipient Name: ${formData.recipient.name}
+// - Recipient Address: ${formData.recipient.address}
+// - Recipient Contact: ${formData.recipient.contact}
+// - Recipient Email: ${formData.recipient.email}
+// - Notice Type: ${formData.dispute.relationship}
+// - Issue Description: ${formData.dispute.issueDescription}
+// - Key Events: ${formData.dispute.keyEvents}
+// - Damages Sought: ${formData.dispute.damages}
+// - Tone: ${formData.dispute.tone}
 
-**Template to Follow**:
-${template}
+// **Template to Follow**:
+// ${template}
 
-**Instructions**:
-1. Fill in the placeholders in the template with detailed content based on the form data.
-2. For the paragraph starting with "That my client and you entered into a transaction/understanding, as described:", provide a detailed elaboration based on the issue description and key events, including specific dates, agreements, or actions where relevant.
-3. For the paragraph starting with "That my client has suffered losses and inconvenience, as described:", elaborate on the damages suffered, quantifying losses (e.g., monetary, emotional, or reputational) where possible.
-4. For the paragraph starting with "That my client hereby demands...", specify a clear and precise action (e.g., payment of Rs. X, performance of specific obligations, cessation of actions) based on the damages sought.
-5. For the paragraph referencing applicable laws, include specific sections of the Indian Contract Act, 1872 (e.g., Section 73 for breach of contract damages) or other relevant laws based on the notice type (e.g., Defamation under Section 499 IPC for defamation notices).
-6. Ensure each "That" paragraph is detailed, legally precise, and contextually relevant to the dispute, maintaining the specified tone.
-7. Output **only** the filled-in template, with no additional text or formatting.
-`;
+// **Instructions**:
+// 1. Fill in the placeholders in the template with detailed content based on the form data.
+// 2. For the paragraph starting with "That my client and you entered into a transaction/understanding, as described:", provide a detailed elaboration based on the issue description and key events, including specific dates, agreements, or actions where relevant.
+// 3. For the paragraph starting with "That my client has suffered losses and inconvenience, as described:", elaborate on the damages suffered, quantifying losses (e.g., monetary, emotional, or reputational) where possible.
+// 4. For the paragraph starting with "That my client hereby demands...", specify a clear and precise action (e.g., payment of Rs. X, performance of specific obligations, cessation of actions) based on the damages sought.
+// 5. For the paragraph referencing applicable laws, include specific sections of the Indian Contract Act, 1872 (e.g., Section 73 for breach of contract damages) or other relevant laws based on the notice type (e.g., Defamation under Section 499 IPC for defamation notices).
+// 6. Ensure each "That" paragraph is detailed, legally precise, and contextually relevant to the dispute, maintaining the specified tone.
+// 7. Output **only** the filled-in template, with no additional text or formatting.
+// `;
 
-    try {
-        const response = await axios.post('https://api.openai.com/v1/chat/completions', {
-            model: "gpt-4o",
-            messages: [{ role: "user", content: prompt }],
-            temperature: 0.1,
-            max_tokens: 4096
-        }, {
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
-            }
-        });
+//     try {
+//         const response = await axios.post('https://api.openai.com/v1/chat/completions', {
+//             model: "gpt-4o",
+//             messages: [{ role: "user", content: prompt }],
+//             temperature: 0.1,
+//             max_tokens: 4096
+//         }, {
+//             headers: {
+//                 'Content-Type': 'application/json',
+//                 'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+//             }
+//         });
 
-        let content = response.data.choices[0].message.content;
+//         let content = response.data.choices[0].message.content;
 
-        // Validate response structure
-        const expectedStart = `BY REGISTERED /POST/EMAIL`;
-        const expectedEnd = `(Advocate Shalini L Tripathi)`;
-        if (!content.startsWith(expectedStart) || !content.endsWith(expectedEnd)) {
-            console.warn('OpenAI response does not match expected structure:', content.substring(0, 100) + '...');
-            content = template; // Fallback to template if structure is incorrect
-        }
+//         // Validate response structure
+//         const expectedStart = `BY REGISTERED /POST/EMAIL`;
+//         const expectedEnd = `(Advocate Shalini L Tripathi)`;
+//         if (!content.startsWith(expectedStart) || !content.endsWith(expectedEnd)) {
+//             console.warn('OpenAI response does not match expected structure:', content.substring(0, 100) + '...');
+//             content = template; // Fallback to template if structure is incorrect
+//         }
 
-        // Format content for frontend
-        content = content
-            .replace(/\n\n/g, '<p>')
-            .replace(/\n/g, '<br>')
-            .replace(/\t/g, '    ');
+//         // Format content for frontend
+//         content = content
+//             .replace(/\n\n/g, '<p>')
+//             .replace(/\n/g, '<br>')
+//             .replace(/\t/g, '    ');
 
-        res.json({ content });
-    } catch (error) {
-        console.error('OpenAI API Error:', {
-            message: error.message,
-            response: error.response ? error.response.data : null,
-            status: error.response ? error.response.status : null
-        });
-        res.status(500).json({
-            error: 'Failed to generate advocate notice',
-            details: error.response?.data?.error?.message || error.message
-        });
-    }
-});
+//         res.json({ content });
+//     } catch (error) {
+//         console.error('OpenAI API Error:', {
+//             message: error.message,
+//             response: error.response ? error.response.data : null,
+//             status: error.response ? error.response.status : null
+//         });
+//         res.status(500).json({
+//             error: 'Failed to generate advocate notice',
+//             details: error.response?.data?.error?.message || error.message
+//         });
+//     }
+// });
 app.post('/api/generate-power-of-attorney', async (req, res) => {
     console.log('Received request to /api/generate-power-of-attorney with body:', req.body);
     const formData = req.body;
