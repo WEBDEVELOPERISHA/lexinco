@@ -145,13 +145,23 @@
             padding: 20px;
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
             border-left: 6px solid #f1b800;
+            flex-wrap: wrap;
+            /* allows wrapping */
+        }
+
+        .testimonial-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
         }
 
         .testimonial-text {
             flex: 1;
-            /* ensures text takes space */
             color: #333;
-            /* ensures visibility */
+            min-width: 220px;
+            /* avoids squishing */
         }
 
         .testimonial-text .quote {
@@ -180,6 +190,24 @@
             color: #666;
             font-size: 0.9rem;
         }
+
+        /* 📱 Mobile responsiveness */
+        @media (max-width: 600px) {
+            .testimonial-card {
+                flex-direction: column;
+                text-align: center;
+                padding: 15px;
+            }
+
+            .testimonial-photo {
+                margin-bottom: 12px;
+            }
+
+            .testimonial-text {
+                min-width: auto;
+            }
+        }
+
 
 
 
@@ -1151,7 +1179,8 @@
                             experience on Twitter, highlighting how affordable and empowering the platform is.
                         </p>
                         <p class="highlight">If experts trust us, why not you?</p>
-                          <p class="author">— Case Study: Dr. Aniruddha Malpani, MD<br><span>IVF Specialist & Investor</span></p>
+                        <p class="author">— Case Study: Dr. Aniruddha Malpani, MD<br><span>IVF Specialist &
+                                Investor</span></p>
                     </div>
                 </div>
 
