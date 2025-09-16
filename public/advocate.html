@@ -38,6 +38,45 @@
       ]
     }
     </script>
+        <style>
+        :root {
+            --primary-color: #1e293b;
+            --secondary-color: #3b82f6;
+            --text-light: #64748b;
+        }
+        .breadcrumbs {
+            font-family: 'Poppins', sans-serif;
+            padding: 15px 2rem;
+            background: #f1f5f9;
+            margin: 20px 0;
+        }
+        .breadcrumbs ol {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0;
+            padding: 0;
+            font-size: 0.9rem;
+        }
+        .breadcrumbs li:not(:last-child)::after {
+            content: '>';
+            margin: 0 8px;
+            color: var(--text-light);
+        }
+        .breadcrumbs a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .breadcrumbs a:hover {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+        .breadcrumbs li:last-child {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+    </style>
     <!-- AOS for Scroll Animations -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
