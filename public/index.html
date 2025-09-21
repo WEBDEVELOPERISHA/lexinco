@@ -1,20 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <!-- Meta Tags -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta property="og:title" content="Lexinco - Draft Legal Notices in Minutes">
-    <meta property="og:description"
-        content="Generate professional legal notices in minutes — smart, fast, and affordable with Lexinco.">
+    <meta property="og:description" content="Generate professional legal notices in minutes — smart, fast, and affordable with Lexinco.">
     <meta property="og:image" content="https://www.lexinco.com/social-preview-v2.jpeg">
     <meta property="og:url" content="https://lexinco.com">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Lexinco - Draft Legal Notices in Minutes">
-    <meta name="twitter:description"
-        content="Generate professional legal notices in minutes — smart, fast, and affordable with Lexinco.">
+    <meta name="twitter:description" content="Generate professional legal notices in minutes — smart, fast, and affordable with Lexinco.">
     <meta name="twitter:image" content="https://www.lexinco.com/social-preview-v2.jpeg">
     <link rel="canonical" href="https://lexinco.com">
     <title>Lexinco - Your Voice. Your Rights. Made Legal.</title>
@@ -49,7 +46,7 @@
     </script>
     <!-- End Google Tag Manager -->
 
-    <!-- AOS for Scroll Animations (retained for other sections) -->
+    <!-- AOS for Scroll Animations -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <!-- Swiper for Feedback Carousel -->
@@ -82,260 +79,6 @@
             --text-light: #64748b;
             --border-radius: 10px;
             --shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Modal Styles for Consultation Form */
-        .consultation-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 2, 0, 0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .consultation-modal-content {
-            background: var(--white);
-            border-radius: 25px;
-            box-shadow: var(--shadow);
-            padding: 20px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 80vh;
-            overflow-y: auto;
-            position: relative;
-            margin: 20px;
-        }
-
-        .consultation-modal-content h2 {
-            color: var(--primary-color);
-            margin-bottom: 20px;
-            font-size: 18px;
-        }
-
-        .consultation-modal-close {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: var(--text-light);
-            cursor: pointer;
-        }
-
-        .consultation-modal-close:hover {
-            color: var(--primary-color);
-        }
-
-        .consultation-form .form-group {
-            margin-bottom: 20px;
-        }
-
-        .testimonial-card {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-top: 35px;
-            background: #ffffff;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-            border-left: 6px solid #f1b800;
-            flex-wrap: wrap;
-            /* allows wrapping */
-        }
-
-        .testimonial-photo {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            object-fit: cover;
-            flex-shrink: 0;
-        }
-
-        .testimonial-text {
-            flex: 1;
-            color: #333;
-            min-width: 220px;
-            /* avoids squishing */
-        }
-
-        .testimonial-text .quote {
-            font-size: 1rem;
-            font-style: italic;
-            margin: 0 0 10px 0;
-            color: #333;
-        }
-
-        .testimonial-text .highlight {
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: #d35400;
-            margin-bottom: 8px;
-        }
-
-        .testimonial-text .author {
-            font-weight: 600;
-            color: #111;
-            margin-top: 5px;
-            font-size: 0.95rem;
-        }
-
-        .testimonial-text .author span {
-            font-weight: 400;
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        /* 📱 Mobile responsiveness */
-        @media (max-width: 600px) {
-            .testimonial-card {
-                flex-direction: column;
-                text-align: center;
-                padding: 15px;
-            }
-
-            .testimonial-photo {
-                margin-bottom: 12px;
-            }
-
-            .testimonial-text {
-                min-width: auto;
-            }
-        }
-
-
-
-
-        .consultation-form label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: var(--primary-color);
-        }
-
-        .consultation-form label.required::after {
-            content: ' *';
-            color: var(--accent-color);
-        }
-
-        .consultation-form input,
-        .consultation-form select,
-        .consultation-form textarea {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: var(--border-radius);
-            font-family: 'Poppins', sans-serif;
-            font-size: 1rem;
-        }
-
-        .consultation-form input:focus,
-        .consultation-form select:focus,
-        .consultation-form textarea:focus {
-            outline: none;
-            border-color: var(--secondary-color);
-        }
-
-        .consultation-form textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-
-        .consultation-form .form-navigation {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .consultation-form .btn {
-            padding: 12px 20px;
-            border-radius: var(--border-radius);
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            position: relative;
-        }
-
-        .consultation-form .btn.primary {
-            background-color: var(--secondary-color);
-            color: var(--white);
-            border: none;
-        }
-
-        .consultation-form .btn.primary:hover {
-            background-color: #2980b9;
-            transform: scale(1.05);
-        }
-
-        .consultation-form .btn.primary:disabled {
-            background-color: #7f8c8d;
-            cursor: not-allowed;
-        }
-
-        .consultation-form .btn.secondary {
-            background-color: var(--white);
-            color: var(--primary-color);
-            border: 1px solid var(--primary-color);
-        }
-
-        .consultation-form .btn.secondary:hover {
-            background-color: var(--gray);
-            transform: scale(1.05);
-        }
-
-        .success-message {
-            display: none;
-            text-align: center;
-            color: var(--secondary-color);
-            font-size: 1.1rem;
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #e8f4f8;
-            border-radius: var(--border-radius);
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 80%;
-        }
-
-        .loader {
-            display: none;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid var(--secondary-color);
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        @keyframes spin {
-            0% {
-                transform: translate(-50%, -50%) rotate(0deg);
-            }
-
-            100% {
-                transform: translate(-50%, -50%) rotate(360deg);
-            }
-        }
-
-        .btn.primary.loading .loader {
-            display: inline-block;
-        }
-
-        .btn.primary.loading span {
-            visibility: hidden;
         }
 
         /* Hero Section */
@@ -491,6 +234,56 @@
             font-size: 1.2rem;
         }
 
+        .testimonial-card {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 35px;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+            border-left: 6px solid #f1b800;
+            flex-wrap: wrap;
+        }
+
+        .testimonial-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .testimonial-text {
+            flex: 1;
+            color: #333;
+            min-width: 220px;
+        }
+
+        .testimonial-text .quote {
+            font-size: 1rem;
+            font-style: italic;
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+
+        .testimonial-text .highlight {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #d35400;
+            margin-bottom: 8px;
+        }
+
+        .testimonial-photo img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #f1b800;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
         /* Use Cases Section */
         .use-cases {
             padding: 80px 0;
@@ -555,22 +348,6 @@
             color: var(--white);
             text-align: center;
         }
-
-        .testimonial-photo img {
-            width: 80px;
-            /* adjust size */
-            height: 80px;
-            /* make it square */
-            border-radius: 50%;
-            /* circular */
-            object-fit: cover;
-            /* keeps it neat */
-            border: 3px solid #f1b800;
-            /* highlight border */
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-            /* subtle shadow */
-        }
-
 
         .video-placeholder {
             width: 100%;
@@ -784,23 +561,14 @@
                     background-position: center;
                     transform: scale(1);
                 }
-
                 50% {
                     background-position: 51% 51%;
                     transform: scale(1.03);
                 }
-
                 100% {
                     background-position: center;
                     transform: scale(1);
                 }
-            }
-
-            .consultation-modal-content {
-                width: 95%;
-                padding: 15px;
-                max-height: 70vh;
-                overflow-y: auto;
             }
 
             .nav-links {
@@ -820,7 +588,6 @@
             .hero-content {
                 padding: 1.5rem;
                 background-size: contain;
-                /* Adjust for smaller screens */
                 background-position: center;
             }
 
@@ -898,6 +665,20 @@
             .step p {
                 font-size: 0.9rem;
             }
+
+            .testimonial-card {
+                flex-direction: column;
+                text-align: center;
+                padding: 15px;
+            }
+
+            .testimonial-photo {
+                margin-bottom: 12px;
+            }
+
+            .testimonial-text {
+                min-width: auto;
+            }
         }
 
         @media (max-width: 480px) {
@@ -910,12 +691,10 @@
                     background-position: center;
                     transform: scale(1);
                 }
-
                 50% {
                     background-position: 50.5% 50.5%;
                     transform: scale(1.02);
                 }
-
                 100% {
                     background-position: center;
                     transform: scale(1);
@@ -998,7 +777,6 @@
                 opacity: 0;
                 transform: translateY(30px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -1010,12 +788,10 @@
                 background-position: center;
                 transform: scale(1);
             }
-
             50% {
                 background-position: 52% 52%;
                 transform: scale(1.05);
             }
-
             100% {
                 background-position: center;
                 transform: scale(1);
@@ -1026,11 +802,9 @@
             0% {
                 transform: scale(1);
             }
-
             50% {
                 transform: scale(1.05);
             }
-
             100% {
                 transform: scale(1);
             }
@@ -1045,18 +819,15 @@
         }
     </style>
 </head>
-
 <body>
     <!-- Meta Pixel (noscript) -->
     <noscript>
-        <img height="1" width="1" style="display:none"
-            src="https://www.facebook.com/tr?id=2762495943943491&ev=PageView&noscript=1" />
+        <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=2762495943943491&ev=PageView&noscript=1" />
     </noscript>
 
     <!-- Google Tag Manager (noscript) -->
     <noscript>
-        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-N7C4SRQS" height="0" width="0"
-            style="display:none;visibility:hidden"></iframe>
+        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-N7C4SRQS" height="0" width="0" style="display:none;visibility:hidden"></iframe>
     </noscript>
     <!-- End Google Tag Manager (noscript) -->
 
@@ -1071,9 +842,8 @@
                 <a href="#how-it-works">How It Works</a>
                 <a href="blog.html">Blog</a>
                 <a href="advocate.html">Drafting Tool</a>
-                <!-- <a href="#contact">Contact</a> -->
                 <a href="legal-notice.html" class="btn primary">Start Legal Notice</a>
-                <a href="#consultation" class="btn secondary" id="bookConsultation">Book My Consultation</a>
+                <a href="consultation.html" class="btn secondary">Book My Consultation</a>
             </div>
             <button class="mobile-menu-btn" id="mobileMenuBtn">
                 <i class="fas fa-bars"></i>
@@ -1088,63 +858,11 @@
                 <i class="fas fa-times"></i>
             </button>
             <p style="font-weight: bold; color: var(--secondary-color); font-size: 18px; margin-bottom: 10px;">
-                🎉 Limited Time Deal: Legal Notice Worth <span
-                    style="text-decoration: line-through; color: var(--accent-color);">₹999</span> Now at <span
-                    style="color: #000;">₹499</span> – Don’t Miss Out!
+                🎉 Limited Time Deal: Legal Notice Worth <span style="text-decoration: line-through; color: var(--accent-color);">₹999</span> Now at <span style="color: #000;">₹499</span> – Don’t Miss Out!
             </p>
             <h3>Disclaimer</h3>
-            <p>Lexinco is not a law firm and does not provide legal advice. We connect you with registered advocates for
-                professional legal notice drafting and consultation. All services are provided by independent advocates
-                registered with the Bar Council of India, in compliance with the Advocates Act, 1961. Using our platform
-                does not create an attorney-client relationship.</p>
+            <p>Lexinco is not a law firm and does not provide legal advice. We connect you with registered advocates for professional legal notice drafting and consultation. All services are provided by independent advocates registered with the Bar Council of India, in compliance with the Advocates Act, 1961. Using our platform does not create an attorney-client relationship.</p>
             <a href="legal-notice.html" class="btn primary">Claim Your Notice Now!!</a>
-        </div>
-    </div>
-
-    <!-- Consultation Modal -->
-    <div class="consultation-modal" id="consultationModal">
-        <div class="consultation-modal-content">
-            <button class="consultation-modal-close" id="closeConsultationModal" aria-label="Close modal">
-                <i class="fas fa-times"></i>
-            </button>
-            <h2>Book a Consultation with a Registered Advocate</h2>
-            <form id="consultationForm" class="consultation-form">
-                <div class="form-group">
-                    <label for="consultName" class="required">Full Name</label>
-                    <input type="text" id="consultName" name="name" required>
-                </div>
-                <div class="form-group">
-                    <label for="consultPhone" class="required">Phone Number</label>
-                    <input type="tel" id="consultPhone" name="phone" required>
-                </div>
-                <div class="form-group">
-                    <label for="consultEmail" class="required">Email Address</label>
-                    <input type="email" id="consultEmail" name="email" required>
-                </div>
-                <div class="form-group">
-                    <label for="consultMatter" class="required">Matter in Brief</label>
-                    <textarea id="consultMatter" name="matter" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="consultTimeSlot" class="required">Preferred Time Slot</label>
-                    <select id="consultTimeSlot" name="timeslot" required>
-                        <option value="" disabled selected>Select a time slot</option>
-                        <option value="Morning (9 AM - 12 PM)">Morning (9 AM - 12 PM)</option>
-                        <option value="Afternoon (12 PM - 3 PM)">Afternoon (12 PM - 3 PM)</option>
-                        <option value="Evening (3 PM - 6 PM)">Evening (3 PM - 6 PM)</option>
-                    </select>
-                </div>
-                <div class="form-navigation">
-                    <button type="submit" class="btn primary" id="submitConsultation">
-                        <span>Submit</span>
-                        <div class="loader"></div>
-                    </button>
-                    <button type="button" class="btn secondary" id="cancelConsultation">Cancel</button>
-                </div>
-            </form>
-            <div class="success-message" id="successMessage">
-                Your consultation request has been submitted successfully! Our Advocate will contact you soon.
-            </div>
         </div>
     </div>
 
@@ -1161,14 +879,11 @@
                 </ul>
                 <div class="hero-buttons">
                     <a href="legal-notice.html" class="btn primary hero-cta">📲 Start My Notice Now</a>
-                    <a href="#consultation" class="btn primary hero-cta" id="bookConsultationHero">Book My
-                        Consultation</a>
+                    <a href="consultation.html" class="btn primary hero-cta">Book My Consultation</a>
                 </div>
                 <div class="trust-badge">
                     <i class="fas fa-star"></i> Trusted by 10,000+ users
                 </div>
-
-                <!-- ⭐ Testimonial Card -->
                 <div class="testimonial-card">
                     <div class="testimonial-photo">
                         <img src="../assets/dr-malpani.png" alt="Dr. Aniruddha Malpani">
@@ -1182,8 +897,6 @@
                         <p class="highlight">If experts trust us, why not you?</p>
                     </div>
                 </div>
-
-
             </div>
             <div class="hero-visual">
                 <!-- Empty to maintain grid layout -->
@@ -1191,14 +904,12 @@
         </div>
     </section>
 
-
     <!-- Testimonials Section -->
     <section class="testimonials" id="testimonials">
         <div class="container" data-aos="fade-up">
             <h2 class="section-title">What Our Users Say</h2>
             <div class="testimonial-carousel swiper">
                 <div class="swiper-wrapper">
-
                     <!-- Testimonial 1 -->
                     <div class="swiper-slide" data-aos="fade-up" data-aos-delay="100">
                         <div class="testimonial-content">
@@ -1211,13 +922,10 @@
                             </div>
                         </div>
                     </div>
-
                     <!-- Testimonial 2 -->
                     <div class="swiper-slide" data-aos="fade-up" data-aos-delay="200">
                         <div class="testimonial-content">
-                            <p>Advocate Shalini L. Tripathi understood my case in depth and acted swiftly. Her drafting
-                                and release of the legal notice was handled with precision and professionalism. Truly
-                                fantastic work — highly recommend her expertise!</p>
+                            <p>Advocate Shalini L. Tripathi understood my case in depth and acted swiftly. Her drafting and release of the legal notice was handled with precision and professionalism. Truly fantastic work — highly recommend her expertise!</p>
                         </div>
                         <div class="testimonial-author">
                             <div class="author-info">
@@ -1226,14 +934,10 @@
                             </div>
                         </div>
                     </div>
-
                     <!-- Testimonial 3 -->
                     <div class="swiper-slide" data-aos="fade-up" data-aos-delay="300">
                         <div class="testimonial-content">
-                            <p>Lexinco provided me with quick actions and helped me draft my legal notice properly.
-                                They sent me the draft for my review, gave me all details, steps, and charges well in
-                                advance, and everything went exactly the way they explained. I will definitely recommend
-                                Lexinco’s services if anyone in my circle needs legal support.</p>
+                            <p>Lexinco provided me with quick actions and helped me draft my legal notice properly. They sent me the draft for my review, gave me all details, steps, and charges well in advance, and everything went exactly the way they explained. I will definitely recommend Lexinco’s services if anyone in my circle needs legal support.</p>
                         </div>
                         <div class="testimonial-author">
                             <div class="author-info">
@@ -1242,7 +946,6 @@
                             </div>
                         </div>
                     </div>
-
                     <!-- Testimonial 4 -->
                     <div class="swiper-slide" data-aos="fade-up" data-aos-delay="400">
                         <div class="testimonial-content">
@@ -1255,13 +958,10 @@
                             </div>
                         </div>
                     </div>
-
                     <!-- Testimonial 5 -->
                     <div class="swiper-slide" data-aos="fade-up" data-aos-delay="500">
                         <div class="testimonial-content">
-                            <p>I’m deeply grateful to Lexinco. They believed in me and my case, and their dedication
-                                paid off. The court order was in my favor, and I’m thankful for their constant support
-                                and encouragement.</p>
+                            <p>I’m deeply grateful to Lexinco. They believed in me and my case, and their dedication paid off. The court order was in my favor, and I’m thankful for their constant support and encouragement.</p>
                         </div>
                         <div class="testimonial-author">
                             <div class="author-info">
@@ -1270,13 +970,10 @@
                             </div>
                         </div>
                     </div>
-
                     <!-- Testimonial 6 -->
                     <div class="swiper-slide" data-aos="fade-up" data-aos-delay="600">
                         <div class="testimonial-content">
-                            <p>Very honest and humane service. I felt Lexinco is genuinely practicing law to help
-                                clients, not just to make money. In short, if I have to refer anyone, I will always
-                                recommend Lexinco.</p>
+                            <p>Very honest and humane service. I felt Lexinco is genuinely practicing law to help clients, not just to make money. In short, if I have to refer anyone, I will always recommend Lexinco.</p>
                         </div>
                         <div class="testimonial-author">
                             <div class="author-info">
@@ -1293,32 +990,20 @@
                         <div class="testimonial-author">
                             <div class="author-info">
                                 <h4>Happy Client</h4>
-
                             </div>
                         </div>
                     </div>
                     <!-- Testimonial 8 -->
                     <div class="swiper-slide" data-aos="fade-up" data-aos-delay="600">
                         <div class="testimonial-content">
-                            <p> Hello Lexinco team,
-                                The legal notice service provided by you at 499/- is very economical. I got connected
-                                with Advocate
-                                Shalini through you and she drafted and sent the legal notice within very short time. I
-                                will
-                                recommend your services in case anyone
-                                Pois in need.
-                                Thank you
-                            </p>
+                            <p>Hello Lexinco team, The legal notice service provided by you at 499/- is very economical. I got connected with Advocate Shalini through you and she drafted and sent the legal notice within very short time. I will recommend your services in case anyone is in need. Thank you</p>
                         </div>
                         <div class="testimonial-author">
                             <div class="author-info">
                                 <h4>Happy Client</h4>
-
                             </div>
                         </div>
                     </div>
-
-
                 </div>
                 <div class="swiper-pagination"></div>
             </div>
@@ -1437,8 +1122,7 @@
                     Is this legally valid? <i class="fas fa-chevron-down"></i>
                 </button>
                 <div class="faq-answer">
-                    Yes, all notices are prepared in proper legal format and reviewed by registered advocates. They are
-                    legally valid and enforceable.
+                    Yes, all notices are prepared in proper legal format and reviewed by registered advocates. They are legally valid and enforceable.
                 </div>
             </div>
             <div class="faq-item">
@@ -1446,8 +1130,7 @@
                     Will a real lawyer see it? <i class="fas fa-chevron-down"></i>
                 </button>
                 <div class="faq-answer">
-                    Absolutely. Every notice is reviewed by independent registered advocates before delivery to ensure
-                    legal accuracy.
+                    Absolutely. Every notice is reviewed by independent registered advocates before delivery to ensure legal accuracy.
                 </div>
             </div>
             <div class="faq-item">
@@ -1455,8 +1138,7 @@
                     How do I send the notice? <i class="fas fa-chevron-down"></i>
                 </button>
                 <div class="faq-answer">
-                    We provide a complete sending guide with your download, including email templates and postal service
-                    options.
+                    We provide a complete sending guide with your download, including email templates and postal service options.
                 </div>
             </div>
             <div class="faq-item">
@@ -1464,9 +1146,7 @@
                     Is this free? <i class="fas fa-chevron-down"></i>
                 </button>
                 <div class="faq-answer">
-                    No, we are now charging ₹499 for the complete legal notice service. This includes the advocate
-                    review and a downloadable copy, ensuring you get a professional, ready-to-use document at an
-                    affordable price.
+                    No, we are now charging ₹499 for the complete legal notice service. This includes the advocate review and a downloadable copy, ensuring you get a professional, ready-to-use document at an affordable price.
                 </div>
             </div>
             <div class="faq-item">
@@ -1474,8 +1154,7 @@
                     Can I get a refund? <i class="fas fa-chevron-down"></i>
                 </button>
                 <div class="faq-answer">
-                    Yes, we offer a 100% money-back guarantee if you’re not satisfied with the quality of your legal
-                    notice.
+                    Yes, we offer a 100% money-back guarantee if you’re not satisfied with the quality of your legal notice.
                 </div>
             </div>
         </div>
@@ -1524,8 +1203,7 @@
     </div>
 
     <!-- WhatsApp Help Button -->
-    <a href="https://wa.me/+918329186509?text=Hello,%20I%20need%20assistance%20with%20Lexinco's%20legal%20notice%20generator."
-        class="whatsapp-help" target="_blank">
+    <a href="https://wa.me/+918329186509?text=Hello,%20I%20need%20assistance%20with%20Lexinco's%20legal%20notice%20generator." class="whatsapp-help" target="_blank">
         <i class="fab fa-whatsapp"></i> May I Help You?
     </a>
 
@@ -1602,91 +1280,6 @@
                 toggleActions: 'play none none none'
             }
         });
-        // Consultation Modal Handling
-        const consultationModal = document.getElementById('consultationModal');
-        const bookConsultationBtn = document.getElementById('bookConsultation');
-        const bookConsultationHeroBtn = document.getElementById('bookConsultationHero');
-        const closeConsultationModal = document.getElementById('closeConsultationModal');
-        const cancelConsultationBtn = document.getElementById('cancelConsultation');
-        const consultationForm = document.getElementById('consultationForm');
-        const successMessage = document.getElementById('successMessage');
-        const submitButton = document.getElementById('submitConsultation');
-        const BASE_URL = window.location.origin;
-
-        // Event listeners for both consultation buttons
-        [bookConsultationBtn, bookConsultationHeroBtn].forEach(btn => {
-            if (btn) {
-                btn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    consultationModal.style.display = 'flex';
-                    consultationForm.style.display = 'block';
-                    successMessage.style.display = 'none';
-                });
-            }
-        });
-
-        closeConsultationModal.addEventListener('click', () => {
-            consultationModal.style.display = 'none';
-            consultationForm.reset();
-            consultationForm.style.display = 'block';
-            successMessage.style.display = 'none';
-            submitButton.classList.remove('loading');
-            submitButton.disabled = false;
-        });
-
-        cancelConsultationBtn.addEventListener('click', () => {
-            consultationModal.style.display = 'none';
-            consultationForm.reset();
-            consultationForm.style.display = 'block';
-            successMessage.style.display = 'none';
-            submitButton.classList.remove('loading');
-            submitButton.disabled = false;
-        });
-
-        consultationForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            submitButton.classList.add('loading');
-            submitButton.disabled = true;
-
-            const formData = new FormData(consultationForm);
-            const data = {
-                name: formData.get('name'),
-                phone: formData.get('phone'),
-                email: formData.get('email'),
-                matter: formData.get('matter'),
-                timeslot: formData.get('timeslot'),
-                timestamp: new Date().toISOString()
-            };
-
-            try {
-                const response = await fetch(`${BASE_URL}/api/proxy/consultation`, {
-                    method: 'POST',
-                    body: JSON.stringify(data),
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                const responseData = await response.json();
-                submitButton.classList.remove('loading');
-                submitButton.disabled = false;
-
-                if (response.ok && responseData.status === 'success') {
-                    consultationForm.style.display = 'none';
-                    successMessage.style.display = 'block';
-                    setTimeout(() => {
-                        consultationModal.style.display = 'none';
-                        consultationForm.style.display = 'block';
-                        successMessage.style.display = 'none';
-                        consultationForm.reset();
-                    }, 10000);
-                } else {
-                    throw new Error(responseData.error || 'Failed to submit consultation request');
-                }
-            } catch (error) {
-                submitButton.classList.remove('loading');
-                submitButton.disabled = false;
-                console.error('Error submitting consultation:', error);
-                alert(`Error submitting consultation request: ${error.message}. Please try again or contact support.`);
-            }
-        });
 
         // Use Case Redirection
         function selectUseCase(type) {
@@ -1727,5 +1320,4 @@
         });
     </script>
 </body>
-
 </html>

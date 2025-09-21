@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lexinco - Thank You</title>
+    <link rel="stylesheet" href="css/landing.css">
+    <link rel="stylesheet" href="css/whatsapp.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1e293b;
+            --secondary-color: #3b82f6;
+            --accent-color: #ef4444;
+            --white: #ffffff;
+            --gray: #f1f5f9;
+            --text-light: #64748b;
+            --border-radius: 10px;
+            --shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--gray);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .thank-you-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: var(--white);
+            border-radius: 25px;
+            box-shadow: var(--shadow);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .thank-you-container h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .success-message {
+            color: var(--secondary-color);
+            font-size: 1.1rem;
+            padding: 15px;
+            background-color: #e8f4f8;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+        }
+
+        .btn.primary {
+            background-color: var(--secondary-color);
+            color: var(--white);
+            border: none;
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn.primary:hover {
+            background-color: #2980b9;
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 600px) {
+            .thank-you-container {
+                width: 90%;
+                margin: 20px auto;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="thank-you-container">
+        <h2>Thank You for Your Submission</h2>
+        <div class="success-message">
+            Your consultation request has been submitted successfully! Our Advocate will contact you soon.
+        </div>
+        <a href="index.html" class="btn primary">Return to Home</a>
+    </div>
+    <script>
+        // Track lead conversion
+        fbq('track', 'Lead');
+        gtag('event', 'conversion', { 'send_to': 'G-ZEHSS991MC/lead' });
+    </script>
+</body>
+</html>
