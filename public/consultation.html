@@ -16,16 +16,13 @@
         content="Generate professional legal notices in minutes — smart, fast, and affordable with Lexinco.">
     <meta name="twitter:image" content="https://www.lexinco.com/social-preview-v2.jpeg">
     <link rel="canonical" href="https://lexinco.com/consultation.html">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lexinco - Book a Consultation</title>
-    <link rel="stylesheet" href="css/landing.css">
-    <link rel="stylesheet" href="css/whatsapp.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
+    <!-- Font Awesome CDN for fa-phone and fa-envelope -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer">
+    <!-- Poppins font hosted locally -->
+    <link rel="stylesheet" href="/css/poppins-subset.css">
     <style>
         :root {
             --primary-color: #1e293b;
@@ -68,11 +65,14 @@
         .consult-hero .overlay {
             position: absolute;
             inset: 0;
-            background: url('https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1920&q=60') center/cover no-repeat,
+            background: url('/images/hero-bg.jpg') center/cover no-repeat,
                 url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"%3E%3Cpath fill="%23ffffff" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z"%3E%3C/path%3E%3C/svg%3E') bottom/contain no-repeat;
             opacity: 0.15;
             filter: blur(3px);
             z-index: -1;
+            background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"%3E%3Cpath fill="%23ffffff" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z"%3E%3C/path%3E%3C/svg%3E');
+            background-size: cover, contain;
+            background-position: center, bottom;
         }
 
         .consult-hero .header-text {
@@ -113,7 +113,7 @@
 
         /* Contact Info */
         .contact-info {
-            flex: 0 0 35%;
+            flex: 0 0 40%;
             background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
             padding: 24px;
             display: flex;
@@ -180,21 +180,21 @@
 
         /* Consultation Form */
         .consultation-container {
-            flex: 0 0 65%;
-            padding: 32px;
+            flex: 0 0 60%;
+            padding: 40px 32px;
             background: var(--white);
         }
 
         .consultation-container h2 {
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             font-weight: 600;
             color: var(--primary-color);
-            margin-bottom: 16px;
+            margin-bottom: 20px;
             text-align: center;
         }
 
         .consultation-form .form-group {
-            margin-bottom: 14px;
+            margin-bottom: 20px;
             opacity: 0;
             animation: slideIn 0.5s ease forwards;
             animation-delay: calc(0.1s * var(--animation-order));
@@ -202,10 +202,10 @@
 
         .consultation-form label {
             display: block;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             font-weight: 500;
             color: var(--primary-color);
-            font-size: 0.9rem;
+            font-size: 1rem;
         }
 
         .consultation-form label.required::after {
@@ -217,10 +217,10 @@
         .consultation-form select,
         .consultation-form textarea {
             width: 100%;
-            padding: 8px 12px;
+            padding: 12px 16px;
             border: 1px solid #e5e7eb;
-            border-radius: 6px;
-            font-size: 0.9rem;
+            border-radius: 8px;
+            font-size: 1rem;
             font-family: 'Poppins', sans-serif;
             background: #fafafa;
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
@@ -233,42 +233,43 @@
             border: 1px solid transparent;
             background: linear-gradient(var(--white), var(--white)) padding-box,
                 linear-gradient(90deg, var(--secondary-color), var(--accent-color)) border-box;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
         }
 
         .consultation-form textarea {
-            min-height: 80px;
+            min-height: 100px;
             resize: vertical;
         }
 
         .consultation-form .form-navigation {
             display: flex;
             justify-content: flex-end;
-            gap: 8px;
-            margin-top: 16px;
+            gap: 12px;
+            margin-top: 20px;
         }
 
         .consultation-form .btn {
-            padding: 8px 20px;
-            border-radius: 6px;
-            font-size: 0.9rem;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
+            min-width: 100px;
         }
 
         .consultation-form .btn.primary {
             background: var(--secondary-color);
             color: var(--white);
             border: none;
-            box-shadow: 0 3px 10px rgba(59, 130, 246, 0.3);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
         }
 
         .consultation-form .btn.primary:hover {
             background: #2563eb;
             transform: translateY(-2px);
-            box-shadow: 0 5px 14px rgba(59, 130, 246, 0.4);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
         }
 
         .consultation-form .btn.primary:disabled {
@@ -290,11 +291,11 @@
 
         .loader {
             display: none;
-            border: 2px solid #f3f3f3;
-            border-top: 2px solid var(--secondary-color);
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--secondary-color);
             border-radius: 50%;
-            width: 16px;
-            height: 16px;
+            width: 20px;
+            height: 20px;
             animation: spin 1s linear infinite;
             position: absolute;
             top: 50%;
@@ -374,13 +375,13 @@
             }
 
             .contact-info {
-                flex: 0 0 40%;
-                padding: 16px;
+                flex: 0 0 45%;
+                padding: 20px;
             }
 
             .consultation-container {
-                flex: 0 0 60%;
-                padding: 20px;
+                flex: 0 0 55%;
+                padding: 28px 20px;
             }
 
             .consult-hero {
@@ -396,34 +397,36 @@
             }
 
             .consultation-container h2 {
-                font-size: 1.4rem;
-                margin-bottom: 14px;
+                font-size: 1.5rem;
+                margin-bottom: 16px;
             }
 
             .consultation-form .form-group {
-                margin-bottom: 12px;
+                margin-bottom: 16px;
             }
 
             .consultation-form label {
-                font-size: 0.85rem;
+                font-size: 0.9rem;
+                margin-bottom: 6px;
             }
 
             .consultation-form input,
             .consultation-form select,
             .consultation-form textarea {
-                padding: 7px 10px;
-                font-size: 0.85rem;
-                border-radius: 5px;
+                padding: 10px 12px;
+                font-size: 0.9rem;
+                border-radius: 6px;
             }
 
             .consultation-form textarea {
-                min-height: 70px;
+                min-height: 90px;
             }
 
             .consultation-form .btn {
-                padding: 7px 16px;
-                font-size: 0.85rem;
-                border-radius: 5px;
+                padding: 10px 20px;
+                font-size: 0.9rem;
+                border-radius: 6px;
+                min-width: 90px;
             }
 
             .contact-info h2 {
@@ -456,8 +459,8 @@
             }
 
             .loader {
-                width: 14px;
-                height: 14px;
+                width: 16px;
+                height: 16px;
                 border-width: 2px;
             }
         }
@@ -469,12 +472,12 @@
 
             .contact-info {
                 flex: 0 0 45%;
-                padding: 12px;
+                padding: 16px;
             }
 
             .consultation-container {
                 flex: 0 0 55%;
-                padding: 16px;
+                padding: 24px 16px;
             }
 
             .consult-hero {
@@ -490,34 +493,36 @@
             }
 
             .consultation-container h2 {
-                font-size: 1.3rem;
-                margin-bottom: 12px;
+                font-size: 1.4rem;
+                margin-bottom: 14px;
             }
 
             .consultation-form .form-group {
-                margin-bottom: 10px;
+                margin-bottom: 14px;
             }
 
             .consultation-form label {
-                font-size: 0.8rem;
+                font-size: 0.85rem;
+                margin-bottom: 5px;
             }
 
             .consultation-form input,
             .consultation-form select,
             .consultation-form textarea {
-                padding: 6px 8px;
-                font-size: 0.8rem;
-                border-radius: 4px;
+                padding: 8px 10px;
+                font-size: 0.85rem;
+                border-radius: 5px;
             }
 
             .consultation-form textarea {
-                min-height: 60px;
+                min-height: 80px;
             }
 
             .consultation-form .btn {
-                padding: 6px 14px;
-                font-size: 0.8rem;
-                border-radius: 4px;
+                padding: 8px 16px;
+                font-size: 0.85rem;
+                border-radius: 5px;
+                min-width: 80px;
             }
 
             .contact-info h2 {
@@ -550,12 +555,26 @@
             }
 
             .loader {
-                width: 12px;
-                height: 12px;
+                width: 14px;
+                height: 14px;
                 border-width: 1.5px;
             }
         }
     </style>
+    <!-- Inline critical CSS for above-the-fold content -->
+    <style>
+        .consult-hero {
+            visibility: visible;
+        }
+
+        .consult-wrapper {
+            visibility: visible;
+        }
+    </style>
+    <!-- Defer non-critical CSS -->
+    <link rel="stylesheet" href="/css/non-critical.min.css" media="print" onload="this.media='all'">
+    <!-- Preload hero background image -->
+    <link rel="preload" href="/images/hero-bg.jpg" as="image">
 </head>
 
 <body>
@@ -633,6 +652,16 @@
     </div>
 
     <script>
+        // Lazy-load hero background image
+        document.addEventListener('DOMContentLoaded', () => {
+            const overlay = document.querySelector('.consult-hero .overlay');
+            const img = new Image();
+            img.src = '/images/hero-bg.jpg';
+            img.onload = () => {
+                overlay.style.backgroundImage = `url('/images/hero-bg.jpg'), url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"%3E%3Cpath fill="%23ffffff" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z"%3E%3C/path%3E%3C/svg%3E')`;
+            };
+        });
+
         const consultationForm = document.getElementById('consultationForm');
         const submitButton = document.getElementById('submitConsultation');
         const BASE_URL = window.location.origin;
