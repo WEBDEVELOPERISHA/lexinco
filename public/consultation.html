@@ -17,23 +17,36 @@
     <meta name="twitter:image" content="https://www.lexinco.com/social-preview-v2.jpeg">
     <link rel="canonical" href="https://lexinco.com/consultation.html">
     <title>Lexinco - Book a Consultation</title>
-    <!-- Font Awesome CDN for fa-phone and fa-envelope -->
+    <!-- Font Awesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
         integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
         crossorigin="anonymous" referrerpolicy="no-referrer">
-    <!-- Poppins font hosted locally -->
-    <link rel="stylesheet" href="/css/poppins-subset.css">
+    <!-- Google Fonts: Inter -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
     <style>
         :root {
             --primary-color: #1e293b;
             --secondary-color: #3b82f6;
             --accent-color: #ef4444;
+            --success-color: #10b981;
+            --error-color: #ef4444;
             --white: #ffffff;
-            --gray: #f1f5f9;
-            --text-light: #64748b;
-            --border-radius: 10px;
-            --shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-            --gradient-bg: linear-gradient(135deg, #f3f4f6 0%, #e2e8f0 100%);
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --border-radius: 16px;
+            --border-radius-sm: 8px;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --gradient-primary: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            --gradient-secondary: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+            --gradient-bg: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * {
@@ -41,303 +54,478 @@
         }
 
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Inter', sans-serif;
             background: var(--gradient-bg);
             margin: 0;
             padding: 0;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            color: var(--gray-600);
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        /* Floating background elements */
+        .floating-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .floating-shapes::before,
+        .floating-shapes::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .floating-shapes::before {
+            width: 300px;
+            height: 300px;
+            background: var(--gradient-primary);
+            top: 10%;
+            right: 10%;
+            animation-delay: 0s;
+        }
+
+        .floating-shapes::after {
+            width: 200px;
+            height: 200px;
+            background: var(--gradient-secondary);
+            bottom: 20%;
+            left: 15%;
+            animation-delay: 10s;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+            }
         }
 
         /* Hero Section */
         .consult-hero {
             width: 100%;
-            padding: 40px 16px;
-            background: linear-gradient(120deg, var(--secondary-color) 0%, #2563eb 100%);
+            padding: 60px 20px 80px;
+            background: var(--gradient-primary);
             position: relative;
             overflow: hidden;
             text-align: center;
-            z-index: 0;
+            margin-bottom: -40px;
         }
 
-        .consult-hero .overlay {
+        .consult-hero::before {
+            content: '';
             position: absolute;
-            inset: 0;
-            background: url('/images/hero-bg.jpg') center/cover no-repeat,
-                url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"%3E%3Cpath fill="%23ffffff" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z"%3E%3C/path%3E%3C/svg%3E') bottom/contain no-repeat;
-            opacity: 0.15;
-            filter: blur(3px);
-            z-index: -1;
-            background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"%3E%3Cpath fill="%23ffffff" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z"%3E%3C/path%3E%3C/svg%3E');
-            background-size: cover, contain;
-            background-position: center, bottom;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse"><path d="M 50 0 L 0 0 0 50" fill="none" stroke="white" stroke-width="1" opacity="0.1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
         }
 
-        .consult-hero .header-text {
+        .hero-content {
             position: relative;
-            z-index: 1;
+            z-index: 2;
+            max-width: 800px;
+            margin: 0 auto;
             color: var(--white);
-            padding: 16px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .consult-hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 0 0 16px 0;
+            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+        }
+
+        .consult-hero p {
+            font-size: 1.25rem;
+            font-weight: 400;
+            opacity: 0.9;
             max-width: 600px;
             margin: 0 auto;
         }
 
-        .consult-hero h1 {
-            font-size: 2rem;
-            font-weight: 600;
-            margin-bottom: 10px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        /* Main Container */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
         }
 
-        .consult-hero p {
-            font-size: 0.95rem;
-            font-weight: 300;
-            opacity: 0.9;
-        }
-
-        /* Consultation Wrapper */
-        .consult-wrapper {
-            max-width: 960px;
-            margin: 16px auto;
-            display: flex;
-            flex-direction: row;
-            flex-wrap: nowrap;
+        /* Consultation Card */
+        .consult-card {
             background: var(--white);
             border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
+            box-shadow: var(--shadow-lg);
             overflow: hidden;
-            animation: fadeInUp 0.6s ease-out;
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            min-height: 600px;
+            animation: slideUp 0.8s ease-out;
         }
 
-        /* Contact Info */
-        .contact-info {
-            flex: 0 0 40%;
-            background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
-            padding: 24px;
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Contact Info Panel */
+        .contact-panel {
+            background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+
+        .contact-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 1px;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent, var(--gray-200), transparent);
+        }
+
+        .contact-header h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0 0 8px 0;
+        }
+
+        .contact-tagline {
+            font-size: 1rem;
+            color: var(--gray-500);
+            margin: 0 0 32px 0;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-radius: var(--border-radius-sm);
+            transition: var(--transition);
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .contact-item:hover {
+            background: var(--white);
+            box-shadow: var(--shadow);
+            transform: translateX(4px);
+            border-color: var(--gray-200);
+        }
+
+        .contact-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--gradient-primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .contact-icon i {
+            font-size: 18px;
+            color: var(--white);
+        }
+
+        .contact-details h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin: 0 0 4px 0;
+        }
+
+        .contact-details p {
+            margin: 2px 0;
+            font-size: 0.95rem;
+            color: var(--gray-500);
+        }
+
+        .contact-details a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .contact-details a:hover {
+            color: var(--accent-color);
+        }
+
+        /* Form Panel */
+        .form-panel {
+            padding: 40px;
             display: flex;
             flex-direction: column;
             justify-content: center;
         }
 
-        .contact-info h2 {
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: var(--primary-color);
-            margin-bottom: 10px;
-        }
-
-        .contact-info .tagline {
-            font-size: 0.85rem;
-            color: var(--text-light);
-            margin-bottom: 16px;
-        }
-
-        .info-block {
-            display: flex;
-            align-items: flex-start;
-            gap: 8px;
-            margin-bottom: 12px;
-            padding: 6px;
-            border-radius: 6px;
-            transition: transform 0.3s ease, background 0.3s ease;
-        }
-
-        .info-block:hover {
-            transform: translateX(4px);
-            background: rgba(59, 130, 246, 0.05);
-        }
-
-        .info-block i {
-            font-size: 1rem;
-            color: var(--secondary-color);
-            margin-top: 2px;
-        }
-
-        .info-block div {
-            flex: 1;
-        }
-
-        .info-block strong {
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: var(--primary-color);
-        }
-
-        .info-block p,
-        .info-block a {
-            font-size: 0.8rem;
-            color: var(--text-light);
-            margin: 2px 0;
-            text-decoration: none;
-        }
-
-        .info-block a:hover {
-            color: var(--secondary-color);
-            text-decoration: underline;
-        }
-
-        /* Consultation Form */
-        .consultation-container {
-            flex: 0 0 60%;
-            padding: 40px 32px;
-            background: var(--white);
-        }
-
-        .consultation-container h2 {
-            font-size: 1.6rem;
-            font-weight: 600;
-            color: var(--primary-color);
-            margin-bottom: 20px;
+        .form-header {
             text-align: center;
+            margin-bottom: 32px;
         }
 
+        .form-header h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0 0 8px 0;
+        }
+
+        .form-header p {
+            color: var(--gray-500);
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        /* Form Styles */
         .consultation-form .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 24px;
             opacity: 0;
-            animation: slideIn 0.5s ease forwards;
+            animation: slideIn 0.6s ease forwards;
             animation-delay: calc(0.1s * var(--animation-order));
         }
 
-        .consultation-form label {
+        .form-group label {
             display: block;
             margin-bottom: 8px;
-            font-weight: 500;
+            font-weight: 600;
             color: var(--primary-color);
-            font-size: 1rem;
+            font-size: 0.95rem;
         }
 
-        .consultation-form label.required::after {
+        .form-group label.required::after {
             content: ' *';
-            color: var(--accent-color);
+            color: var(--error-color);
         }
 
-        .consultation-form input,
-        .consultation-form select,
-        .consultation-form textarea {
+        .input-wrapper {
+            position: relative;
+        }
+
+        .form-control {
             width: 100%;
-            padding: 12px 16px;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
+            padding: 14px 18px;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--border-radius-sm);
             font-size: 1rem;
-            font-family: 'Poppins', sans-serif;
-            background: #fafafa;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            font-family: inherit;
+            background: var(--white);
+            transition: var(--transition);
+            appearance: none;
         }
 
-        .consultation-form input:focus,
-        .consultation-form select:focus,
-        .consultation-form textarea:focus {
+        .form-control:focus {
             outline: none;
-            border: 1px solid transparent;
-            background: linear-gradient(var(--white), var(--white)) padding-box,
-                linear-gradient(90deg, var(--secondary-color), var(--accent-color)) border-box;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
         }
 
-        .consultation-form textarea {
-            min-height: 100px;
+        .form-control.invalid {
+            border-color: var(--error-color);
+        }
+
+        .form-control.valid {
+            border-color: var(--success-color);
+        }
+
+        .form-control::placeholder {
+            color: var(--gray-400);
+        }
+
+        textarea.form-control {
+            min-height: 120px;
             resize: vertical;
         }
 
-        .consultation-form .form-navigation {
+        select.form-control {
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 20px;
+            padding-right: 48px;
+        }
+
+        /* Form Actions */
+        .form-actions {
             display: flex;
+            gap: 16px;
             justify-content: flex-end;
-            gap: 12px;
-            margin-top: 20px;
+            margin-top: 32px;
         }
 
-        .consultation-form .btn {
-            padding: 12px 24px;
-            border-radius: 8px;
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 28px;
+            border-radius: var(--border-radius-sm);
             font-size: 1rem;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            min-width: 100px;
-        }
-
-        .consultation-form .btn.primary {
-            background: var(--secondary-color);
-            color: var(--white);
+            transition: var(--transition);
+            text-decoration: none;
             border: none;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            position: relative;
+            overflow: hidden;
         }
 
-        .consultation-form .btn.primary:hover {
-            background: #2563eb;
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: var(--white);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-primary:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+            box-shadow: var(--shadow-lg);
         }
 
-        .consultation-form .btn.primary:disabled {
-            background: #9ca3af;
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.7;
             cursor: not-allowed;
-            box-shadow: none;
+            transform: none;
         }
 
-        .consultation-form .btn.secondary {
-            background: transparent;
-            color: var(--primary-color);
-            border: 1px solid var(--primary-color);
+        .btn-secondary {
+            background: var(--white);
+            color: var(--gray-600);
+            border: 2px solid var(--gray-200);
         }
 
-        .consultation-form .btn.secondary:hover {
-            background: var(--gray);
-            transform: translateY(-2px);
+        .btn-secondary:hover {
+            background: var(--gray-50);
+            border-color: var(--gray-300);
         }
 
-        .loader {
-            display: none;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid var(--secondary-color);
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
+        /* Loading Animation */
+        .btn-loading {
+            pointer-events: none;
+        }
+
+        .btn-loading .btn-text {
+            opacity: 0;
+        }
+
+        .loading-spinner {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid var(--white);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            opacity: 0;
+        }
+
+        .btn-loading .loading-spinner {
+            opacity: 1;
         }
 
         @keyframes spin {
-            0% {
-                transform: translate(-50%, -50%) rotate(0deg);
-            }
-
-            100% {
-                transform: translate(-50%, -50%) rotate(360deg);
-            }
-        }
-
-        .btn.primary.loading .loader {
-            display: inline-block;
-        }
-
-        .btn.primary.loading span {
-            visibility: hidden;
-        }
-
-        /* Animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px) scale(0.98);
-            }
-
             to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
+                transform: translate(-50%, -50%) rotate(360deg);
             }
         }
 
         @keyframes slideIn {
             from {
                 opacity: 0;
-                transform: translateX(20px);
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            border-radius: var(--border-radius-sm);
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            max-width: 400px;
+            animation: slideInRight 0.3s ease;
+            display: none;
+        }
+
+        .notification-success {
+            background: var(--success-color);
+            color: var(--white);
+        }
+
+        .notification-error {
+            background: var(--error-color);
+            color: var(--white);
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
             }
 
             to {
@@ -346,7 +534,7 @@
             }
         }
 
-        /* Form group animation order */
+        /* Animation delays for form fields */
         .form-group:nth-child(1) {
             --animation-order: 1;
         }
@@ -368,24 +556,111 @@
         }
 
         /* Responsive Design */
+        @media (max-width: 1024px) {
+            .consult-card {
+                grid-template-columns: 1fr 1.5fr;
+                /* Maintain side-by-side layout */
+                max-width: 800px;
+                margin: 0 auto;
+            }
+
+            .contact-panel {
+                padding: 24px;
+                /* Reduced padding for better fit */
+            }
+
+            .form-panel {
+                padding: 24px;
+                /* Reduced padding for better fit */
+            }
+        }
+
         @media (max-width: 768px) {
-            .consult-wrapper {
-                max-width: 90%;
-                margin: 12px auto;
-            }
-
-            .contact-info {
-                flex: 0 0 45%;
-                padding: 20px;
-            }
-
-            .consultation-container {
-                flex: 0 0 55%;
-                padding: 28px 20px;
+            .main-container {
+                padding: 0 12px;
             }
 
             .consult-hero {
-                padding: 32px 12px;
+                padding: 32px 12px 48px;
+                margin-bottom: -24px;
+            }
+
+            .consult-hero h1 {
+                font-size: 2rem;
+            }
+
+            .consult-hero p {
+                font-size: 1rem;
+            }
+
+            .consult-card {
+                grid-template-columns: 1fr 1.5fr;
+                /* Maintain side-by-side layout */
+            }
+
+            .contact-panel,
+            .form-panel {
+                padding: 20px;
+            }
+
+            .contact-header h2,
+            .form-header h2 {
+                font-size: 1.5rem;
+            }
+
+            .contact-item {
+                padding: 12px;
+                gap: 12px;
+            }
+
+            .contact-icon {
+                width: 36px;
+                height: 36px;
+            }
+
+            .contact-icon i {
+                font-size: 14px;
+            }
+
+            .contact-details h3 {
+                font-size: 0.95rem;
+            }
+
+            .contact-details p,
+            .contact-details a {
+                font-size: 0.85rem;
+            }
+
+            .form-group label {
+                font-size: 0.9rem;
+            }
+
+            .form-control {
+                padding: 12px 16px;
+                font-size: 0.9rem;
+            }
+
+            select.form-control {
+                padding-right: 40px;
+                background-size: 18px;
+            }
+
+            .form-actions {
+                flex-direction: row;
+                /* Keep buttons side-by-side */
+                gap: 12px;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+                min-width: 100px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .consult-hero {
+                padding: 24px 10px 40px;
             }
 
             .consult-hero h1 {
@@ -396,312 +671,395 @@
                 font-size: 0.9rem;
             }
 
-            .consultation-container h2 {
-                font-size: 1.5rem;
-                margin-bottom: 16px;
+            .consult-card {
+                grid-template-columns: 1fr 1.5fr;
+                /* Maintain side-by-side layout */
             }
 
-            .consultation-form .form-group {
-                margin-bottom: 16px;
-            }
-
-            .consultation-form label {
-                font-size: 0.9rem;
-                margin-bottom: 6px;
-            }
-
-            .consultation-form input,
-            .consultation-form select,
-            .consultation-form textarea {
-                padding: 10px 12px;
-                font-size: 0.9rem;
-                border-radius: 6px;
-            }
-
-            .consultation-form textarea {
-                min-height: 90px;
-            }
-
-            .consultation-form .btn {
-                padding: 10px 20px;
-                font-size: 0.9rem;
-                border-radius: 6px;
-                min-width: 90px;
-            }
-
-            .contact-info h2 {
-                font-size: 1.2rem;
-                margin-bottom: 8px;
-            }
-
-            .contact-info .tagline {
-                font-size: 0.8rem;
-                margin-bottom: 12px;
-            }
-
-            .info-block {
-                gap: 6px;
-                margin-bottom: 10px;
-                padding: 5px;
-            }
-
-            .info-block i {
-                font-size: 0.9rem;
-            }
-
-            .info-block strong {
-                font-size: 0.85rem;
-            }
-
-            .info-block p,
-            .info-block a {
-                font-size: 0.75rem;
-            }
-
-            .loader {
-                width: 16px;
-                height: 16px;
-                border-width: 2px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .consult-wrapper {
-                max-width: 95%;
-            }
-
-            .contact-info {
-                flex: 0 0 45%;
+            .contact-panel,
+            .form-panel {
                 padding: 16px;
             }
 
-            .consultation-container {
-                flex: 0 0 55%;
-                padding: 24px 16px;
-            }
-
-            .consult-hero {
-                padding: 24px 10px;
-            }
-
-            .consult-hero h1 {
-                font-size: 1.6rem;
-            }
-
-            .consult-hero p {
+            .form-control {
+                padding: 10px 14px;
                 font-size: 0.85rem;
             }
 
-            .consultation-container h2 {
-                font-size: 1.4rem;
-                margin-bottom: 14px;
+            select.form-control {
+                padding-right: 36px;
+                background-size: 16px;
             }
 
-            .consultation-form .form-group {
-                margin-bottom: 14px;
-            }
-
-            .consultation-form label {
-                font-size: 0.85rem;
-                margin-bottom: 5px;
-            }
-
-            .consultation-form input,
-            .consultation-form select,
-            .consultation-form textarea {
-                padding: 8px 10px;
-                font-size: 0.85rem;
-                border-radius: 5px;
-            }
-
-            .consultation-form textarea {
-                min-height: 80px;
-            }
-
-            .consultation-form .btn {
+            .btn {
                 padding: 8px 16px;
                 font-size: 0.85rem;
-                border-radius: 5px;
-                min-width: 80px;
+                min-width: 90px;
             }
 
-            .contact-info h2 {
-                font-size: 1.1rem;
-                margin-bottom: 6px;
+            .contact-header h2,
+            .form-header h2 {
+                font-size: 1.3rem;
             }
 
-            .contact-info .tagline {
-                font-size: 0.75rem;
-                margin-bottom: 10px;
-            }
-
-            .info-block {
-                gap: 5px;
-                margin-bottom: 8px;
-                padding: 4px;
-            }
-
-            .info-block i {
+            .contact-tagline,
+            .form-header p {
                 font-size: 0.85rem;
             }
 
-            .info-block strong {
+            .contact-item {
+                padding: 10px;
+                gap: 10px;
+            }
+
+            .contact-icon {
+                width: 32px;
+                height: 32px;
+            }
+
+            .contact-icon i {
+                font-size: 12px;
+            }
+
+            .contact-details h3 {
+                font-size: 0.9rem;
+            }
+
+            .contact-details p,
+            .contact-details a {
                 font-size: 0.8rem;
             }
 
-            .info-block p,
-            .info-block a {
-                font-size: 0.7rem;
+            .floating-shapes::before {
+                width: 150px;
+                height: 150px;
             }
 
-            .loader {
-                width: 14px;
-                height: 14px;
-                border-width: 1.5px;
+            .floating-shapes::after {
+                width: 100px;
+                height: 100px;
+            }
+
+            .notification {
+                right: 10px;
+                left: 10px;
+                max-width: calc(100% - 20px);
+                padding: 12px 20px;
+                font-size: 0.85rem;
+            }
+        }
+
+        /* Accessibility improvements */
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Focus states for keyboard navigation */
+        .btn:focus,
+        .form-control:focus {
+            outline: 2px solid var(--secondary-color);
+            outline-offset: 2px;
+        }
+
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            :root {
+                --gray-200: #000000;
+                --gray-500: #000000;
+                --secondary-color: #0000ff;
+                --accent-color: #ff0000;
             }
         }
     </style>
-    <!-- Inline critical CSS for above-the-fold content -->
-    <style>
-        .consult-hero {
-            visibility: visible;
-        }
-
-        .consult-wrapper {
-            visibility: visible;
-        }
-    </style>
-    <!-- Defer non-critical CSS -->
-    <link rel="stylesheet" href="/css/non-critical.min.css" media="print" onload="this.media='all'">
     <!-- Preload hero background image -->
     <link rel="preload" href="/images/hero-bg.jpg" as="image">
 </head>
 
 <body>
+    <div class="floating-shapes"></div>
+
     <section class="consult-hero">
-        <div class="overlay"></div>
-        <div class="header-text">
-            <h1>Book Your Legal Consultation</h1>
-            <p>Connect with our expert advocates to discuss your legal needs.</p>
+        <div class="hero-content">
+            <div class="hero-badge">
+                <i class="fas fa-calendar-check"></i>
+                Free Initial Consultation
+            </div>
+            <h1>Expert Legal Consultation</h1>
+            <p>Connect with our experienced advocates to discuss your legal needs and get professional guidance.</p>
         </div>
     </section>
 
-    <div class="consult-wrapper">
-        <!-- Contact Info -->
-        <aside class="contact-info">
-            <h2>Get in Touch</h2>
-            <p class="tagline">We’re here to answer your questions</p>
-            <div class="info-block">
-                <i class="fa-solid fa-phone" aria-hidden="true"></i>
-                <div>
-                    <strong>Call</strong>
-                    <p><a href="tel:+918329186509" aria-label="Call Lexinco at +91-8329186509">+91-8329186509</a></p>
+    <div class="main-container">
+        <div class="consult-card">
+            <!-- Contact Info Panel -->
+            <div class="contact-panel">
+                <div class="contact-header">
+                    <h2>Let's Connect</h2>
+                    <p class="contact-tagline">Multiple ways to reach our legal experts</p>
                 </div>
-            </div>
-            <div class="info-block">
-                <i class="fa-solid fa-envelope" aria-hidden="true"></i>
-                <div>
-                    <strong>Email</strong>
-                    <p><a href="mailto:info@lexinco.com"
-                            aria-label="Email Lexinco at info@lexinco.com">info@lexinco.com</a></p>
-                    <p><a href="mailto:support@lexinco.com"
-                            aria-label="Email Lexinco support at support@lexinco.com">support@lexinco.com</a></p>
-                </div>
-            </div>
-        </aside>
 
-        <!-- Consultation Form -->
-        <div class="consultation-container">
-            <h2>Schedule a Consultation</h2>
-            <form id="consultationForm" class="consultation-form">
-                <div class="form-group">
-                    <label for="consultName" class="required">Full Name</label>
-                    <input type="text" id="consultName" name="name" required aria-label="Full Name">
+                <div class="contact-item" onclick="window.location.href='tel:+918329186509'">
+                    <div class="contact-icon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <div class="contact-details">
+                        <h3>Call Us</h3>
+                        <p><a href="tel:+918329186509" aria-label="Call Lexinco at +91-8329186509">+91-8329186509</a>
+                        </p>
+                        <p>Available 9 AM - 6 PM</p>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="consultPhone" class="required">Phone Number</label>
-                    <input type="tel" id="consultPhone" name="phone" required aria-label="Phone Number">
+
+                <div class="contact-item" onclick="window.location.href='mailto:info@lexinco.com'">
+                    <div class="contact-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="contact-details">
+                        <h3>Email Support</h3>
+                        <p><a href="mailto:info@lexinco.com"
+                                aria-label="Email Lexinco at info@lexinco.com">info@lexinco.com</a></p>
+                        <p><a href="mailto:support@lexinco.com"
+                                aria-label="Email Lexinco support at support@lexinco.com">support@lexinco.com</a></p>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="consultEmail" class="required">Email Address</label>
-                    <input type="email" id="consultEmail" name="email" required aria-label="Email Address">
+
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="contact-details">
+                        <h3>Response Time</h3>
+                        <p>Within 2 hours</p>
+                        <p>During business hours</p>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="consultMatter" class="required">Matter in Brief</label>
-                    <textarea id="consultMatter" name="matter" required aria-label="Matter in Brief"></textarea>
+            </div>
+
+            <!-- Form Panel -->
+            <div class="form-panel">
+                <div class="form-header">
+                    <h2>Schedule Your Consultation</h2>
+                    <p>Fill out the form below and we'll get back to you promptly</p>
                 </div>
-                <div class="form-group">
-                    <label for="consultTimeSlot" class="required">Preferred Time Slot</label>
-                    <select id="consultTimeSlot" name="timeslot" required aria-label="Preferred Time Slot">
-                        <option value="" disabled selected>Select a time slot</option>
-                        <option value="Morning (9 AM - 12 PM)">Morning (9 AM - 12 PM)</option>
-                        <option value="Afternoon (12 PM - 3 PM)">Afternoon (12 PM - 3 PM)</option>
-                        <option value="Evening (3 PM - 6 PM)">Evening (3 PM - 6 PM)</option>
-                    </select>
-                </div>
-                <div class="form-navigation">
-                    <button type="submit" class="btn primary" id="submitConsultation"
-                        aria-label="Submit Consultation Form">
-                        <span>Submit</span>
-                        <div class="loader"></div>
-                    </button>
-                    <a href="index.html" class="btn secondary" aria-label="Cancel and return to homepage">Cancel</a>
-                </div>
-            </form>
+
+                <form id="consultationForm" class="consultation-form" novalidate>
+                    <div class="form-group">
+                        <label for="consultName" class="required">Full Name</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="consultName" name="name" class="form-control" required
+                                placeholder="Enter your full name" aria-label="Full Name">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="consultPhone" class="required">Phone Number</label>
+                        <div class="input-wrapper">
+                            <input type="tel" id="consultPhone" name="phone" class="form-control" required
+                                placeholder="+91 XXXXX XXXXX" aria-label="Phone Number">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="consultEmail" class="required">Email Address</label>
+                        <div class="input-wrapper">
+                            <input type="email" id="consultEmail" name="email" class="form-control" required
+                                placeholder="your.email@example.com" aria-label="Email Address">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="consultMatter" class="required">Legal Matter Description</label>
+                        <div class="input-wrapper">
+                            <textarea id="consultMatter" name="matter" class="form-control" required
+                                placeholder="Please describe your legal matter briefly..."
+                                aria-label="Legal Matter Description"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="consultTimeSlot" class="required">Preferred Time Slot</label>
+                        <div class="input-wrapper">
+                            <select id="consultTimeSlot" name="timeslot" class="form-control" required
+                                aria-label="Preferred Time Slot">
+                                <option value="" disabled selected>Choose your preferred time</option>
+                                <option value="Morning (9 AM - 12 PM)">Morning (9 AM - 12 PM)</option>
+                                <option value="Afternoon (12 PM - 3 PM)">Afternoon (12 PM - 3 PM)</option>
+                                <option value="Evening (3 PM - 6 PM)">Evening (3 PM - 6 PM)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <a href="index.html" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i>
+                            <span>Back to Home</span>
+                        </a>
+                        <button type="submit" class="btn btn-primary" id="submitConsultation">
+                            <span class="btn-text">
+                                <i class="fas fa-paper-plane"></i>
+                                Submit Request
+                            </span>
+                            <div class="loading-spinner"></div>
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
     <script>
         // Lazy-load hero background image
         document.addEventListener('DOMContentLoaded', () => {
-            const overlay = document.querySelector('.consult-hero .overlay');
+            const hero = document.querySelector('.consult-hero');
             const img = new Image();
             img.src = '/images/hero-bg.jpg';
             img.onload = () => {
-                overlay.style.backgroundImage = `url('/images/hero-bg.jpg'), url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"%3E%3Cpath fill="%23ffffff" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z"%3E%3C/path%3E%3C/svg%3E')`;
+                hero.style.backgroundImage = `url('/images/hero-bg.jpg'), var(--gradient-primary)`;
             };
         });
 
-        const consultationForm = document.getElementById('consultationForm');
-        const submitButton = document.getElementById('submitConsultation');
-        const BASE_URL = window.location.origin;
+        // Enhanced form handling with better UX
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('consultationForm');
+            const submitBtn = document.getElementById('submitConsultation');
+            const BASE_URL = window.location.origin;
 
-        consultationForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            submitButton.classList.add('loading');
-            submitButton.disabled = true;
-
-            const formData = new FormData(consultationForm);
-            const data = {
-                name: formData.get('name'),
-                phone: formData.get('phone'),
-                email: formData.get('email'),
-                matter: formData.get('matter'),
-                timeslot: formData.get('timeslot'),
-                timestamp: new Date().toISOString()
-            };
-
-            try {
-                const response = await fetch(`${BASE_URL}/api/proxy/consultation`, {
-                    method: 'POST',
-                    body: JSON.stringify(data),
-                    headers: { 'Content-Type': 'application/json' }
+            // Add real-time validation
+            const inputs = form.querySelectorAll('.form-control');
+            inputs.forEach(input => {
+                // Track if the field has been interacted with
+                let hasInteracted = false;
+                input.addEventListener('blur', (e) => {
+                    hasInteracted = true;
+                    validateField(e);
                 });
-                const responseData = await response.json();
-                submitButton.classList.remove('loading');
-                submitButton.disabled = false;
+                input.addEventListener('input', (e) => {
+                    if (hasInteracted) {
+                        clearValidation(e);
+                    }
+                });
+            });
 
-                if (response.ok && responseData.status === 'success') {
-                    window.location.href = 'thank-you.html';
-                } else {
-                    throw new Error(responseData.error || 'Failed to submit consultation request');
+            function validateField(e) {
+                const field = e.target;
+                const value = field.value.trim();
+
+                field.classList.remove('invalid', 'valid');
+
+                if (field.hasAttribute('required')) {
+                    if (field.tagName === 'SELECT') {
+                        // For select elements, check if a non-empty value is selected
+                        if (!value || value === '') {
+                            field.classList.add('invalid');
+                        } else {
+                            field.classList.add('valid');
+                        }
+                    } else {
+                        // For input and textarea elements
+                        if (!value) {
+                            field.classList.add('invalid');
+                        } else if (field.type === 'email' && !isValidEmail(value)) {
+                            field.classList.add('invalid');
+                        } else if (field.type === 'tel' && !isValidPhone(value)) {
+                            field.classList.add('invalid');
+                        } else {
+                            field.classList.add('valid');
+                        }
+                    }
                 }
-            } catch (error) {
-                submitButton.classList.remove('loading');
-                submitButton.disabled = false;
-                console.error('Error submitting consultation:', error);
-                alert(`Error submitting consultation request: ${error.message}. Please try again or contact support.`);
             }
+
+            function clearValidation(e) {
+                e.target.classList.remove('invalid', 'valid');
+            }
+
+            function isValidEmail(email) {
+                return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+            }
+
+            function isValidPhone(phone) {
+                return /^[\+]?[1-9][\d]{0,15}$/.test(phone.replace(/[\s\-\(\)]/g, ''));
+            }
+
+            // Notification system
+            function showNotification(message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.className = `notification notification-${type}`;
+                notification.innerHTML = message;
+                document.body.appendChild(notification);
+                notification.style.display = 'block';
+                setTimeout(() => {
+                    notification.style.animation = 'slideOutRight 0.3s ease';
+                    setTimeout(() => notification.remove(), 300);
+                }, 3000);
+            }
+
+            // Enhanced form submission
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                // Validate all fields
+                let isValid = true;
+                inputs.forEach(input => {
+                    validateField({ target: input });
+                    if (input.classList.contains('invalid') ||
+                        (input.hasAttribute('required') && !input.value.trim())) {
+                        isValid = false;
+                    }
+                });
+
+                if (!isValid) {
+                    showNotification('Please fill in all required fields correctly.', 'error');
+                    return;
+                }
+
+                // Show loading state
+                submitBtn.classList.add('btn-loading');
+                submitBtn.disabled = true;
+
+                const formData = new FormData(form);
+                const data = {
+                    name: formData.get('name'),
+                    phone: formData.get('phone'),
+                    email: formData.get('email'),
+                    matter: formData.get('matter'),
+                    timeslot: formData.get('timeslot'),
+                    timestamp: new Date().toISOString()
+                };
+
+                try {
+                    const response = await fetch(`${BASE_URL}/api/proxy/consultation`, {
+                        method: 'POST',
+                        body: JSON.stringify(data),
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+
+                    const responseData = await response.json();
+
+                    if (response.ok && responseData.status === 'success') {
+                        showNotification('Consultation request submitted successfully!', 'success');
+                        form.reset();
+                        setTimeout(() => {
+                            window.location.href = 'thank-you.html';
+                        }, 1500);
+                    } else {
+                        throw new Error(responseData.error || 'Failed to submit consultation request');
+                    }
+                } catch (error) {
+                    console.error('Error submitting consultation:', error);
+                    showNotification(`Error: ${error.message}. Please try again or contact support.`, 'error');
+                } finally {
+                    submitBtn.classList.remove('btn-loading');
+                    submitBtn.disabled = false;
+                }
+            });
         });
     </script>
 </body>
