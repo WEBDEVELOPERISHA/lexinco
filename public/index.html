@@ -1,17 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <!-- Meta Tags -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta property="og:title" content="Lexinco - Draft Legal Notices in Minutes">
-    <meta property="og:description" content="Generate professional legal notices in minutes — smart, fast, and affordable with Lexinco.">
+    <meta property="og:description"
+        content="Generate professional legal notices in minutes — smart, fast, and affordable with Lexinco.">
     <meta property="og:image" content="https://www.lexinco.com/social-preview-v2.jpeg">
     <meta property="og:url" content="https://lexinco.com">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Lexinco - Draft Legal Notices in Minutes">
-    <meta name="twitter:description" content="Generate professional legal notices in minutes — smart, fast, and affordable with Lexinco.">
+    <meta name="twitter:description"
+        content="Generate professional legal notices in minutes — smart, fast, and affordable with Lexinco.">
     <meta name="twitter:image" content="https://www.lexinco.com/social-preview-v2.jpeg">
     <link rel="canonical" href="https://lexinco.com">
     <title>Lexinco - Your Voice. Your Rights. Made Legal.</title>
@@ -79,6 +82,158 @@
             --text-light: #64748b;
             --border-radius: 10px;
             --shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Advisory Board Section */
+        .advisory-board {
+            padding: 80px 0;
+            background: var(--white);
+        }
+
+        .advisory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .advisor-card {
+            background: var(--white);
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .advisor-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .advisor-photo {
+            margin: 0 auto 1rem;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid var(--secondary-color);
+        }
+
+        .advisor-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .advisor-info h3 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .advisor-court {
+            font-size: 1rem;
+            color: var(--text-light);
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+
+        .advisor-credentials {
+            font-size: 0.9rem;
+            color: #475569;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .advisor-credentials p {
+            margin: 0.3rem 0;
+        }
+
+        .advisor-testimonial {
+            font-size: 0.95rem;
+            color: #475569;
+            line-height: 1.5;
+            background: var(--gray);
+            padding: 1rem;
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .advisor-testimonial i {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: var(--secondary-color);
+            font-size: 1.2rem;
+        }
+
+        .advisor-testimonial p {
+            margin: 0;
+            padding-left: 2rem;
+        }
+
+        /* Media Queries for Advisory Board */
+        @media (max-width: 768px) {
+            .advisory-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .advisor-card {
+                padding: 1rem;
+            }
+
+            .advisor-photo {
+                width: 100px;
+                height: 100px;
+            }
+
+            .advisor-info h3 {
+                font-size: 1.3rem;
+            }
+
+            .advisor-court {
+                font-size: 0.9rem;
+            }
+
+            .advisor-credentials {
+                font-size: 0.85rem;
+            }
+
+            .advisor-testimonial {
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .advisor-photo {
+                width: 80px;
+                height: 80px;
+            }
+
+            .advisor-info h3 {
+                font-size: 1.2rem;
+            }
+
+            .advisor-court {
+                font-size: 0.85rem;
+            }
+
+            .advisor-credentials {
+                font-size: 0.8rem;
+            }
+
+            .advisor-testimonial {
+                font-size: 0.85rem;
+                padding: 0.8rem;
+            }
+
+            .advisor-testimonial i {
+                font-size: 1rem;
+            }
         }
 
         /* Hero Section */
@@ -561,10 +716,12 @@
                     background-position: center;
                     transform: scale(1);
                 }
+
                 50% {
                     background-position: 51% 51%;
                     transform: scale(1.03);
                 }
+
                 100% {
                     background-position: center;
                     transform: scale(1);
@@ -691,10 +848,12 @@
                     background-position: center;
                     transform: scale(1);
                 }
+
                 50% {
                     background-position: 50.5% 50.5%;
                     transform: scale(1.02);
                 }
+
                 100% {
                     background-position: center;
                     transform: scale(1);
@@ -777,6 +936,7 @@
                 opacity: 0;
                 transform: translateY(30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -788,10 +948,12 @@
                 background-position: center;
                 transform: scale(1);
             }
+
             50% {
                 background-position: 52% 52%;
                 transform: scale(1.05);
             }
+
             100% {
                 background-position: center;
                 transform: scale(1);
@@ -802,9 +964,11 @@
             0% {
                 transform: scale(1);
             }
+
             50% {
                 transform: scale(1.05);
             }
+
             100% {
                 transform: scale(1);
             }
@@ -819,15 +983,18 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Meta Pixel (noscript) -->
     <noscript>
-        <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=2762495943943491&ev=PageView&noscript=1" />
+        <img height="1" width="1" style="display:none"
+            src="https://www.facebook.com/tr?id=2762495943943491&ev=PageView&noscript=1" />
     </noscript>
 
     <!-- Google Tag Manager (noscript) -->
     <noscript>
-        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-N7C4SRQS" height="0" width="0" style="display:none;visibility:hidden"></iframe>
+        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-N7C4SRQS" height="0" width="0"
+            style="display:none;visibility:hidden"></iframe>
     </noscript>
     <!-- End Google Tag Manager (noscript) -->
 
@@ -858,10 +1025,15 @@
                 <i class="fas fa-times"></i>
             </button>
             <p style="font-weight: bold; color: var(--secondary-color); font-size: 18px; margin-bottom: 10px;">
-                🎉 Limited Time Deal: Legal Notice Worth <span style="text-decoration: line-through; color: var(--accent-color);">₹999</span> Now at <span style="color: #000;">₹499</span> – Don’t Miss Out!
+                🎉 Limited Time Deal: Legal Notice Worth <span
+                    style="text-decoration: line-through; color: var(--accent-color);">₹999</span> Now at <span
+                    style="color: #000;">₹499</span> – Don’t Miss Out!
             </p>
             <h3>Disclaimer</h3>
-            <p>Lexinco is not a law firm and does not provide legal advice. We connect you with registered advocates for professional legal notice drafting and consultation. All services are provided by independent advocates registered with the Bar Council of India, in compliance with the Advocates Act, 1961. Using our platform does not create an attorney-client relationship.</p>
+            <p>Lexinco is not a law firm and does not provide legal advice. We connect you with registered advocates for
+                professional legal notice drafting and consultation. All services are provided by independent advocates
+                registered with the Bar Council of India, in compliance with the Advocates Act, 1961. Using our platform
+                does not create an attorney-client relationship.</p>
             <a href="legal-notice.html" class="btn primary">Claim Your Notice Now!!</a>
         </div>
     </div>
@@ -925,7 +1097,9 @@
                     <!-- Testimonial 2 -->
                     <div class="swiper-slide" data-aos="fade-up" data-aos-delay="200">
                         <div class="testimonial-content">
-                            <p>Advocate Shalini L. Tripathi understood my case in depth and acted swiftly. Her drafting and release of the legal notice was handled with precision and professionalism. Truly fantastic work — highly recommend her expertise!</p>
+                            <p>Advocate Shalini L. Tripathi understood my case in depth and acted swiftly. Her drafting
+                                and release of the legal notice was handled with precision and professionalism. Truly
+                                fantastic work — highly recommend her expertise!</p>
                         </div>
                         <div class="testimonial-author">
                             <div class="author-info">
@@ -937,7 +1111,10 @@
                     <!-- Testimonial 3 -->
                     <div class="swiper-slide" data-aos="fade-up" data-aos-delay="300">
                         <div class="testimonial-content">
-                            <p>Lexinco provided me with quick actions and helped me draft my legal notice properly. They sent me the draft for my review, gave me all details, steps, and charges well in advance, and everything went exactly the way they explained. I will definitely recommend Lexinco’s services if anyone in my circle needs legal support.</p>
+                            <p>Lexinco provided me with quick actions and helped me draft my legal notice properly. They
+                                sent me the draft for my review, gave me all details, steps, and charges well in
+                                advance, and everything went exactly the way they explained. I will definitely recommend
+                                Lexinco’s services if anyone in my circle needs legal support.</p>
                         </div>
                         <div class="testimonial-author">
                             <div class="author-info">
@@ -961,7 +1138,9 @@
                     <!-- Testimonial 5 -->
                     <div class="swiper-slide" data-aos="fade-up" data-aos-delay="500">
                         <div class="testimonial-content">
-                            <p>I’m deeply grateful to Lexinco. They believed in me and my case, and their dedication paid off. The court order was in my favor, and I’m thankful for their constant support and encouragement.</p>
+                            <p>I’m deeply grateful to Lexinco. They believed in me and my case, and their dedication
+                                paid off. The court order was in my favor, and I’m thankful for their constant support
+                                and encouragement.</p>
                         </div>
                         <div class="testimonial-author">
                             <div class="author-info">
@@ -973,7 +1152,9 @@
                     <!-- Testimonial 6 -->
                     <div class="swiper-slide" data-aos="fade-up" data-aos-delay="600">
                         <div class="testimonial-content">
-                            <p>Very honest and humane service. I felt Lexinco is genuinely practicing law to help clients, not just to make money. In short, if I have to refer anyone, I will always recommend Lexinco.</p>
+                            <p>Very honest and humane service. I felt Lexinco is genuinely practicing law to help
+                                clients, not just to make money. In short, if I have to refer anyone, I will always
+                                recommend Lexinco.</p>
                         </div>
                         <div class="testimonial-author">
                             <div class="author-info">
@@ -996,7 +1177,10 @@
                     <!-- Testimonial 8 -->
                     <div class="swiper-slide" data-aos="fade-up" data-aos-delay="600">
                         <div class="testimonial-content">
-                            <p>Hello Lexinco team, The legal notice service provided by you at 499/- is very economical. I got connected with Advocate Shalini through you and she drafted and sent the legal notice within very short time. I will recommend your services in case anyone is in need. Thank you</p>
+                            <p>Hello Lexinco team, The legal notice service provided by you at 499/- is very economical.
+                                I got connected with Advocate Shalini through you and she drafted and sent the legal
+                                notice within very short time. I will recommend your services in case anyone is in need.
+                                Thank you</p>
                         </div>
                         <div class="testimonial-author">
                             <div class="author-info">
@@ -1075,6 +1259,65 @@
             </div>
         </div>
     </section>
+    <!-- Advisory Board Section -->
+    <section class="advisory-board" id="advisory-board">
+        <div class="container">
+            <h2 class="section-title">Our Advisory Board</h2>
+            <p
+                style="text-align: center; color: #64748b; margin-bottom: 3rem; max-width: 800px; margin-left: auto; margin-right: auto;">
+                Our platform is backed by experienced legal professionals who ensure every notice meets the highest
+                standards of legal accuracy and professionalism.
+            </p>
+            <div class="advisory-grid">
+                <!-- Advocate 1 -->
+                <div class="advisor-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="advisor-photo">
+                        <img src="/assets/advocate-dubey.jpeg" alt="Advocate Shashikant Dubey"
+                            onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22%3E%3Crect fill=%22%233b82f6%22 width=%22200%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 font-size=%2260%22 fill=%22white%22 text-anchor=%22middle%22 dy=%22.3em%22%3ESD%3C/text%3E%3C/svg%3E'">
+                    </div>
+                    <div class="advisor-info">
+                        <h3>Advocate Shashikant Dubey</h3>
+                        <p class="advisor-court">Bombay High Court</p>
+                        <div class="advisor-credentials">
+                            <p><strong>Qualification:</strong> B.A., LL.B.</p>
+                            <p><strong>Enrolled with:</strong> Maharashtra Bar Council</p>
+                            <p><strong>Experience:</strong> Practicing since 2000</p>
+                            <p><strong>Expertise:</strong> Criminal, Civil, Matrimonial</p>
+                        </div>
+                        <div class="advisor-testimonial">
+                            <i class="fas fa-quote-left"></i>
+                            <p>"Lexinco.com makes drafting legal notices simple and reliable. Knowing that every draft
+                                is reviewed by a licensed advocate gives users real confidence. It's a smart way to
+                                combine technology with professional legal guidance."</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Advocate 2 -->
+                <div class="advisor-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="advisor-photo">
+                        <img src="/assets/advocate-saw.jpeg" alt="Advocate Pradeep D. Saw"
+                            onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22%3E%3Crect fill=%22%233b82f6%22 width=%22200%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 font-size=%2260%22 fill=%22white%22 text-anchor=%22middle%22 dy=%22.3em%22%3EPS%3C/text%3E%3C/svg%3E'">
+                    </div>
+                    <div class="advisor-info">
+                        <h3>Advocate Pradeep D. Saw</h3>
+                        <p class="advisor-court">Bombay High Court</p>
+                        <div class="advisor-credentials">
+                            <p><strong>Qualification:</strong> M.com, P.G.D.F.M, P.G.D.C.A, LL.B.</p>
+                            <p><strong>Enrolled with:</strong> Maharashtra Bar Council</p>
+                            <p><strong>Experience:</strong> Practicing since 2019</p>
+                            <p><strong>Expertise:</strong> Criminal, Civil, Matrimonial</p>
+                        </div>
+                        <div class="advisor-testimonial">
+                            <i class="fas fa-quote-left"></i>
+                            <p>"Lexinco.com makes drafting legal notices simple and reliable. Knowing that every draft
+                                is reviewed by a licensed advocate gives users real confidence. It's a smart way to
+                                combine technology with professional legal guidance."</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <!-- Trust Section -->
     <section class="trust-section" id="advocate-verified">
@@ -1122,7 +1365,8 @@
                     Is this legally valid? <i class="fas fa-chevron-down"></i>
                 </button>
                 <div class="faq-answer">
-                    Yes, all notices are prepared in proper legal format and reviewed by registered advocates. They are legally valid and enforceable.
+                    Yes, all notices are prepared in proper legal format and reviewed by registered advocates. They are
+                    legally valid and enforceable.
                 </div>
             </div>
             <div class="faq-item">
@@ -1130,7 +1374,8 @@
                     Will a real lawyer see it? <i class="fas fa-chevron-down"></i>
                 </button>
                 <div class="faq-answer">
-                    Absolutely. Every notice is reviewed by independent registered advocates before delivery to ensure legal accuracy.
+                    Absolutely. Every notice is reviewed by independent registered advocates before delivery to ensure
+                    legal accuracy.
                 </div>
             </div>
             <div class="faq-item">
@@ -1138,7 +1383,8 @@
                     How do I send the notice? <i class="fas fa-chevron-down"></i>
                 </button>
                 <div class="faq-answer">
-                    We provide a complete sending guide with your download, including email templates and postal service options.
+                    We provide a complete sending guide with your download, including email templates and postal service
+                    options.
                 </div>
             </div>
             <div class="faq-item">
@@ -1146,7 +1392,9 @@
                     Is this free? <i class="fas fa-chevron-down"></i>
                 </button>
                 <div class="faq-answer">
-                    No, we are now charging ₹499 for the complete legal notice service. This includes the advocate review and a downloadable copy, ensuring you get a professional, ready-to-use document at an affordable price.
+                    No, we are now charging ₹499 for the complete legal notice service. This includes the advocate
+                    review and a downloadable copy, ensuring you get a professional, ready-to-use document at an
+                    affordable price.
                 </div>
             </div>
             <div class="faq-item">
@@ -1154,7 +1402,8 @@
                     Can I get a refund? <i class="fas fa-chevron-down"></i>
                 </button>
                 <div class="faq-answer">
-                    Yes, we offer a 100% money-back guarantee if you’re not satisfied with the quality of your legal notice.
+                    Yes, we offer a 100% money-back guarantee if you’re not satisfied with the quality of your legal
+                    notice.
                 </div>
             </div>
         </div>
@@ -1203,7 +1452,8 @@
     </div>
 
     <!-- WhatsApp Help Button -->
-    <a href="https://wa.me/+918329186509?text=Hello,%20I%20need%20assistance%20with%20Lexinco's%20legal%20notice%20generator." class="whatsapp-help" target="_blank">
+    <a href="https://wa.me/+918329186509?text=Hello,%20I%20need%20assistance%20with%20Lexinco's%20legal%20notice%20generator."
+        class="whatsapp-help" target="_blank">
         <i class="fab fa-whatsapp"></i> May I Help You?
     </a>
 
@@ -1320,4 +1570,5 @@
         });
     </script>
 </body>
+
 </html>
