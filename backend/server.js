@@ -8,8 +8,13 @@ const fs = require('fs');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 const { Pool } = require('pg');
+const OpenAI = require("openai");
 const axios = require('axios');
+const PDFDocument = require('pdfkit');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY
+});
 
 const app = express();
 
@@ -87,158 +92,150 @@ app.get('/api/config', (req, res) => {
     res.json({});
 });
 
-app.post('/api/generate-sale-agreement', async (req, res) => {
-    console.log('Received request to /api/generate-sale-agreement with body:', req.body);
-    const formData = req.body;
-    const todayDate = new Date().toLocaleDateString('en-US', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
-    });
-
-    if (!formData.seller || !formData.buyer || !formData.product || !formData.delivery || !formData.paymentMode) {
-        console.error('Invalid form data:', formData);
-        return res.status(400).json({ error: 'Invalid form data', details: 'Missing seller, buyer, product, delivery, or paymentMode data' });
-    }
-
-    if (!Number.isFinite(formData.product.totalPrice) || formData.product.totalPrice < 0) {
-        console.error('Invalid totalPrice:', formData.product.totalPrice);
-        return res.status(400).json({ error: 'Invalid totalPrice', details: 'Total price must be a valid non-negative number' });
-    }
-
-    const template = `
-SALES AGREEMENT
-
-THIS SALES AGREEMENT (“Agreement”) is made and executed on this ${todayDate} at ${formData.executionPlace || 'Mumbai'},
-BY AND BETWEEN:
-
-**${formData.seller.name}**, son/daughter of ${formData.seller.fatherName}, residing at ${formData.seller.address}, hereinafter referred to as the "Seller" (which expression shall, unless repugnant to the context or meaning thereof, include his/her heirs, legal representatives, successors, and assigns);
-
-AND
-
-**${formData.buyer.name}**, son/daughter of ${formData.buyer.fatherName}, residing at ${formData.buyer.address}, hereinafter referred to as the "Buyer" (which expression shall, unless repugnant to the context or meaning thereof, include his/her heirs, legal representatives, successors, and assigns).
-
-(The Seller and the Buyer are hereinafter collectively referred to as the "Parties" and individually as a "Party").
-
-WHEREAS:
-
-1. The Seller is the absolute owner and in lawful possession of the goods more particularly described hereunder.
-2. The Buyer has approached the Seller to purchase the said goods, and the Seller has agreed to sell the same subject to the terms and conditions contained herein.
-
-NOW THIS AGREEMENT WITNESSETH AS FOLLOWS:
-
-**1. DESCRIPTION OF GOODS**
-The Seller agrees to sell, transfer, and deliver to the Buyer the following goods:
-${formData.product.description}.
-
-**2. CONSIDERATION & PAYMENT**
-a) The total consideration for the sale of the aforesaid goods shall be Rs. ${formData.product.totalPrice} (Rupees ${numberToWords(formData.product.totalPrice)}).
-b) The Buyer agrees to pay the aforesaid consideration to the Seller as follows:
-   i. Rs. ${formData.product.price} per unit for a total of ${formData.product.quantity} units.
-   ii. Mode of payment: ${formData.paymentMode}.
-c) The Parties agree that time is the essence of payment. Delay in payment shall attract interest at 1% per month until realization.
-
-**3. DELIVERY**
-a) The Seller shall deliver the goods to the Buyer at ${formData.delivery.address} on or before ${formData.delivery.date}.
-b) Risk in respect of the goods shall pass to the Buyer upon delivery.
-c) Title shall pass only upon full and final payment of consideration.
-
-**4. REPRESENTATIONS & WARRANTIES**
-The Seller hereby covenants, represents, and warrants that:
-a) The goods are free from all encumbrances, liens, or third-party claims.
-b) The goods conform to the description and are fit for the intended purpose.
-c) The Seller has full authority to sell the goods and execute this Agreement.
-
-**5. INDEMNITY**
-The Seller shall indemnify and keep indemnified the Buyer against any claims, demands, losses, damages, or expenses arising due to defect in title or breach of the Seller’s warranties.
-
-**6. BREACH & REMEDIES**
-a) In the event of breach of any term of this Agreement, the aggrieved Party shall be entitled to specific performance, damages, or such other remedies as available under the Indian Contract Act, 1872 and the Sale of Goods Act, 1930.
-b) The defaulting Party shall also be liable to bear all costs, charges, and expenses including legal costs incurred by the aggrieved Party.
-
-**7. GOVERNING LAW & JURISDICTION**
-This Agreement shall be governed by and construed in accordance with the laws of India. The Courts at ${formData.jurisdiction || 'Mumbai'} shall have exclusive jurisdiction over any disputes arising out of or in connection with this Agreement.
-
-IN WITNESS WHEREOF, the Parties hereto have hereunto set their respective hands on the day, month, and year first above written.
-
-__________________________          __________________________
-Seller (Signature & Name)           Buyer (Signature & Name)
-`;
-
-    const prompt = `
-You are a senior legal assistant with 20+ years of experience in Indian commercial law.
-
-Your task is to draft a **formal Sales Agreement** based on the provided form data. The agreement must:
-- Be **legally enforceable** under Indian law.
-- Use **precise legal terminology** (e.g., "party of the first part", "covenants", "indemnify", "consideration", "specific performance").
-- Reference applicable laws such as the **Indian Contract Act, 1872** and the **Sale of Goods Act, 1930**.
-- Strictly follow the structure of the template provided below. Do not add or remove sections.
-- Expand each section into detailed contractual clauses suitable for a professional legal agreement.
-
-**Form Data**:
-- Seller: ${formData.seller.name}, ${formData.seller.address}, ${formData.seller.contact}
-- Buyer: ${formData.buyer.name}, ${formData.buyer.address}, ${formData.buyer.contact}
-- Product: ${formData.product.description}, Quantity: ${formData.product.quantity}, Price per unit: Rs. ${formData.product.price}, Total: Rs. ${formData.product.totalPrice}
-- Delivery: ${formData.delivery.address}, Date: ${formData.delivery.date}
-- Payment Mode: ${formData.paymentMode}
-
-**Template to Follow**:
-${template}
-
-**Instructions**:
-1. Insert detailed legal drafting language for each clause while keeping the structure intact.
-2. Use Indian legal style (formal, verbose, contractual).
-3. Do not add commentary, explanations, or formatting outside the Agreement text.
-4. Output only the completed Agreement.
-`;
+app.post('/api/generate-sale-agreement', upload.none(), async (req, res) => {
+    const { seller, buyer, product, delivery, paymentMode, executionPlace, jurisdiction } = req.body;
 
     try {
-        if (!process.env.OPENAI_API_KEY) {
-            throw new Error('OPENAI_API_KEY is not set in environment variables');
+        // Validate required fields
+        if (!seller.name || !seller.address || !seller.contact || !seller.email ||
+            !buyer.name || !buyer.address || !buyer.contact || !buyer.email ||
+            !product.description || !product.quantity || !product.price || !product.totalPrice ||
+            !delivery.address || !delivery.date) {
+            return res.status(400).json({ error: 'Missing required fields' });
         }
 
-        console.log('Sending request to OpenAI API...');
-        const response = await axios.post('https://api.openai.com/v1/chat/completions', {
-            model: "gpt-4",
-            messages: [{ role: "user", content: prompt }],
-            temperature: 0.1,
-            max_tokens: 4096
-        }, {
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
-            }
+        // Build prompt for OpenAI
+        // Build prompt for OpenAI
+        const prompt = `
+You are an expert Indian legal draftsman. Draft a comprehensive, professional, multi-page 
+"Sale Agreement" under Indian law. The agreement should be highly detailed, word-heavy, 
+formal, and formatted to appear 5–6 pages long when converted into PDF. 
+
+The draft must include (with expanded language and formal tone):
+- Recitals
+- Definitions
+- Sale Consideration
+- Payment Terms (including advance, balance, bank transfer, default consequences)
+- Delivery & Possession (including vacant possession, handover of keys, documents, and condition of property)
+- Representations and Warranties (seller’s ownership, no encumbrances, buyer’s due diligence)
+- Indemnity
+- Stamp Duty, Registration & Other Charges (explicitly state that buyer bears unless otherwise agreed)
+- Force Majeure
+- Default and Termination (advance forfeiture, refund obligations, legal remedies)
+- Governing Law and Jurisdiction
+- Dispute Resolution (mandatory arbitration clause under Arbitration & Conciliation Act, 1996)
+- Miscellaneous (entire agreement, amendment, severability, notices, counterparts)
+- Execution and Witness section
+- Annexure/Schedule: Full property description (boundaries, measurements, flat/unit details, parking, etc.)
+
+Fill in the following details accurately:
+
+Seller:
+- Name: ${seller.name}
+- Father's Name: ${seller.fatherName || 'Not provided'}
+- Address: ${seller.address}
+- Contact: ${seller.contact}
+- Email: ${seller.email}
+
+Buyer:
+- Name: ${buyer.name}
+- Father's Name: ${buyer.fatherName || 'Not provided'}
+- Address: ${buyer.address}
+- Contact: ${buyer.contact}
+- Email: ${buyer.email}
+
+Product/Property:
+- Description: ${product.description}
+- Quantity/Area: ${product.quantity}
+- Price per Unit: ₹${product.price}
+- Total Price (Sale Consideration): ₹${product.totalPrice}
+
+Delivery:
+- Address: ${delivery.address}
+- Date (Handover of possession): ${delivery.date}
+
+Other:
+- Payment Mode: ${paymentMode || 'Not specified'}
+- Place of Execution: ${executionPlace || 'Mumbai'}
+- Jurisdiction: ${jurisdiction || 'Mumbai'}
+
+Draft in a very formal, verbose, and professional manner as if prepared by a senior advocate. 
+Make the clauses long and explanatory. Add transitional legal phrases such as 
+"AND WHEREAS," "NOW THEREFORE," "IT IS HEREBY AGREED," etc. 
+
+Do not explain or annotate. Return only the fully formatted agreement text.
+`;
+
+        // Call OpenAI
+        const response = await openai.chat.completions.create({
+            model: "gpt-4o-mini", // switch to gpt-4.1 for more depth
+            messages: [
+                { role: "system", content: "You are a professional Indian legal document drafter." },
+                { role: "user", content: prompt }
+            ],
+            temperature: 0.4,
         });
 
-        console.log('Received response from OpenAI:', response.data);
-        let content = response.data.choices[0].message.content;
+        const content = response.choices[0].message.content;
 
-        const expectedStart = `SALES AGREEMENT`;
-        const expectedEnd = `Seller (Signature & Name)           Buyer (Signature & Name)`;
-        if (!content.startsWith(expectedStart) || !content.endsWith(expectedEnd)) {
-            console.warn('OpenAI response does not match expected structure:', content.substring(0, 100) + '...');
-            content = template;
-        }
+        // Generate PDF
+        const doc = new PDFDocument({ size: "A4", margin: 50 });
+        const pdfPath = path.join(uploadDir, `drafted_sale-agreement_${Date.now()}.pdf`);
+        const writeStream = fs.createWriteStream(pdfPath);
+        doc.pipe(writeStream);
 
-        content = content
-            .replace(/\n\n/g, '<p>')
-            .replace(/\n/g, '<br>')
-            .replace(/\t/g, '    ')
-            .replace('[Insert Amount in Words]', numberToWords(formData.product.totalPrice));
+        doc.fontSize(12).text(content, {
+            align: "justify",
+            lineGap: 6
+        });
+        doc.end();
 
-        res.json({ content });
+        writeStream.on('finish', async () => {
+            // Send email
+            const emailHtml = `
+                <p>Dear Lexinco Team,</p>
+                <p>A new Sale Agreement has been generated by ${seller.name}.</p>
+                <p>User Details:<br>Name: ${seller.name}<br>Email: ${seller.email}</p>
+                <p>Please review the attached document and contact the user for further steps.</p>
+                <p>Best regards,<br>Lexinco System</p>
+            `;
+
+            const emailText = `
+Dear Lexinco Team,
+A new Sale Agreement has been generated by ${seller.name}.
+User Details:
+Name: ${seller.name}
+Email: ${seller.email}
+Please review the attached document and contact the user for further steps.
+Best regards,
+Lexinco System
+            `;
+
+            await transporter.sendMail({
+                from: `"Lexinco Drafting Tool" <${process.env.EMAIL_USER}>`,
+                to: 'info@lexinco.com',
+                subject: 'New Sale Agreement Generated',
+                html: emailHtml,
+                text: emailText,
+                attachments: [
+                    {
+                        filename: 'drafted_sale-agreement.pdf',
+                        path: pdfPath,
+                        contentType: 'application/pdf'
+                    }
+                ]
+            });
+
+            fs.unlinkSync(pdfPath);
+            res.json({ success: true, content });
+        });
+
     } catch (error) {
-        console.error('OpenAI API Error:', {
-            message: error.message,
-            response: error.response ? error.response.data : null,
-            status: error.response ? error.response.status : null
-        });
-        res.status(500).json({
-            error: 'Failed to generate sale agreement',
-            details: error.response?.data?.error?.message || error.message
-        });
+        console.error('Generate Sale Agreement Error:', error);
+        res.status(500).json({ error: 'Failed to generate sale agreement', details: error.message });
     }
 });
+
 
 // Other API Routes (unchanged from your original server.js)
 app.post('/api/generate-notice', async (req, res) => {
@@ -511,421 +508,282 @@ ${template}
 //         });
 //     }
 // });
+
 app.post('/api/generate-power-of-attorney', async (req, res) => {
-    console.log('Received request to /api/generate-power-of-attorney with body:', req.body);
     const formData = req.body;
-    const todayDate = new Date().toLocaleDateString('en-US', {
+    const todayDate = new Date().toLocaleDateString('en-IN', {
         day: 'numeric',
         month: 'long',
         year: 'numeric'
     });
 
-    if (!formData.principal || !formData.attorney || !formData.powerType || !formData.purpose || !formData.duration) {
-        console.error('Invalid form data:', formData);
-        return res.status(400).json({ error: 'Invalid form data', details: 'Missing principal, attorney, powerType, purpose, or duration data' });
-    }
-
-    const template = `
-POWER OF ATTORNEY
-
-THIS POWER OF ATTORNEY is made and executed on this ${todayDate} at Mumbai,
-BY:
-
-**${formData.principal.name}**, residing at ${formData.principal.address}, hereinafter referred to as the "Principal" (which expression shall, unless repugnant to the context or meaning thereof, include his/her heirs, legal representatives, successors, and assigns).
-
-IN FAVOUR OF:
-
-**${formData.attorney.name}**, residing at ${formData.attorney.address}, hereinafter referred to as the "Attorney" (which expression shall, unless repugnant to the context or meaning thereof, include his/her heirs, legal representatives, successors, and assigns).
-
-WHEREAS:
-
-1. The Principal desires to appoint the Attorney to act on his/her behalf for the purposes specified herein.
-2. The Attorney has agreed to accept the appointment and act in accordance with the instructions provided by the Principal.
-
-NOW THIS POWER OF ATTORNEY WITNESSETH AS FOLLOWS:
-
-**1. APPOINTMENT**
-The Principal hereby appoints the Attorney to act as his/her true and lawful attorney to perform the following acts, deeds, and things: ${formData.purpose}.
-
-**2. TYPE OF POWER**
-This Power of Attorney is a ${formData.powerType}, and the Attorney shall have the authority to act within the scope defined herein.
-
-**3. DURATION**
-This Power of Attorney shall remain in force for ${formData.duration}, unless revoked earlier by the Principal in writing.
-
-**4. REVOCATION**
-The Principal reserves the right to revoke this Power of Attorney at any time by providing written notice to the Attorney.
-
-**5. INDEMNITY**
-The Attorney shall not be liable for any act done in good faith in the exercise of the powers granted herein, and the Principal shall indemnify the Attorney against any claims or losses arising from such acts.
-
-**6. GOVERNING LAW**
-This Power of Attorney shall be governed by and construed in accordance with the laws of India, particularly the Powers of Attorney Act, 1882. The Courts at Mumbai shall have exclusive jurisdiction over any disputes arising hereunder.
-
-IN WITNESS WHEREOF, the Principal has hereunto set his/her hand on the day, month, and year first above written.
-
-__________________________
-Principal (Signature & Name)
-`;
-
-    const prompt = `
-You are a senior legal assistant with 20+ years of experience in Indian legal drafting.
-
-Your task is to draft a **formal Power of Attorney** based on the provided form data. The document must:
-- Be **legally enforceable** under Indian law, particularly the Powers of Attorney Act, 1882.
-- Use **precise legal terminology** (e.g., "Principal", "Attorney", "act, deed, and thing").
-- Reference applicable laws where relevant.
-- Strictly follow the structure of the template provided below. Do not add or remove sections.
-- Expand each section into detailed contractual clauses suitable for a professional legal document.
-
-**Form Data**:
-- Principal: ${formData.principal.name}, ${formData.principal.address}
-- Attorney: ${formData.attorney.name}, ${formData.attorney.address}
-- Power Type: ${formData.powerType}
-- Purpose: ${formData.purpose}
-- Duration: ${formData.duration}
-
-**Template to Follow**:
-${template}
-
-**Instructions**:
-1. Insert detailed legal drafting language for each clause while keeping the structure intact.
-2. Use Indian legal style (formal, verbose, contractual).
-3. Ensure the purpose is elaborated with specific powers and scope based on the provided purpose.
-4. Do not add commentary, explanations, or formatting outside the Agreement text.
-5. Output only the completed Power of Attorney.
-`;
-
     try {
-        if (!process.env.OPENAI_API_KEY) {
-            throw new Error('OPENAI_API_KEY is not set in environment variables');
+        if (!formData.principal || !formData.attorney || !formData.powerType || !formData.purpose || !formData.duration) {
+            return res.status(400).json({ error: 'Missing required fields' });
         }
 
-        console.log('Sending request to OpenAI API for Power of Attorney...');
-        const response = await axios.post('https://api.openai.com/v1/chat/completions', {
-            model: "gpt-4",
-            messages: [{ role: "user", content: prompt }],
-            temperature: 0.1,
-            max_tokens: 4096
-        }, {
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
-            }
+        // Build prompt for OpenAI
+        const prompt = `
+You are an expert Indian legal draftsman. Draft a detailed, professional, multi-page "Power of Attorney" document
+under Indian law. It should be written in formal legal language and include expanded standard clauses:
+
+- Recitals / Background
+- Appointment of Attorney
+- Powers granted (detailed list, specific to ${formData.purpose})
+- Clarify whether it is General Power of Attorney (GPA) or Special Power of Attorney (SPA)
+- Duration and revocation procedure (revocable with written notice)
+- Representations and warranties
+- Indemnity
+- Notices and communication
+- Governing law and jurisdiction
+- Miscellaneous (entire agreement, amendment, severability, counterparts, execution and witness section)
+
+Use the following details accurately:
+
+Principal:
+- Name: ${formData.principal.name}
+- Address: ${formData.principal.address}
+- Contact: ${formData.principal.contact || 'N/A'}
+- Email: ${formData.principal.email || 'N/A'}
+
+Attorney:
+- Name: ${formData.attorney.name}
+- Address: ${formData.attorney.address}
+- Contact: ${formData.attorney.contact || 'N/A'}
+- Email: ${formData.attorney.email || 'N/A'}
+
+Power Type: ${formData.powerType}
+Purpose: ${formData.purpose}
+Duration: ${formData.duration}
+Execution Date: ${todayDate}
+
+Return only the fully formatted legal document text suitable for PDF generation.
+`;
+
+        // Generate content using OpenAI
+        const response = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: [
+                { role: "system", content: "You are a professional Indian legal document drafter." },
+                { role: "user", content: prompt }
+            ],
+            temperature: 0.4,
         });
 
-        console.log('Received response from OpenAI:', response.data);
-        let content = response.data.choices[0].message.content;
+        const content = response.choices[0].message.content;
 
-        const expectedStart = `POWER OF ATTORNEY`;
-        const expectedEnd = `Principal (Signature & Name)`;
-        if (!content.startsWith(expectedStart) || !content.endsWith(expectedEnd)) {
-            console.warn('OpenAI response does not match expected structure:', content.substring(0, 100) + '...');
-            content = template;
-        }
+        // Generate PDF
+        const doc = new PDFDocument({ size: "A4", margin: 50 });
+        const pdfPath = path.join(uploadDir, `drafted_power-of-attorney_${Date.now()}.pdf`);
+        const writeStream = fs.createWriteStream(pdfPath);
+        doc.pipe(writeStream);
 
-        content = content
-            .replace(/\n\n/g, '<p>')
-            .replace(/\n/g, '<br>')
-            .replace(/\t/g, '    ');
+        doc.fontSize(12).text(content, { align: "justify", lineGap: 6 });
+        doc.end();
 
-        res.json({ content });
+        writeStream.on('finish', async () => {
+            const emailHtml = `
+                <p>Dear Lexinco Team,</p>
+                <p>A new Power of Attorney has been generated by ${formData.principal.name}.</p>
+                <p>Please review the attached document and contact the user for further steps.</p>
+                <p>Best regards,<br>Lexinco System</p>
+            `;
+            const emailText = `
+A new Power of Attorney has been generated by ${formData.principal.name}.
+Please review the attached document and contact the user for further steps.
+            `;
+
+            await transporter.sendMail({
+                from: `"Lexinco Drafting Tool" <${process.env.EMAIL_USER}>`,
+                to: 'info@lexinco.com',
+                subject: 'New Power of Attorney Generated',
+                html: emailHtml,
+                text: emailText,
+                attachments: [
+                    {
+                        filename: 'drafted_power-of-attorney.pdf',
+                        path: pdfPath,
+                        contentType: 'application/pdf'
+                    }
+                ]
+            });
+
+            fs.unlinkSync(pdfPath);
+            res.json({ success: true, content });
+        });
+
     } catch (error) {
-        console.error('OpenAI API Error:', {
-            message: error.message,
-            response: error.response ? error.response.data : null,
-            status: error.response ? error.response.status : null
-        });
-        res.status(500).json({
-            error: 'Failed to generate power of attorney',
-            details: error.response?.data?.error?.message || error.message
-        });
+        console.error('Generate Power of Attorney Error:', error);
+        res.status(500).json({ error: 'Failed to generate power of attorney', details: error.message });
     }
 });
 
 // Generate Partnership Agreement
+
 app.post('/api/generate-partnership-agreement', async (req, res) => {
-    console.log('Received request to /api/generate-partnership-agreement with body:', req.body);
     const formData = req.body;
-    const todayDate = new Date().toLocaleDateString('en-US', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
-    });
-
-    if (!formData.partnership || !formData.partner1 || !formData.partner2 || !formData.businessPurpose || !formData.capitalContribution || !formData.profitSharingRatio || !formData.terms) {
-        console.error('Invalid form data:', formData);
-        return res.status(400).json({ error: 'Invalid form data', details: 'Missing partnership, partner1, partner2, businessPurpose, capitalContribution, profitSharingRatio, or terms data' });
-    }
-
-    const template = `
-PARTNERSHIP AGREEMENT
-
-THIS PARTNERSHIP AGREEMENT (“Agreement”) is made and executed on this ${todayDate} at Mumbai,
-BY AND BETWEEN:
-
-**${formData.partner1.name}**, residing at ${formData.partnership.address}, hereinafter referred to as the "First Partner" (which expression shall, unless repugnant to the context or meaning thereof, include his/her heirs, legal representatives, successors, and assigns);
-
-AND
-
-**${formData.partner2.name}**, residing at ${formData.partnership.address}, hereinafter referred to as the "Second Partner" (which expression shall, unless repugnant to the context or meaning thereof, include his/her heirs, legal representatives, successors, and assigns).
-
-(The First Partner and the Second Partner are hereinafter collectively referred to as the "Partners" and individually as a "Partner").
-
-WHEREAS:
-
-1. The Partners desire to form a partnership firm under the name and style of "${formData.partnership.name}" for the purpose of carrying on the business described herein.
-2. The Partners have agreed to contribute capital, share profits and losses, and manage the business as per the terms set forth below.
-
-NOW THIS AGREEMENT WITNESSETH AS FOLLOWS:
-
-**1. NAME AND PLACE OF BUSINESS**
-The partnership firm shall be carried on under the name "${formData.partnership.name}" and its principal place of business shall be at ${formData.partnership.address}.
-
-**2. BUSINESS PURPOSE**
-The business of the partnership shall be: ${formData.businessPurpose}.
-
-**3. CAPITAL CONTRIBUTION**
-a) The total capital contribution to the partnership shall be Rs. ${formData.capitalContribution} (Rupees ${numberToWords(formData.capitalContribution)}).
-b) Each Partner shall contribute equally or as agreed to the capital of the partnership.
-
-**4. PROFIT AND LOSS SHARING**
-The profits and losses of the partnership shall be shared in the ratio of ${formData.profitSharingRatio}.
-
-**5. MANAGEMENT**
-The Partners shall have equal rights in the management of the partnership business, unless otherwise specified herein: ${formData.terms}.
-
-**6. DISSOLUTION**
-The partnership may be dissolved by mutual consent of the Partners or as per the provisions of the Indian Partnership Act, 1932.
-
-**7. GOVERNING LAW**
-This Agreement shall be governed by and construed in accordance with the laws of India, particularly the Indian Partnership Act, 1932. The Courts at Mumbai shall have exclusive jurisdiction over any disputes arising hereunder.
-
-IN WITNESS WHEREOF, the Partners hereto have hereunto set their respective hands on the day, month, and year first above written.
-
-__________________________          __________________________
-First Partner (Signature & Name)    Second Partner (Signature & Name)
-`;
-
-    const prompt = `
-You are a senior legal assistant with 20+ years of experience in Indian commercial law.
-
-Your task is to draft a **formal Partnership Agreement** based on the provided form data. The agreement must:
-- Be **legally enforceable** under Indian law, particularly the Indian Partnership Act, 1932.
-- Use **precise legal terminology** (e.g., "Partners", "capital contribution", "profit sharing").
-- Reference applicable laws where relevant.
-- Strictly follow the structure of the template provided below. Do not add or remove sections.
-- Expand each section into detailed contractual clauses suitable for a professional legal agreement.
-
-**Form Data**:
-- Partnership Name: ${formData.partnership.name}
-- Partnership Address: ${formData.partnership.address}
-- Partner 1: ${formData.partner1.name}
-- Partner 2: ${formData.partner2.name}
-- Business Purpose: ${formData.businessPurpose}
-- Capital Contribution: Rs. ${formData.capitalContribution}
-- Profit Sharing Ratio: ${formData.profitSharingRatio}
-- Terms: ${formData.terms}
-
-**Template to Follow**:
-${template}
-
-**Instructions**:
-1. Insert detailed legal drafting language for each clause while keeping the structure intact.
-2. Use Indian legal style (formal, verbose, contractual).
-3. Elaborate the business purpose and terms with specific details based on the provided data.
-4. Do not add commentary, explanations, or formatting outside the Agreement text.
-5. Output only the completed Partnership Agreement.
-`;
+    const todayDate = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
 
     try {
-        if (!process.env.OPENAI_API_KEY) {
-            throw new Error('OPENAI_API_KEY is not set in environment variables');
+        if (!formData.partnership || !formData.partner1 || !formData.partner2 || !formData.businessPurpose || !formData.capitalContribution || !formData.profitSharingRatio || !formData.terms) {
+            return res.status(400).json({ error: 'Missing required fields' });
         }
+        const prompt = `
+You are an expert Indian legal draftsman. Draft a detailed, professional, multi-page "Partnership Agreement" under Indian law.
+The draft must be long, comprehensive, and in formal legal language. Include expanded standard clauses:
 
-        console.log('Sending request to OpenAI API for Partnership Agreement...');
-        const response = await axios.post('https://api.openai.com/v1/chat/completions', {
-            model: "gpt-4",
-            messages: [{ role: "user", content: prompt }],
-            temperature: 0.1,
-            max_tokens: 4096
-        }, {
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
-            }
+- Recitals / Background
+- Capital contribution
+- Profit and loss sharing
+- Banking and accounts clause
+- Management and decision-making rights
+- Admission, retirement, or death of partners
+- Non-compete and confidentiality obligations
+- Duration of partnership (at will / fixed term)
+- Dissolution procedure
+- Governing law and jurisdiction
+- Miscellaneous (entire agreement, amendment, severability, counterparts, execution and witness section)
+
+Use the following details accurately:
+
+Partnership Name: ${formData.partnership.name}
+Address: ${formData.partnership.address}
+Partner 1: ${formData.partner1.name}, ${formData.partner1.address}, Contact: ${formData.partner1.contact || 'N/A'}, Email: ${formData.partner1.email || 'N/A'}
+Partner 2: ${formData.partner2.name}, ${formData.partner2.address}, Contact: ${formData.partner2.contact || 'N/A'}, Email: ${formData.partner2.email || 'N/A'}
+Business Purpose: ${formData.businessPurpose}
+Capital Contribution: ${formData.capitalContribution}
+Profit Sharing Ratio: ${formData.profitSharingRatio}
+Terms: ${formData.terms}
+Execution Date: ${todayDate}
+
+Return only the fully formatted legal document text suitable for PDF generation.
+`;
+
+
+        const response = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: [
+                { role: "system", content: "You are a professional Indian legal document drafter." },
+                { role: "user", content: prompt }
+            ],
+            temperature: 0.4,
         });
 
-        console.log('Received response from OpenAI:', response.data);
-        let content = response.data.choices[0].message.content;
+        const content = response.choices[0].message.content;
 
-        const expectedStart = `PARTNERSHIP AGREEMENT`;
-        const expectedEnd = `First Partner (Signature & Name)    Second Partner (Signature & Name)`;
-        if (!content.startsWith(expectedStart) || !content.endsWith(expectedEnd)) {
-            console.warn('OpenAI response does not match expected structure:', content.substring(0, 100) + '...');
-            content = template;
-        }
+        // Generate PDF
+        const doc = new PDFDocument({ size: "A4", margin: 50 });
+        const pdfPath = path.join(uploadDir, `drafted_partnership-agreement_${Date.now()}.pdf`);
+        const writeStream = fs.createWriteStream(pdfPath);
+        doc.pipe(writeStream);
+        doc.fontSize(12).text(content, { align: "justify", lineGap: 6 });
+        doc.end();
 
-        content = content
-            .replace(/\n\n/g, '<p>')
-            .replace(/\n/g, '<br>')
-            .replace(/\t/g, '    ')
-            .replace('[Insert Amount in Words]', numberToWords(formData.capitalContribution));
+        writeStream.on('finish', async () => {
+            const emailHtml = `<p>Dear Lexinco Team,</p><p>A new Partnership Agreement has been generated by ${formData.partner1.name} and ${formData.partner2.name}.</p>`;
+            const emailText = `A new Partnership Agreement has been generated by ${formData.partner1.name} and ${formData.partner2.name}.`;
 
-        res.json({ content });
+            await transporter.sendMail({
+                from: `"Lexinco Drafting Tool" <${process.env.EMAIL_USER}>`,
+                to: 'info@lexinco.com',
+                subject: 'New Partnership Agreement Generated',
+                html: emailHtml,
+                text: emailText,
+                attachments: [{ filename: 'drafted_partnership-agreement.pdf', path: pdfPath, contentType: 'application/pdf' }]
+            });
+
+            fs.unlinkSync(pdfPath);
+            res.json({ success: true, content });
+        });
+
     } catch (error) {
-        console.error('OpenAI API Error:', {
-            message: error.message,
-            response: error.response ? error.response.data : null,
-            status: error.response ? error.response.status : null
-        });
-        res.status(500).json({
-            error: 'Failed to generate partnership agreement',
-            details: error.response?.data?.error?.message || error.message
-        });
+        console.error('Generate Partnership Agreement Error:', error);
+        res.status(500).json({ error: 'Failed to generate partnership agreement', details: error.message });
     }
 });
 
 // Generate Lease Agreement
 app.post('/api/generate-lease-agreement', async (req, res) => {
-    console.log('Received request to /api/generate-lease-agreement with body:', req.body);
     const formData = req.body;
-    const todayDate = new Date().toLocaleDateString('en-US', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
-    });
-
-    if (!formData.lessor || !formData.lessee || !formData.property || !formData.rent || !formData.leaseTerm || !formData.terms) {
-        console.error('Invalid form data:', formData);
-        return res.status(400).json({ error: 'Invalid form data', details: 'Missing lessor, lessee, property, rent, leaseTerm, or terms data' });
-    }
-
-    const template = `
-LEASE AGREEMENT
-
-THIS LEASE AGREEMENT (“Agreement”) is made and executed on this ${todayDate} at Mumbai,
-BY AND BETWEEN:
-
-**${formData.lessor.name}**, residing at ${formData.lessor.address}, hereinafter referred to as the "Lessor" (which expression shall, unless repugnant to the context or meaning thereof, include his/her heirs, legal representatives, successors, and assigns);
-
-AND
-
-**${formData.lessee.name}**, residing at ${formData.lessee.address}, hereinafter referred to as the "Lessee" (which expression shall, unless repugnant to the context or meaning thereof, include his/her heirs, legal representatives, successors, and assigns).
-
-(The Lessor and the Lessee are hereinafter collectively referred to as the "Parties" and individually as a "Party").
-
-WHEREAS:
-
-1. The Lessor is the absolute owner and in lawful possession of the property described hereunder.
-2. The Lessee has approached the Lessor to lease the said property, and the Lessor has agreed to lease the same subject to the terms and conditions contained herein.
-
-NOW THIS AGREEMENT WITNESSETH AS FOLLOWS:
-
-**1. DESCRIPTION OF PROPERTY**
-The Lessor agrees to lease to the Lessee the following property: ${formData.property.address}, being a ${formData.property.type} property.
-
-**2. LEASE TERM**
-The lease shall commence on ${todayDate} and continue for a period of ${formData.leaseTerm}.
-
-**3. RENT**
-a) The Lessee shall pay to the Lessor a monthly rent of Rs. ${formData.rent} (Rupees ${numberToWords(formData.rent)}).
-b) The rent shall be payable on or before the 5th day of each month.
-
-**4. TERMS AND CONDITIONS**
-The Parties agree to the following terms and conditions: ${formData.terms}.
-
-**5. MAINTENANCE AND REPAIRS**
-The Lessee shall be responsible for routine maintenance and minor repairs, unless otherwise agreed.
-
-**6. TERMINATION**
-The lease may be terminated by either Party by giving one month’s written notice, or as per the terms specified herein.
-
-**7. GOVERNING LAW**
-This Agreement shall be governed by and construed in accordance with the laws of India, particularly the Transfer of Property Act, 1882. The Courts at Mumbai shall have exclusive jurisdiction over any disputes arising hereunder.
-
-IN WITNESS WHEREOF, the Parties hereto have hereunto set their respective hands on the day, month, and year first above written.
-
-__________________________          __________________________
-Lessor (Signature & Name)           Lessee (Signature & Name)
-`;
-
-    const prompt = `
-You are a senior legal assistant with 20+ years of experience in Indian property law.
-
-Your task is to draft a **formal Lease Agreement** based on the provided form data. The agreement must:
-- Be **legally enforceable** under Indian law, particularly the Transfer of Property Act, 1882.
-- Use **precise legal terminology** (e.g., "Lessor", "Lessee", "demised premises").
-- Reference applicable laws where relevant.
-- Strictly follow the structure of the template provided below. Do not add or remove sections.
-- Expand each section into detailed contractual clauses suitable for a professional legal agreement.
-
-**Form Data**:
-- Lessor: ${formData.lessor.name}, ${formData.lessor.address}
-- Lessee: ${formData.lessee.name}, ${formData.lessee.address}
-- Property: ${formData.property.address}, Type: ${formData.property.type}
-- Rent: Rs. ${formData.rent}
-- Lease Term: ${formData.leaseTerm}
-- Terms: ${formData.terms}
-
-**Template to Follow**:
-${template}
-
-**Instructions**:
-1. Insert detailed legal drafting language for each clause while keeping the structure intact.
-2. Use Indian legal style (formal, verbose, contractual).
-3. Elaborate the terms and conditions with specific details based on the provided data.
-4. Do not add commentary, explanations, or formatting outside the Agreement text.
-5. Output only the completed Lease Agreement.
-`;
+    const todayDate = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
 
     try {
-        if (!process.env.OPENAI_API_KEY) {
-            throw new Error('OPENAI_API_KEY is not set in environment variables');
+        if (!formData.lessor || !formData.lessee || !formData.property || !formData.rent || !formData.leaseTerm || !formData.terms) {
+            return res.status(400).json({ error: 'Missing required fields' });
         }
 
-        console.log('Sending request to OpenAI API for Lease Agreement...');
-        const response = await axios.post('https://api.openai.com/v1/chat/completions', {
-            model: "gpt-4",
-            messages: [{ role: "user", content: prompt }],
-            temperature: 0.1,
-            max_tokens: 4096
-        }, {
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
-            }
+const prompt = `
+You are an expert Indian legal draftsman. Draft a detailed, professional, multi-page "Lease Agreement" under Indian law.
+The draft must be long, comprehensive, and in formal legal language. Include expanded standard clauses:
+
+- Recitals / Background
+- Description of Property
+- Lease Term
+- Rent and payment details (mode, late fees if any)
+- Security deposit
+- Maintenance and repairs
+- Utilities (electricity, water, society charges)
+- Use of property (residential/commercial restriction)
+- Subletting clause
+- Condition of property on return
+- Termination procedure
+- Governing law and jurisdiction
+- Miscellaneous (entire agreement, amendment, severability, counterparts, execution and witness section)
+
+Use the following details accurately:
+
+Lessor: ${formData.lessor.name}, ${formData.lessor.address}, Contact: ${formData.lessor.contact || 'N/A'}, Email: ${formData.lessor.email || 'N/A'}
+Lessee: ${formData.lessee.name}, ${formData.lessee.address}, Contact: ${formData.lessee.contact || 'N/A'}, Email: ${formData.lessee.email || 'N/A'}
+Property: ${formData.property.address}, Type: ${formData.property.type}
+Rent: ${formData.rent}
+Lease Term: ${formData.leaseTerm}
+Terms: ${formData.terms}
+Execution Date: ${todayDate}
+
+Return only the fully formatted legal document text suitable for PDF generation.
+`;
+
+        const response = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: [
+                { role: "system", content: "You are a professional Indian legal document drafter." },
+                { role: "user", content: prompt }
+            ],
+            temperature: 0.4,
         });
 
-        console.log('Received response from OpenAI:', response.data);
-        let content = response.data.choices[0].message.content;
+        const content = response.choices[0].message.content;
 
-        const expectedStart = `LEASE AGREEMENT`;
-        const expectedEnd = `Lessor (Signature & Name)           Lessee (Signature & Name)`;
-        if (!content.startsWith(expectedStart) || !content.endsWith(expectedEnd)) {
-            console.warn('OpenAI response does not match expected structure:', content.substring(0, 100) + '...');
-            content = template;
-        }
+        const doc = new PDFDocument({ size: "A4", margin: 50 });
+        const pdfPath = path.join(uploadDir, `drafted_lease-agreement_${Date.now()}.pdf`);
+        const writeStream = fs.createWriteStream(pdfPath);
+        doc.pipe(writeStream);
+        doc.fontSize(12).text(content, { align: "justify", lineGap: 6 });
+        doc.end();
 
-        content = content
-            .replace(/\n\n/g, '<p>')
-            .replace(/\n/g, '<br>')
-            .replace(/\t/g, '    ')
-            .replace('[Insert Amount in Words]', numberToWords(formData.rent));
+        writeStream.on('finish', async () => {
+            const emailHtml = `<p>Dear Lexinco Team,</p><p>A new Lease Agreement has been generated by ${formData.lessor.name}.</p>`;
+            const emailText = `A new Lease Agreement has been generated by ${formData.lessor.name}.`;
 
-        res.json({ content });
+            await transporter.sendMail({
+                from: `"Lexinco Drafting Tool" <${process.env.EMAIL_USER}>`,
+                to: 'info@lexinco.com',
+                subject: 'New Lease Agreement Generated',
+                html: emailHtml,
+                text: emailText,
+                attachments: [{ filename: 'drafted_lease-agreement.pdf', path: pdfPath, contentType: 'application/pdf' }]
+            });
+
+            fs.unlinkSync(pdfPath);
+            res.json({ success: true, content });
+        });
+
     } catch (error) {
-        console.error('OpenAI API Error:', {
-            message: error.message,
-            response: error.response ? error.response.data : null,
-            status: error.response ? error.response.status : null
-        });
-        res.status(500).json({
-            error: 'Failed to generate lease agreement',
-            details: error.response?.data?.error?.message || error.message
-        });
+        console.error('Generate Lease Agreement Error:', error);
+        res.status(500).json({ error: 'Failed to generate lease agreement', details: error.message });
     }
 });
+
 app.post('/api/send-otp', async (req, res) => {
     const { email } = req.body;
     const otp = generateOTP();
