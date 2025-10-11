@@ -251,20 +251,40 @@ app.post('/api/generate-notice', async (req, res) => {
         return res.status(400).json({ error: 'Invalid form data', details: 'Missing client, recipient, or dispute data' });
     }
 
+    // Sanitize sensitive data
+    const sanitizedFormData = {
+        client: {
+            name: '[CLIENT_NAME]',
+            address: '[CLIENT_ADDRESS]',
+            contact: '[CLIENT_CONTACT]',
+            email: '[CLIENT_EMAIL]'
+        },
+        recipient: {
+            name: '[RECIPIENT_NAME]',
+            address: '[RECIPIENT_ADDRESS]',
+            contact: formData.recipient.contact ? '[RECIPIENT_CONTACT]' : '',
+            email: formData.recipient.email ? '[RECIPIENT_EMAIL]' : ''
+        },
+        dispute: {
+            issueDescription: formData.dispute.issueDescription,
+            damages: formData.dispute.damages
+        }
+    };
+
     const template = `
 BY REGISTERED /POST/EMAIL
 
                                                              Date: ${todayDate}
 
 To,  
-${formData.recipient.name}  
-${formData.recipient.address}
+${sanitizedFormData.recipient.name}  
+${sanitizedFormData.recipient.address}
 
 Subject: Legal Notice regarding Dispute
 
-Under the instructions and authority from my client ${formData.client.name}, residing at ${formData.client.address}, Mobile: ${formData.client.contact}, I hereby address you as follows:
+Under the instructions and authority from my client ${sanitizedFormData.client.name}, residing at ${sanitizedFormData.client.address}, Mobile: ${sanitizedFormData.client.contact}, I hereby address you as follows:
 
-That my client and you entered into a transaction/understanding, as described: ${formData.dispute.issueDescription}.  
+That my client and you entered into a transaction/understanding, as described: ${sanitizedFormData.dispute.issueDescription}.  
 
 That my client fulfilled all obligations as agreed under the understanding/transaction.  
 
@@ -274,7 +294,7 @@ That despite repeated follow-ups, no satisfactory resolution was offered.
 
 That such failure indicates breach of trust.  
 
-That my client has suffered losses and inconvenience, as described: ${formData.dispute.damages}.  
+That my client has suffered losses and inconvenience, as described: ${sanitizedFormData.dispute.damages}.  
 
 That your conduct constitutes a legal wrong under applicable Indian laws, including but not limited to the Indian Contract Act, 1872.  
 
@@ -290,7 +310,7 @@ This legal notice is issued to you without prejudice to all other legal rights a
 
 Kindly treat this as a final and urgent notice.
 
-For ${formData.client.name}  
+For ${sanitizedFormData.client.name}  
 Through his Legal Counsel,  
 
 (Advocate Shalini Tripathi)
@@ -307,13 +327,16 @@ Your task is to draft a **formal legal notice** based on the provided form data.
 - **EXACTLY** follow the structure provided below, without adding, removing, or modifying any sections, headers, or formatting. Every paragraph after the introductory statement must start with "That". Do not include any additional text, explanations, or markdown symbols outside the template. Do not include letterhead or signatures, as these are added separately.
 
 **Form Data**:
-- Client Name: ${formData.client.name}
-- Client Address: ${formData.client.address}
-- Client Contact: ${formData.client.contact}
-- Recipient Name: ${formData.recipient.name}
-- Recipient Address: ${formData.recipient.address}
-- Issue Description: ${formData.dispute.issueDescription}
-- Damages Suffered: ${formData.dispute.damages}
+- Client Name: ${sanitizedFormData.client.name}
+- Client Address: ${sanitizedFormData.client.address}
+- Client Contact: ${sanitizedFormData.client.contact}
+- Client Email: ${sanitizedFormData.client.email}
+- Recipient Name: ${sanitizedFormData.recipient.name}
+- Recipient Address: ${sanitizedFormData.recipient.address}
+- Recipient Contact: ${sanitizedFormData.recipient.contact}
+- Recipient Email: ${sanitizedFormData.recipient.email}
+- Issue Description: ${sanitizedFormData.dispute.issueDescription}
+- Damages Suffered: ${sanitizedFormData.dispute.damages}
 
 **Template to Follow**:
 ${template}
@@ -342,6 +365,7 @@ ${template}
 
         let content = response.data.choices[0].message.content;
 
+        // Validate response structure
         const expectedStart = `BY REGISTERED /POST/EMAIL`;
         const expectedEnd = `(Advocate Shalini Tripathi)`;
         if (!content.startsWith(expectedStart) || !content.endsWith(expectedEnd)) {
@@ -349,6 +373,18 @@ ${template}
             content = template;
         }
 
+        // Reattach original details
+        content = content
+            .replace(/\[CLIENT_NAME\]/g, formData.client.name)
+            .replace(/\[CLIENT_ADDRESS\]/g, formData.client.address)
+            .replace(/\[CLIENT_CONTACT\]/g, formData.client.contact)
+            .replace(/\[CLIENT_EMAIL\]/g, formData.client.email || '')
+            .replace(/\[RECIPIENT_NAME\]/g, formData.recipient.name)
+            .replace(/\[RECIPIENT_ADDRESS\]/g, formData.recipient.address)
+            .replace(/\[RECIPIENT_CONTACT\]/g, formData.recipient.contact || '')
+            .replace(/\[RECIPIENT_EMAIL\]/g, formData.recipient.email || '');
+
+        // Format content for frontend
         content = content
             .replace(/\n\n/g, '<p>')
             .replace(/\n/g, '<br>')
@@ -712,7 +748,7 @@ app.post('/api/generate-lease-agreement', async (req, res) => {
             return res.status(400).json({ error: 'Missing required fields' });
         }
 
-const prompt = `
+        const prompt = `
 You are an expert Indian legal draftsman. Draft a detailed, professional, multi-page "Lease Agreement" under Indian law.
 The draft must be long, comprehensive, and in formal legal language. Include expanded standard clauses:
 
