@@ -321,15 +321,27 @@
         .features-list li {
             display: flex;
             align-items: center;
+            /* Revert to center for vertical alignment */
             margin-bottom: 0.75rem;
             color: #475569;
             font-size: 1.1rem;
+            text-align: left;
         }
 
         .features-list i {
             color: var(--secondary-color);
             margin-right: 0.75rem;
             font-size: 1.2rem;
+            flex-shrink: 0;
+            width: 1.5rem;
+            /* Fixed width for icon to maintain alignment */
+            text-align: center;
+            /* Center icon within its space */
+        }
+
+        .features-list li span {
+            flex: 1;
+            /* Allow text to take remaining space */
         }
 
         .hero-cta {
@@ -758,6 +770,8 @@
 
             .features-list li {
                 font-size: 1rem;
+                align-items: center;
+                padding-right: 1rem;
             }
 
             .hero-cta {
@@ -875,6 +889,7 @@
 
             .features-list li {
                 font-size: 0.9rem;
+                padding-right: 0.5rem;
             }
 
             .hero-cta {
@@ -1044,9 +1059,10 @@
                 <h1>Cheated? Ignored? Harassed? Don’t Stay Silent.</h1>
                 <h2>Generate a legal notice in minutes.</h2>
                 <ul class="features-list">
-                    <li><i class="fas fa-check"></i> Reviewed by registered advocates</li>
-                    <li><i class="fas fa-check"></i> 1000+ notices created</li>
-                    <li><i class="fas fa-check"></i> Hindi & English supported</li>
+                    <li><i class="fas fa-check"></i><span>Reviewed by registered advocates</span></li>
+                    <li><i class="fas fa-check"></i><span>Includes advocate's letterhead and signature</span></li>
+                    <li><i class="fas fa-check"></i><span>1000+ notices created</span></li>
+                    <li><i class="fas fa-check"></i><span>Hindi & English supported</span></li>
                 </ul>
                 <div class="hero-buttons">
                     <a href="legal-notice.html" class="btn primary hero-cta">📲 Start My Notice Now</a>
@@ -1081,7 +1097,8 @@
             <p
                 style="text-align: center; color: #64748b; margin-bottom: 3rem; max-width: 800px; margin-left: auto; margin-right: auto;">
                 Our platform is backed by experienced legal professionals who ensure every notice meets the highest
-                standards of legal accuracy and professionalism.
+                standards of legal accuracy and professionalism. All notices include the advocate's letterhead,
+                signature, and are sealed by licensed lawyers.
             </p>
             <div class="advisory-grid">
                 <!-- Advocate 1 -->
@@ -1269,7 +1286,8 @@
                         <i class="fas fa-file-alt"></i>
                     </div>
                     <h3>We Prepare a Legal Notice</h3>
-                    <p>Verified by a real lawyer in proper legal format</p>
+                    <p>Verified by a real lawyer, includes advocate's letterhead and signature, sealed by licensed
+                        lawyers</p>
                 </div>
                 <div class="step" data-aos="fade-up" data-aos-delay="300">
                     <div class="step-icon">
@@ -1318,7 +1336,6 @@
         </div>
     </section>
 
-
     <!-- Trust Section -->
     <section class="trust-section" id="advocate-verified">
         <div class="container">
@@ -1329,7 +1346,8 @@
                         <i class="fas fa-certificate"></i>
                     </div>
                     <h3>Advocate Verified</h3>
-                    <p>Every notice reviewed by registered advocates</p>
+                    <p>Every notice reviewed by registered advocates, includes advocate's letterhead, signature, and
+                        sealed by licensed lawyers</p>
                 </div>
                 <div class="trust-item">
                     <div class="trust-icon">
@@ -1365,8 +1383,9 @@
                     Is this legally valid? <i class="fas fa-chevron-down"></i>
                 </button>
                 <div class="faq-answer">
-                    Yes, all notices are prepared in proper legal format and reviewed by registered advocates. They are
-                    legally valid and enforceable.
+                    Yes, all notices are prepared in proper legal format, reviewed by registered advocates, include the
+                    advocate's letterhead and signature, and are sealed by licensed lawyers. They are legally valid and
+                    enforceable.
                 </div>
             </div>
             <div class="faq-item">
@@ -1375,7 +1394,8 @@
                 </button>
                 <div class="faq-answer">
                     Absolutely. Every notice is reviewed by independent registered advocates before delivery to ensure
-                    legal accuracy.
+                    legal accuracy. They also include the advocate's letterhead, signature, and are sealed by licensed
+                    lawyers.
                 </div>
             </div>
             <div class="faq-item">
@@ -1393,8 +1413,8 @@
                 </button>
                 <div class="faq-answer">
                     No, we are now charging ₹999 for the complete legal notice service. This includes the advocate
-                    review and a downloadable copy, ensuring you get a professional, ready-to-use document at an
-                    affordable price.
+                    review, letterhead, signature, sealing by licensed lawyers, and a downloadable copy, ensuring you
+                    get a professional, ready-to-use document at an affordable price.
                 </div>
             </div>
             <div class="faq-item">
