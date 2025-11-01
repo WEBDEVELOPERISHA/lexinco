@@ -843,63 +843,63 @@ app.post('/api/send-otp', async (req, res) => {
     }
 });
 
-app.post('/api/signup', async (req, res) => {
-    const { name, email, password, otp } = req.body;
+// app.post('/api/signup', async (req, res) => {
+//     const { name, email, password, otp } = req.body;
 
-    try {
-        const otpResult = await pool.query(
-            'SELECT * FROM otps WHERE email = $1 AND otp = $2 AND expires_at > NOW()',
-            [email, otp]
-        );
-        if (otpResult.rows.length === 0) {
-            return res.status(400).json({ error: 'Invalid/expired OTP. Please request a new one.' });
-        }
+//     try {
+//         const otpResult = await pool.query(
+//             'SELECT * FROM otps WHERE email = $1 AND otp = $2 AND expires_at > NOW()',
+//             [email, otp]
+//         );
+//         if (otpResult.rows.length === 0) {
+//             return res.status(400).json({ error: 'Invalid/expired OTP. Please request a new one.' });
+//         }
 
-        const userResult = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-        if (userResult.rows.length > 0) {
-            return res.status(400).json({ error: 'User already exists' });
-        }
+//         const userResult = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+//         if (userResult.rows.length > 0) {
+//             return res.status(400).json({ error: 'User already exists' });
+//         }
 
-        const passwordHash = await bcrypt.hash(password, 10);
-        const userId = uuidv4();
-        const insertResult = await pool.query(
-            'INSERT INTO users (user_id, name, email, password_hash, is_verified) VALUES ($1, $2, $3, $4, $5) RETURNING user_id, name, email',
-            [userId, name, email, passwordHash, true]
-        );
+//         const passwordHash = await bcrypt.hash(password, 10);
+//         const userId = uuidv4();
+//         const insertResult = await pool.query(
+//             'INSERT INTO users (user_id, name, email, password_hash, is_verified) VALUES ($1, $2, $3, $4, $5) RETURNING user_id, name, email',
+//             [userId, name, email, passwordHash, true]
+//         );
 
-        await pool.query('DELETE FROM otps WHERE email = $1', [email]);
+//         await pool.query('DELETE FROM otps WHERE email = $1', [email]);
 
-        res.json({ success: true, user: insertResult.rows[0] });
-    } catch (error) {
-        console.error('Signup Error:', error);
-        res.status(500).json({ error: 'Signup failed', details: error.message });
-    }
-});
+//         res.json({ success: true, user: insertResult.rows[0] });
+//     } catch (error) {
+//         console.error('Signup Error:', error);
+//         res.status(500).json({ error: 'Signup failed', details: error.message });
+//     }
+// });
 
-app.post('/api/login', async (req, res) => {
-    const { email, password } = req.body;
+// app.post('/api/login', async (req, res) => {
+//     const { email, password } = req.body;
 
-    try {
-        const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-        if (result.rows.length === 0) {
-            return res.status(401).json({ error: 'Invalid credentials' });
-        }
+//     try {
+//         const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+//         if (result.rows.length === 0) {
+//             return res.status(401).json({ error: 'Invalid credentials' });
+//         }
 
-        const user = result.rows[0];
-        const isValid = await bcrypt.compare(password, user.password_hash);
-        if (!isValid) {
-            return res.status(401).json({ error: 'Invalid credentials' });
-        }
+//         const user = result.rows[0];
+//         const isValid = await bcrypt.compare(password, user.password_hash);
+//         if (!isValid) {
+//             return res.status(401).json({ error: 'Invalid credentials' });
+//         }
 
-        res.json({
-            success: true,
-            user: { id: user.user_id, name: user.name, email: user.email }
-        });
-    } catch (error) {
-        console.error('Login Error:', error);
-        res.status(500).json({ error: 'Login failed', details: error.message });
-    }
-});
+//         res.json({
+//             success: true,
+//             user: { id: user.user_id, name: user.name, email: user.email }
+//         });
+//     } catch (error) {
+//         console.error('Login Error:', error);
+//         res.status(500).json({ error: 'Login failed', details: error.message });
+//     }
+// });
 
 app.get('/api/get-notice/:id', async (req, res) => {
     try {
