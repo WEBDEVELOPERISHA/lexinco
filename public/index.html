@@ -112,6 +112,133 @@
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
         }
 
+        .footer {
+            background: #0d0d0d;
+            color: #ddd;
+            padding: 50px 20px 20px;
+            font-family: "Poppins", sans-serif;
+        }
+
+        .footer .container {
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .footer-top {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            border-bottom: 1px solid #333;
+            padding-bottom: 30px;
+            margin-bottom: 30px;
+        }
+
+        .footer-brand {
+            flex: 1 1 300px;
+        }
+
+        .footer-brand .logo img {
+            width: 150px;
+            margin-bottom: 10px;
+        }
+
+        .footer-brand .tagline {
+            color: #bbb;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .footer-links,
+        .footer-contact {
+            flex: 1 1 200px;
+        }
+
+        .footer-links h4,
+        .footer-contact h4 {
+            color: #fff;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .footer-links ul,
+        .footer-contact ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-links ul li,
+        .footer-contact ul li {
+            margin-bottom: 8px;
+        }
+
+        .footer-links ul li a {
+            color: #bbb;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .footer-links ul li a:hover {
+            color: #fff;
+        }
+
+        .footer-contact ul li i {
+            margin-right: 8px;
+            color: #ffae00;
+        }
+
+        .social-links a {
+            color: #bbb;
+            font-size: 18px;
+            margin-right: 10px;
+            transition: color 0.3s;
+        }
+
+        .social-links a:hover {
+            color: #ffae00;
+        }
+
+        .footer-disclaimer {
+            text-align: center;
+            max-width: 800px;
+            margin: 40px auto 20px;
+        }
+
+        .footer-disclaimer h3 {
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .footer-disclaimer p {
+            color: #aaa;
+            font-size: 14px;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        .footer-disclaimer .btn.primary {
+            display: inline-block;
+            background: #ffae00;
+            color: #000;
+            padding: 10px 25px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .footer-disclaimer .btn.primary:hover {
+            background: #ffcc33;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            border-top: 1px solid #222;
+            padding-top: 15px;
+            color: #999;
+            font-size: 14px;
+        }
+
+
         .advisor-photo {
             margin: 0 auto 1rem;
             width: 120px;
@@ -1432,13 +1559,16 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <div class="footer-content">
+            <div class="footer-top">
                 <div class="footer-brand">
                     <a href="index.html" class="logo">
-                        <img src="/assets/logo.svg" alt="Lexinco Logo">
+                        <img src="/assets/logo.svg" alt="Lexinco Logo" />
                     </a>
-                    <p>Making legal documentation accessible and efficient.</p>
+                    <p class="tagline">
+                        Making legal documentation simple, smart, and accessible for everyone.
+                    </p>
                 </div>
+
                 <div class="footer-links">
                     <h4>Quick Links</h4>
                     <ul>
@@ -1448,23 +1578,38 @@
                         <li><a href="index.html#how-it-works">How It Works</a></li>
                     </ul>
                 </div>
+
                 <div class="footer-contact">
                     <h4>Need Help?</h4>
                     <ul>
                         <li><i class="fas fa-envelope"></i> support@lexinco.com</li>
                     </ul>
+                    <div class="social-links">
+                        <a href="https://x.com/lexinco_ai"><i class="fab fa-twitter"></i></a>
+                        <!-- <a href="#"><i class="fab fa-linkedin"></i></a> -->
+                        <a href="https://www.instagram.com/lexinco_ai/"><i class="fab fa-instagram"></i></a>
+                    </div>
                 </div>
             </div>
+
+            <div class="footer-disclaimer">
+                <h3>Disclaimer</h3>
+                <p>
+                    Lexinco is not a law firm and does not provide legal advice. We connect you
+                    with registered advocates for professional legal notice drafting and
+                    consultation. All services are provided by independent advocates registered
+                    with the Bar Council of India, in compliance with the Advocates Act, 1961.
+                    Using our platform does not create an attorney-client relationship.
+                </p>
+                <a href="legal-notice.html" class="btn primary">Claim Your Notice Now!!</a>
+            </div>
+
             <div class="footer-bottom">
                 <p>© 2025 Lexinco. All rights reserved.</p>
-                <div class="social-links">
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-linkedin"></i></a>
-                    <a href="#"><i class="fab fa-facebook"></i></a>
-                </div>
             </div>
         </div>
     </footer>
+
 
     <!-- Mobile Sticky Bar -->
     <div class="mobile-sticky">
