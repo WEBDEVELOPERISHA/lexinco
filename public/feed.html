@@ -445,13 +445,12 @@
 
   <!-- Header -->
   <header>
-    <div class="header-inner">
-      <div class="logo">
-        <i class="fa-solid fa-shield-halved"></i>
-        <span>Lexinco</span>
-      </div>
-      <i class="fa-solid fa-magnifying-glass"></i>
-    </div>
+<div class="header-inner">
+  <a href="index.html" class="logo">
+    <img src="/assets/logo.png" alt="Lexinco Logo" width="180" height="auto">
+  </a>
+  <i class="fa-solid fa-magnifying-glass"></i>
+</div>
 
     <div class="tabs">
       <div class="tab active" onclick="setFilter('all')">All Issues</div>
@@ -635,9 +634,9 @@
                 </div>
             </div>
 
-            <button class="generate-btn" onclick="event.stopPropagation(); generateNotice('${s.story_id}')">
-                Generate Legal Notice
-            </button>
+<button class="generate-btn" onclick="event.stopPropagation(); window.location.href='legal-notice.html?story_id=${s.story_id}'">
+    Generate Legal Notice
+</button>
         </div>`;
       }).join('');
     }
@@ -795,10 +794,12 @@
         </div>
 
         <div style="display:flex; gap:12px; margin:20px 0;">
-            <button class="generate-btn" onclick="generateNotice('${story_id}')">Generate Notice</button>
-            <button style="flex:1; background:var(--card); color:white; padding:14px; border-radius:12px;" onclick="alert('Advocate consultation coming soon!')">
-                Consult Advocate
-            </button>
+            <button class="generate-btn" onclick="window.location.href='legal-notice.html?story_id=${story_id}'">
+    Generate Notice
+</button>
+<button style="flex:1; background:var(--card); color:white; padding:14px; border-radius:12px;" onclick="window.location.href='consultation.html?story_id=${story_id}'">
+    Consult Advocate
+</button>
         </div>
 
         <div style="margin-top:30px; border-top:1px solid var(--border); padding-top:20px;">
@@ -893,10 +894,10 @@
     /* -------------------------------------------------
        GENERATE NOTICE (stub)
        ------------------------------------------------- */
-    function generateNotice(storyId) {
-      alert(`Generating legal notice for story ${storyId}...`);
-      // In real app: redirect to notice generator with story context
-    }
+    // function generateNotice(storyId) {
+    //   alert(`Generating legal notice for story ${storyId}...`);
+    //   // In real app: redirect to notice generator with story context
+    // }
 
     /* -------------------------------------------------
        MODAL & SUBMIT
