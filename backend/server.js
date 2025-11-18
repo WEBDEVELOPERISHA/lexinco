@@ -86,10 +86,265 @@ function numberToWords(number) {
     }
     return words.trim() + ' Only';
 }
+// === GET ALL BLOGS ===
+app.get('/api/blogs', async (req, res) => {
+    try {
+        const result = await pool.query(`
+      SELECT blog_id, title, description, image_url, created_at
+      FROM blogs
+      ORDER BY created_at DESC
+    `);
+        res.json({ success: true, blogs: result.rows });
+    } catch (error) {
+        console.error('Get Blogs Error:', error);
+        res.status(500).json({ error: 'Failed to fetch blogs' });
+    }
+});
+/* -------------------------------------------------
+   LIKES
+   ------------------------------------------------- */
+app.post('/api/story/:id/like', async (req, res) => {
+    const { id } = req.params;
+    const { user_id } = req.body;
+    if (!user_id) return res.status(400).json({ error: 'user_id required' });
+
+    try {
+        // Toggle like
+        const exists = await pool.query(
+            'SELECT 1 FROM story_likes WHERE story_id = $1 AND user_id = $2',
+            [id, user_id]
+        );
+
+        if (exists.rows.length > 0) {
+            await pool.query('DELETE FROM story_likes WHERE story_id = $1 AND user_id = $2', [id, user_id]);
+            await pool.query('UPDATE stories SET likes_count = likes_count - 1 WHERE story_id = $1', [id]);
+            res.json({ success: true, liked: false });
+        } else {
+            await pool.query(
+                'INSERT INTO story_likes (story_id, user_id) VALUES ($1, $2)',
+                [id, user_id]
+            );
+            await pool.query('UPDATE stories SET likes_count = likes_count + 1 WHERE story_id = $1', [id]);
+            res.json({ success: true, liked: true });
+        }
+    } catch (err) {
+        console.error('Like error:', err);
+        res.status(500).json({ error: 'Failed to toggle like' });
+    }
+});
+
+/* -------------------------------------------------
+   COMMENTS
+   ------------------------------------------------- */
+app.get('/api/story/:id/comments', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const result = await pool.query(`
+    SELECT c.*, u.name AS user_name
+    FROM story_comments c
+    LEFT JOIN users u ON c.user_id = u.user_id::uuid
+    WHERE c.story_id = $1::uuid
+    ORDER BY c.created_at ASC
+`, [id]);
+
+        res.json({ success: true, comments: result.rows });
+    } catch (err) {
+        console.error('Get comments error:', err);
+        res.status(500).json({ error: 'Failed to fetch comments' });
+    }
+});
+
+
+app.post('/api/story/:id/comment', async (req, res) => {
+    const { id } = req.params;
+    const { user_id, content, parent_id } = req.body;
+
+    if (!user_id || !content) {
+        return res.status(400).json({ error: 'user_id and content required' });
+    }
+
+    try {
+        const result = await pool.query(`
+            INSERT INTO story_comments (story_id, user_id, parent_id, content)
+            VALUES ($1::uuid, $2::uuid, $3::uuid, $4)
+            RETURNING comment_id, created_at, user_id, content, parent_id
+        `, [id, user_id, parent_id || null, content]);
+
+        await pool.query(
+            'UPDATE stories SET comments_count = comments_count + 1 WHERE story_id = $1::uuid',
+            [id]
+        );
+
+        res.json({ success: true, comment: result.rows[0] });
+    } catch (err) {
+        console.error('Post comment error:', err);
+        res.status(500).json({ error: 'Failed to post comment' });
+    }
+});
+
+
+/* -------------------------------------------------
+   FILTERED STORIES
+   ------------------------------------------------- */
+app.get('/api/stories/filter', async (req, res) => {
+    const { filter = 'all', limit = 20, offset = 0 } = req.query;
+    let query = '';
+    let values = [limit, offset];
+
+    if (filter === 'trending') {
+        query = `
+            SELECT * FROM stories 
+            ORDER BY likes_count DESC, created_at DESC 
+            LIMIT $1 OFFSET $2
+        `;
+    } else if (filter === 'recent') {
+        query = `
+            SELECT * FROM stories 
+            ORDER BY created_at DESC 
+            LIMIT $1 OFFSET $2
+        `;
+    } else {
+        query = `
+            SELECT * FROM stories 
+            ORDER BY created_at DESC 
+            LIMIT $1 OFFSET $2
+        `;
+    }
+
+    try {
+        const result = await pool.query(query, values);
+        res.json({ success: true, stories: result.rows });
+    } catch (err) {
+        console.error('Filter error:', err);
+        res.status(500).json({ error: 'Failed to fetch filtered stories' });
+    }
+});
+
+/* -------------------------------------------------
+   USER PROFILE STORIES
+   ------------------------------------------------- */
+app.get('/api/user/:id/stories', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const result = await pool.query(
+            'SELECT * FROM stories WHERE user_id = $1 ORDER BY created_at DESC',
+            [id]
+        );
+        res.json({ success: true, stories: result.rows });
+    } catch (err) {
+        console.error('User stories error:', err);
+        res.status(500).json({ error: 'Failed to fetch user stories' });
+    }
+});
+
+// === UPLOAD BLOG ===
+app.post('/api/upload-blog', upload.single('image'), async (req, res) => {
+    const { title, description } = req.body;
+    const imageFile = req.file;
+
+    if (!title || !description || !imageFile) {
+        return res.status(400).json({ error: 'Missing title, description, or image' });
+    }
+
+    try {
+        const blogId = uuidv4();
+        const imageExt = path.extname(imageFile.originalname);
+        const imageName = `${blogId}${imageExt}`;
+        const imagePath = path.join(uploadDir, imageName);
+        fs.renameSync(imageFile.path, imagePath);
+
+        const imageUrl = `${process.env.HEROKU_APP_URL || `http://localhost:${PORT}`}/Uploads/${imageName}`;
+
+        const query = `
+      INSERT INTO blogs (blog_id, title, description, image_url, created_at)
+      VALUES ($1, $2, $3, $4, NOW())
+      RETURNING *
+    `;
+        const result = await pool.query(query, [blogId, title, description, imageUrl]);
+
+        res.json({ success: true, blog: result.rows[0] });
+    } catch (error) {
+        console.error('Upload Blog Error:', error);
+        if (req.file && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+        res.status(500).json({ error: 'Failed to upload blog' });
+    }
+});
 
 // API Routes
 app.get('/api/config', (req, res) => {
     res.json({});
+});
+app.get('/api/stories', async (req, res) => {
+    try {
+        const result = await pool.query(`
+            SELECT 
+                story_id, user_id, original_lang, original_text,
+                ai_summary, amount, evidence_count, tags,
+                type, status, created_at
+            FROM stories
+            ORDER BY created_at DESC
+        `);
+        res.json({ success: true, stories: result.rows });
+    } catch (err) {
+        console.error('GET /api/stories error:', err);
+        res.status(500).json({ error: 'Failed to fetch stories' });
+    }
+});
+
+// POST a new story + AI summary
+app.post('/api/story', async (req, res) => {
+    const {
+        user_id,
+        original_lang,
+        original_text,
+        amount,
+        evidence_count = 0,
+        tags = [],
+        type
+    } = req.body;
+
+    if (!user_id || !original_lang || !original_text) {
+        return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    try {
+        // ---------- AI SUMMARY ----------
+        const summaryPrompt = `
+You are a concise legal-assistant AI. Summarise the following user story in **one short English sentence** (max 30 words). 
+Keep the tone neutral and factual. Return ONLY the summary.
+
+Language: ${original_lang}
+Story: """${original_text}"""
+`;
+
+        const aiRes = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: [{ role: "user", content: summaryPrompt }],
+            temperature: 0.2,
+            max_tokens: 60
+        });
+        const ai_summary = (aiRes.choices[0].message.content || original_text).trim();
+
+        // ---------- SAVE TO DB ----------
+        const q = `
+            INSERT INTO stories (
+                user_id, original_lang, original_text, ai_summary,
+                amount, evidence_count, tags, type
+            ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+            RETURNING story_id
+        `;
+        const vals = [
+            user_id, original_lang, original_text, ai_summary,
+            amount, evidence_count, tags, type
+        ];
+        const { rows } = await pool.query(q, vals);
+        const story_id = rows[0].story_id;
+
+        res.json({ success: true, story_id, ai_summary });
+    } catch (err) {
+        console.error('POST /api/story error:', err);
+        res.status(500).json({ error: 'Failed to save story' });
+    }
 });
 
 app.post('/api/generate-sale-agreement', upload.none(), async (req, res) => {

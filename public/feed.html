@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lexinco Community Feed</title>
+
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    :root {
+      --bg: #0f0f0f;
+      --card: #111111;
+      --border: #222222;
+      --text: #e5e5e5;
+      --text-muted: #888888;
+      --amber: #f59e0b;
+      --orange: #f97316;
+      --blue: #3b82f6;
+      --green: #10b981;
+      --red: #ef4444;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 540px;
+      margin: 0 auto;
+      padding-bottom: 80px;
+    }
+
+    /* Header */
+    header {
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      z-index: 10;
+      backdrop-filter: blur(12px);
+    }
+
+    .header-inner {
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: bold;
+      font-size: 1.5rem;
+    }
+
+    .logo i {
+      color: var(--amber);
+      font-size: 1.8rem;
+    }
+
+    .logo span {
+      background: linear-gradient(135deg, var(--amber), var(--orange));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 12px;
+      padding: 0 16px 12px;
+      overflow-x: auto;
+    }
+
+    .tab {
+      padding: 8px 16px;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      background: var(--card);
+      color: var(--text-muted);
+      transition: all .2s;
+    }
+
+    .tab.active {
+      background: var(--amber);
+      color: white;
+    }
+
+    /* Feed Card */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      margin: 16px;
+      padding: 20px;
+      transition: all .2s;
+    }
+
+    .card:hover {
+      border-color: #333;
+    }
+
+    .user-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--amber), var(--orange));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.5rem;
+    }
+
+    .user-meta {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .type-badge {
+      background: #ff980030;
+      border: 1px solid #ff980050;
+      color: var(--amber);
+      padding: 4px 12px;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .ai-summary {
+      background: #3b82f620;
+      border: 1px solid #3b82f630;
+      color: #60a5fa;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 12px 0;
+    }
+
+    .amount {
+      background: #ef444420;
+      border: 1px solid #ef444440;
+      color: #f87171;
+      padding: 6px 12px;
+      border-radius: 50px;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+
+    .evidence {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 12px 0;
+    }
+
+    .tag {
+      background: var(--border);
+      color: var(--text-muted);
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      margin-top: 8px;
+    }
+
+    .status.seeking {
+      background: #3b82f610;
+      color: #60a5fa;
+    }
+
+    .status.action {
+      background: #10b98110;
+      color: #34d399;
+    }
+
+    .status.escalate {
+      background: #f59e0b10;
+      color: #fbbf24;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      margin-top: 16px;
+    }
+
+    .action-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: color .2s;
+    }
+
+    .action-btn:hover {
+      color: var(--amber);
+    }
+
+    .generate-btn {
+      margin-top: 16px;
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--amber), var(--orange));
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .3s;
+    }
+
+    .generate-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(245, 158, 11, 0.3);
+    }
+
+    /* Bottom Nav */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--card);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      padding: 12px 0;
+      z-index: 100;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
+
+    .nav-item.active {
+      color: var(--amber);
+    }
+
+    .nav-item i {
+      font-size: 1.4rem;
+    }
+
+    /* Floating + button */
+    .fab {
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, var(--amber), var(--orange));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.8rem;
+      box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4);
+      cursor: pointer;
+      z-index: 99;
+      transition: transform .3s;
+    }
+
+    .fab:hover {
+      transform: scale(1.1);
+    }
+
+    /* Modal */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--card);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 500px;
+      max-height: 95vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h2 {
+      font-size: 1.4rem;
+    }
+
+    .close {
+      font-size: 1.8rem;
+      cursor: pointer;
+      color: var(--text-muted);
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .lang-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .lang-btn {
+      padding: 14px;
+      border-radius: 12px;
+      text-align: center;
+      border: 2px solid var(--border);
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .lang-btn.active {
+      border-color: var(--amber);
+      background: rgba(245, 158, 11, 0.1);
+      color: white;
+    }
+
+    textarea {
+      width: 100%;
+      height: 200px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      color: white;
+      font-size: 1rem;
+      resize: none;
+    }
+
+    .char-count {
+      text-align: right;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 16px;
+      margin-top: 20px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--amber), var(--orange));
+      color: white;
+      font-weight: 600;
+      font-size: 1.1rem;
+      cursor: pointer;
+    }
+
+    /* Detail screen (simple) */
+    #detailScreen {
+      display: none;
+    }
+
+    .back-btn {
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--text-muted);
+    }
+
+    /* Responsive */
+    @media (min-width: 768px) {
+      .container {
+        max-width: 600px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="header-inner">
+      <div class="logo">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span>Lexinco</span>
+      </div>
+      <i class="fa-solid fa-magnifying-glass"></i>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="setFilter('all')">All Issues</div>
+      <div class="tab" onclick="setFilter('trending')">Trending</div>
+      <div class="tab" onclick="setFilter('recent')">Recent</div>
+    </div>
+  </header>
+
+  <!-- Feed -->
+  <div class="container" id="feedScreen">
+    <!-- Issue Cards will be injected here by JS -->
+  </div>
+
+  <!-- Detail Screen -->
+  <div id="detailScreen">
+    <header>
+      <div class="header-inner">
+        <i class="fa-solid fa-chevron-left back-btn" onclick="showFeed()"></i>
+        <div>Issue Details</div>
+      </div>
+    </header>
+    <div class="container" id="detailContent"></div>
+  </div>
+
+  <!-- Floating Action Button -->
+  <div class="fab" onclick="openShareModal()">
+    <i class="fa-solid fa-plus"></i>
+  </div>
+
+  <!-- Share Modal -->
+  <div class="modal" id="shareModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Share Your Story</h2>
+        <span class="close" onclick="closeShareModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div
+          style="background:#3b82f620; border:1px solid #3b82f630; padding:16px; border-radius:12px; display:flex; gap:12px;">
+          <i class="fa-solid fa-sparkles" style="color:#60a5fa;"></i>
+          <div style="font-size:0.9rem; color:#94bfff;">
+            <strong>Write in your language.</strong> Our AI will summarize your issue clearly.
+          </div>
+        </div>
+
+        <p style="margin:20px 0 8px; color:var(--text-muted);">Choose language</p>
+        <div class="lang-grid">
+          <div class="lang-btn active" data-lang="english">English</div>
+          <div class="lang-btn" data-lang="hindi">Hindi</div>
+          <div class="lang-btn" data-lang="tamil">Tamil</div>
+          <div class="lang-btn" data-lang="telugu">Telugu</div>
+          <div class="lang-btn" data-lang="marathi">Marathi</div>
+          <div class="lang-btn" data-lang="bengali">Bengali</div>
+        </div>
+
+        <p style="margin:20px 0 8px; color:var(--text-muted);">Describe your situation</p>
+        <textarea id="postText" placeholder="Tell us what happened..."></textarea>
+        <div class="char-count">0 characters</div>
+
+        <button class="submit-btn">Share My Story</button>
+        <p style="text-align:center; margin-top:16px; color:var(--text-muted); font-size:0.85rem;">
+          Your story matters. You are not alone.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <div class="bottom-nav">
+    <div class="nav-item active">
+      <i class="fa-solid fa-house"></i>
+      <span>Feed</span>
+    </div>
+    <div class="nav-item" onclick="openShareModal()">
+      <i class="fa-solid fa-plus"></i>
+      <span>Share</span>
+    </div>
+    <div class="nav-item">
+      <i class="fa-solid fa-user"></i>
+      <span>Profile</span>
+    </div>
+  </div>
+
+  <script>
+    /* -------------------------------------------------
+       GLOBAL STATE
+       ------------------------------------------------- */
+    const API = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+      ? 'http://localhost:3000' : '';
+
+    let USER_ID = localStorage.getItem('lexinco_user_id');
+    if (!USER_ID) {
+      USER_ID = crypto.randomUUID();
+      localStorage.setItem('lexinco_user_id', USER_ID);
+    }
+
+    let CURRENT_FILTER = 'all';
+    let CURRENT_STORY_ID = null;
+    let STORIES = [];
+
+    /* -------------------------------------------------
+       HELPERS
+       ------------------------------------------------- */
+    function timeAgo(date) {
+      const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+      const intervals = [
+        { label: 'year', seconds: 31536000 },
+        { label: 'month', seconds: 2592000 },
+        { label: 'day', seconds: 86400 },
+        { label: 'hour', seconds: 3600 },
+        { label: 'minute', seconds: 60 }
+      ];
+      for (const i of intervals) {
+        const count = Math.floor(seconds / i.seconds);
+        if (count > 1) return `${count} ${i.label}s ago`;
+        if (count === 1) return `1 ${i.label} ago`;
+      }
+      return 'just now';
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    /* -------------------------------------------------
+       RENDER FEED
+       ------------------------------------------------- */
+    function renderFeed(stories) {
+      STORIES = stories;
+      const container = document.getElementById('feedScreen');
+      if (!stories.length) {
+        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin:40px 0;">No stories yet. Be the first to share!</p>';
+        return;
+      }
+
+      container.innerHTML = stories.map(s => {
+        const isLiked = s.liked_by_user;
+        const likeIcon = isLiked ? 'fa-solid fa-thumbs-up' : 'fa-regular fa-thumbs-up';
+        const likeColor = isLiked ? 'color:var(--amber)' : '';
+
+        return `
+        <div class="card" onclick="showDetail('${s.story_id}')">
+            <div class="user-row">
+                <div class="user-info">
+                    <div class="avatar"><i class="fa-solid fa-user"></i></div>
+                    <div>
+                        <div style="font-weight:600;">Anonymous</div>
+                        <div class="user-meta"><i class="fa-solid fa-globe"></i> ${s.original_lang} • ${timeAgo(s.created_at)}</div>
+                    </div>
+                </div>
+                ${s.type ? `<div class="type-badge">${s.type}</div>` : ''}
+            </div>
+
+            <div class="ai-summary"><i class="fa-solid fa-sparkles"></i> AI Summary</div>
+            <p style="margin:12px 0; line-height:1.6;">${escapeHtml(s.ai_summary || '')}</p>
+
+            <div style="display:flex; gap:16px; flex-wrap:wrap; margin:8px 0;">
+                ${s.amount ? `<div class="amount">${s.amount}</div>` : ''}
+                ${s.evidence_count ? `<div class="evidence"><i class="fa-solid fa-paperclip"></i> ${s.evidence_count} files</div>` : ''}
+            </div>
+
+            <div class="tags">
+                ${(s.tags || []).map(t => `<span class="tag">#${t}</span>`).join('')}
+            </div>
+
+            <div class="actions">
+                <div class="status ${s.status === 'ready_escalate' ? 'escalate' : s.status === 'action_plan' ? 'action' : 'seeking'}">
+                    ${s.status === 'ready_escalate' ? '<i class="fa-solid fa-shield-halved"></i> Ready to Escalate' :
+            s.status === 'action_plan' ? '<i class="fa-solid fa-circle-check"></i> Action Plan' :
+              '<i class="fa-solid fa-circle-info"></i> Seeking Guidance'}
+                </div>
+                <div style="display:flex; gap:20px;">
+                    <div class="action-btn" onclick="event.stopPropagation(); toggleLike('${s.story_id}', this)">
+                        <i class="${likeIcon}" style="${likeColor}"></i> <span>${s.likes_count || 0}</span>
+                    </div>
+                    <div class="action-btn" onclick="event.stopPropagation(); showDetail('${s.story_id}')">
+                        <i class="fa-solid fa-message"></i> <span>${s.comments_count || 0}</span>
+                    </div>
+                </div>
+            </div>
+
+            <button class="generate-btn" onclick="event.stopPropagation(); generateNotice('${s.story_id}')">
+                Generate Legal Notice
+            </button>
+        </div>`;
+      }).join('');
+    }
+
+    /* -------------------------------------------------
+       LOAD STORIES
+       ------------------------------------------------- */
+    async function loadFeed(filter = CURRENT_FILTER) {
+      try {
+        const url = filter === 'all'
+          ? `${API}/api/stories`
+          : `${API}/api/stories/filter?filter=${filter}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.success) {
+          // Attach like status
+          const enriched = data.stories.map(s => ({
+            ...s,
+            liked_by_user: false // will be updated by /like check if needed
+          }));
+          renderFeed(enriched);
+        }
+      } catch (e) { console.error(e); }
+    }
+
+    /* -------------------------------------------------
+       TABS
+       ------------------------------------------------- */
+    function setFilter(filter) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      CURRENT_FILTER = filter;
+      loadFeed(filter);
+    }
+
+    /* -------------------------------------------------
+       LIKE TOGGLE
+       ------------------------------------------------- */
+    async function toggleLike(storyId, btn) {
+      try {
+        const res = await fetch(`${API}/api/story/${storyId}/like`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: USER_ID })
+        });
+        const json = await res.json();
+        if (json.success) {
+          const icon = btn.querySelector('i');
+          const count = btn.querySelector('span');
+          if (json.liked) {
+            icon.className = 'fa-solid fa-thumbs-up';
+            icon.style.color = 'var(--amber)';
+            count.textContent = (parseInt(count.textContent) + 1);
+          } else {
+            icon.className = 'fa-regular fa-thumbs-up';
+            icon.style.color = '';
+            count.textContent = (parseInt(count.textContent) - 1);
+          }
+          // Update global
+          const story = STORIES.find(s => s.story_id === storyId);
+          if (story) story.likes_count = parseInt(count.textContent);
+        }
+      } catch (e) { console.error(e); }
+    }
+
+    /* -------------------------------------------------
+       COMMENTS
+       ------------------------------------------------- */
+    async function loadComments(storyId) {
+      try {
+        const res = await fetch(`${API}/api/story/${storyId}/comments`);
+        const data = await res.json();
+        return data.success ? data.comments : [];
+      } catch (e) { return []; }
+    }
+
+    async function postComment(storyId, content, parentId = null) {
+      try {
+        const res = await fetch(`${API}/api/story/${storyId}/comment`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: USER_ID, content, parent_id: parentId })
+        });
+        const json = await res.json();
+        return json.success ? json.comment : null;
+      } catch (e) { return null; }
+    }
+
+    function renderComment(c, depth = 0) {
+      const indent = depth * 24;
+      return `
+    <div style="margin-left:${indent}px; border-left:2px solid var(--border); padding-left:12px; margin-top:8px;">
+        <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:var(--text-muted);">
+            <span>Anonymous • ${timeAgo(c.created_at)}</span>
+        </div>
+        <p style="margin:6px 0; font-size:0.9rem;">${escapeHtml(c.content)}</p>
+        <div style="margin-top:4px;">
+            <a href="javascript:void(0)" onclick="showReplyBox('${c.comment_id}', this)" style="font-size:0.75rem; color:var(--amber);">Reply</a>
+        </div>
+        <div id="reply-${c.comment_id}"></div>
+    </div>`;
+    }
+
+    function renderComments(comments) {
+      const tree = {};
+      const roots = [];
+
+      comments.forEach(c => {
+        if (!c.parent_id) roots.push(c);
+        else {
+          if (!tree[c.parent_id]) tree[c.parent_id] = [];
+          tree[c.parent_id].push(c);
+        }
+      });
+
+      function build(node) {
+        let html = renderComment(node);
+        if (tree[node.comment_id]) {
+          html += tree[node.comment_id].map(build).join('');
+        }
+        return html;
+      }
+
+      return roots.map(build).join('');
+    }
+
+    /* -------------------------------------------------
+       DETAIL SCREEN
+       ------------------------------------------------- */
+    async function showDetail(story_id) {
+      CURRENT_STORY_ID = story_id;
+      const story = STORIES.find(s => s.story_id === story_id);
+      if (!story) return;
+
+      const comments = await loadComments(story_id);
+
+      document.getElementById('detailContent').innerHTML = `
+    <div class="card">
+        <div class="user-row">
+            <div class="user-info">
+                <div class="avatar"><i class="fa-solid fa-user"></i></div>
+                <div>
+                    <div style="font-weight:600;">Anonymous</div>
+                    <div class="user-meta">${story.original_lang} • ${timeAgo(story.created_at)}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ai-summary"><i class="fa-solid fa-sparkles"></i> AI Summary</div>
+        <p style="margin:16px 0; line-height:1.6;">${escapeHtml(story.ai_summary)}</p>
+
+        <p style="color:var(--text-muted); margin-top:20px;">Original Text</p>
+        <div style="background:var(--bg); padding:16px; border-radius:12px; margin:12px 0; white-space:pre-wrap;">
+            ${escapeHtml(story.original_text)}
+        </div>
+
+        <div style="display:flex; gap:12px; margin:20px 0;">
+            <button class="generate-btn" onclick="generateNotice('${story_id}')">Generate Notice</button>
+            <button style="flex:1; background:var(--card); color:white; padding:14px; border-radius:12px;" onclick="alert('Advocate consultation coming soon!')">
+                Consult Advocate
+            </button>
+        </div>
+
+        <div style="margin-top:30px; border-top:1px solid var(--border); padding-top:20px;">
+            <h3 style="margin-bottom:12px; font-size:1.1rem;">Comments (${comments.length})</h3>
+            <textarea id="commentInput" placeholder="Add a comment..." style="height:80px; margin-bottom:8px;"></textarea>
+            <button class="submit-btn" style="padding:10px; font-size:0.9rem;" onclick="submitComment('${story_id}')">
+                Post Comment
+            </button>
+            <div id="commentsContainer" style="margin-top:16px;">
+                ${renderComments(comments)}
+            </div>
+        </div>
+    </div>`;
+
+      document.getElementById('feedScreen').style.display = 'none';
+      document.getElementById('detailScreen').style.display = 'block';
+    }
+
+    function showReplyBox(parentId, el) {
+      if (document.getElementById(`reply-box-${parentId}`)) return;
+      const box = `
+    <div id="reply-box-${parentId}" style="margin:8px 0; padding-left:12px;">
+        <textarea id="reply-input-${parentId}" placeholder="Write a reply..." style="height:60px; width:100%;"></textarea>
+        <div style="display:flex; gap:8px; margin-top:4px;">
+            <button class="submit-btn" style="padding:6px 12px; font-size:0.8rem;" onclick="submitReply('${parentId}')">Reply</button>
+            <button onclick="document.getElementById('reply-box-${parentId}').remove()" style="background:transparent; color:var(--text-muted); border:none; font-size:0.8rem;">Cancel</button>
+        </div>
+    </div>`;
+      el.parentElement.parentElement.insertAdjacentHTML('afterend', box);
+    }
+
+    async function submitComment(storyId) {
+      const input = document.getElementById('commentInput');
+      const content = input.value.trim();
+      if (!content) return;
+      const comment = await postComment(storyId, content);
+      if (comment) {
+        input.value = '';
+        showDetail(storyId); // reload
+      }
+    }
+
+    async function submitReply(parentId) {
+      const input = document.getElementById(`reply-input-${parentId}`);
+      const content = input.value.trim();
+      if (!content) return;
+      const comment = await postComment(CURRENT_STORY_ID, content, parentId);
+      if (comment) {
+        document.getElementById(`reply-box-${parentId}`).remove();
+        showDetail(CURRENT_STORY_ID);
+      }
+    }
+
+    /* -------------------------------------------------
+       PROFILE SCREEN
+       ------------------------------------------------- */
+    async function showProfile() {
+      const stories = await fetch(`${API}/api/user/${USER_ID}/stories`).then(r => r.json());
+      document.getElementById('detailContent').innerHTML = `
+    <div class="card" style="text-align:center; padding:30px;">
+        <div class="avatar" style="width:80px; height:80px; font-size:2rem; margin:0 auto 16px;">
+            <i class="fa-solid fa-user"></i>
+        </div>
+        <h2>Anonymous User</h2>
+        <p style="color:var(--text-muted); margin:16px 0;">Member since today</p>
+        <div style="display:flex; justify-content:center; gap:30px; margin:20px 0;">
+            <div>
+                <div style="font-size:1.5rem; font-weight:bold;">${stories.stories?.length || 0}</div>
+                <div style="color:var(--text-muted); font-size:0.8rem;">Stories</div>
+            </div>
+        </div>
+        <h3 style="margin:20px 0 12px; text-align:left;">Your Stories</h3>
+        <div id="profileStories">
+            ${stories.stories?.length ? '' : '<p style="color:var(--text-muted);">No stories yet.</p>'}
+        </div>
+    </div>`;
+
+      if (stories.stories?.length) {
+        const container = document.getElementById('profileStories');
+        container.innerHTML = stories.stories.map(s => `
+            <div class="card" style="margin:12px 0; padding:16px;" onclick="showDetail('${s.story_id}')">
+                <p style="font-weight:600; margin-bottom:8px;">${escapeHtml(s.ai_summary.substring(0, 80))}...</p>
+                <p style="font-size:0.8rem; color:var(--text-muted);">${timeAgo(s.created_at)}</p>
+            </div>
+        `).join('');
+      }
+
+      document.getElementById('feedScreen').style.display = 'none';
+      document.getElementById('detailScreen').style.display = 'block';
+    }
+
+    /* -------------------------------------------------
+       GENERATE NOTICE (stub)
+       ------------------------------------------------- */
+    function generateNotice(storyId) {
+      alert(`Generating legal notice for story ${storyId}...`);
+      // In real app: redirect to notice generator with story context
+    }
+
+    /* -------------------------------------------------
+       MODAL & SUBMIT
+       ------------------------------------------------- */
+    function openShareModal() { document.getElementById('shareModal').classList.add('active'); }
+    function closeShareModal() { document.getElementById('shareModal').classList.remove('active'); }
+
+    document.querySelectorAll('.lang-btn').forEach(b => {
+      b.addEventListener('click', () => {
+        document.querySelectorAll('.lang-btn').forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+      });
+    });
+
+    document.getElementById('postText').addEventListener('input', e => {
+      document.querySelector('.char-count').textContent = e.target.value.length + ' characters';
+    });
+
+    document.querySelector('.submit-btn').addEventListener('click', async () => {
+      const langBtn = document.querySelector('.lang-btn.active');
+      const original_lang = langBtn ? langBtn.dataset.lang : 'english';
+      const original_text = document.getElementById('postText').value.trim();
+      if (!original_text) return alert('Please write your story.');
+
+      const payload = { user_id: USER_ID, original_lang, original_text };
+      const res = await fetch(`${API}/api/story`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+      if (json.success) {
+        closeShareModal();
+        document.getElementById('postText').value = '';
+        document.querySelector('.char-count').textContent = '0 characters';
+        loadFeed();
+      } else {
+        alert(json.error || 'Failed');
+      }
+    });
+
+    /* -------------------------------------------------
+       BOTTOM NAV
+       ------------------------------------------------- */
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        item.classList.add('active');
+
+        const text = item.querySelector('span').textContent;
+        if (text === 'Feed') {
+          showFeed();
+        } else if (text === 'Share') {
+          openShareModal();
+        } else if (text === 'Profile') {
+          showProfile();
+        }
+      });
+    });
+
+    /* -------------------------------------------------
+       INIT
+       ------------------------------------------------- */
+    document.addEventListener('DOMContentLoaded', () => {
+      loadFeed();
+      // Make functions global
+      window.setFilter = setFilter;
+      window.showFeed = showFeed;
+      window.showDetail = showDetail;
+      window.toggleLike = toggleLike;
+      window.generateNotice = generateNotice;
+      window.showReplyBox = showReplyBox;
+      window.submitComment = submitComment;
+      window.submitReply = submitReply;
+    });
+  </script>
+</body>
+
+</html>
