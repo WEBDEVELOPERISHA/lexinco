@@ -449,7 +449,12 @@
       <a href="index.html" class="logo">
         <img src="/assets/logo.png" alt="Lexinco Logo" width="120" height="auto">
       </a>
-      <i class="fa-solid fa-magnifying-glass"></i>
+      <div id="searchContainer">
+        <i class="fa-solid fa-magnifying-glass" id="searchIcon" onclick="toggleSearch()" style="cursor:pointer;"></i>
+        <input type="text" id="searchInput" placeholder="Search stories..."
+          style="display:none; width:0; padding:0 12px; border:none; background:var(--card); color:white; border-radius:50px; transition:all .3s;"
+          oninput="performSearch()" onblur="hideSearchIfEmpty()">
+      </div>
     </div>
 
     <div class="tabs">
@@ -515,7 +520,7 @@
 
   <!-- Bottom Navigation -->
   <div class="bottom-nav">
-    <div class="nav-item active">
+    <div class="nav-item active" onclick="showFeed()">
       <i class="fa-solid fa-house"></i>
       <span>Feed</span>
     </div>
@@ -523,42 +528,35 @@
       <i class="fa-solid fa-plus"></i>
       <span>Share</span>
     </div>
-    <div class="nav-item">
+    <div class="nav-item" onclick="showProfile()">
       <i class="fa-solid fa-user"></i>
-      <span>Profile</span>
+      <span id="profileName">Profile</span>
     </div>
   </div>
 
   <script>
-    /* -------------------------------------------------
-       GLOBAL STATE – NOW USES REAL AUTH
-       ------------------------------------------------- */
     const API = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
       ? 'http://localhost:3000' : '';
 
     let USER = null;
     let USER_ID = null;
+    let CURRENT_FILTER = 'all';
+    let CURRENT_STORY_ID = null;
+    let STORIES = [];
 
-    // Check login on page load
     function checkAuth() {
       const userData = sessionStorage.getItem('lexinco_user');
-      if (!userData) {
-        window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.href);
-        return false;
-      }
-      USER = JSON.parse(userData);
-      USER_ID = USER.id;
+      if (userData) {
+        USER = JSON.parse(userData);
+        USER_ID = USER.id;
 
-      // Update profile name in bottom nav
-      const profileItem = document.querySelector('.bottom-nav .nav-item:nth-child(3)');
-      if (profileItem) {
-        profileItem.innerHTML = `
-                <i class="fa-solid fa-user"></i>
-                <span>${USER.salutation} ${USER.name.split(' ')[0]}</span>
-            `;
-      }
+        // Update profile name
+        const profileSpan = document.getElementById('profileName');
+        if (profileSpan) profileSpan.textContent = USER.salutation + ' ' + USER.name.split(' ')[0];
 
-      return true;
+        return true;
+      }
+      return false; // Guests allowed
     }
 
     function logout() {
@@ -566,13 +564,7 @@
       window.location.href = 'login.html';
     }
 
-    let CURRENT_FILTER = 'all';
-    let CURRENT_STORY_ID = null;
-    let STORIES = [];
-
-    /* -------------------------------------------------
-       HELPERS
-       ------------------------------------------------- */
+    // === HELPERS ===
     function timeAgo(date) {
       const seconds = Math.floor((new Date() - new Date(date)) / 1000);
       const intervals = [
@@ -584,21 +576,18 @@
       ];
       for (const i of intervals) {
         const count = Math.floor(seconds / i.seconds);
-        if (count > 1) return `${count} ${i.label}s ago`;
-        if (count === 1) return `1 ${i.label} ago`;
+        if (count >= 1) return count === 1 ? `1 ${i.label} ago` : `${count} ${i.label}s ago`;
       }
       return 'just now';
     }
 
     function escapeHtml(text) {
       const div = document.createElement('div');
-      div.textContent = text;
+      div.textContent = text || '';
       return div.innerHTML;
     }
 
-    /* -------------------------------------------------
-       RENDER FEED – Show real name instead of "Anonymous"
-       ------------------------------------------------- */
+    // === RENDER FEED ===
     function renderFeed(stories) {
       STORIES = stories;
       const container = document.getElementById('feedScreen');
@@ -611,99 +600,90 @@
         const isLiked = !!s.liked_by_user;
         const likeIcon = isLiked ? 'fa-solid fa-thumbs-up' : 'fa-regular fa-thumbs-up';
         const likeColor = isLiked ? 'var(--amber)' : 'var(--text-muted)';
-
-        // Show real name if user posted it
-        const displayName = s.user_name
-          ? `${s.user_salutation || 'Mr.'} ${s.user_name.split(' ')[0]}`
-          : 'Anonymous';
+        const displayName = s.user_name ? `${s.user_salutation || 'Mr.'} ${s.user_name.split(' ')[0]}` : 'Anonymous';
 
         return `
-        <div class="card" onclick="showDetail('${s.story_id}')">
-            <div class="user-row">
-                <div class="user-info">
-                    <div class="avatar"><i class="fa-solid fa-user"></i></div>
-                    <div>
-                        <div style="font-weight:600;">${displayName}</div>
-                        <div class="user-meta"><i class="fa-solid fa-globe"></i> ${s.original_lang} • ${timeAgo(s.created_at)}</div>
-                    </div>
-                </div>
-                ${s.type ? `<div class="type-badge">${s.type}</div>` : ''}
-            </div>
+              <div class="card" onclick="showDetail('${s.story_id}')">
+                  <div class="user-row">
+                      <div class="user-info">
+                          <div class="avatar"><i class="fa-solid fa-user"></i></div>
+                          <div>
+                              <div style="font-weight:600;">${displayName}</div>
+                              <div class="user-meta"><i class="fa-solid fa-globe"></i> ${s.original_lang} • ${timeAgo(s.created_at)}</div>
+                          </div>
+                      </div>
+                      ${s.type ? `<div class="type-badge">${s.type}</div>` : ''}
+                  </div>
 
-            <div class="ai-summary"><i class="fa-solid fa-sparkles"></i> AI Summary</div>
-            <p style="margin:12px 0; line-height:1.6;">${escapeHtml(s.ai_summary || '')}</p>
+                  <div class="ai-summary"><i class="fa-solid fa-sparkles"></i> AI Summary</div>
+                  <p style="margin:12px 0; line-height:1.6;">${escapeHtml(s.ai_summary || '')}</p>
 
-            <div style="display:flex; gap:16px; flex-wrap:wrap; margin:8px 0;">
-                ${s.amount ? `<div class="amount">${s.amount}</div>` : ''}
-                ${s.evidence_count ? `<div class="evidence"><i class="fa-solid fa-paperclip"></i> ${s.evidence_count} files</div>` : ''}
-            </div>
+                  <div style="display:flex; gap:16px; flex-wrap:wrap; margin:8px 0;">
+                      ${s.amount ? `<div class="amount">${s.amount}</div>` : ''}
+                      ${s.evidence_count ? `<div class="evidence"><i class="fa-solid fa-paperclip"></i> ${s.evidence_count} files</div>` : ''}
+                  </div>
 
-            <div class="tags">
-                ${(s.tags || []).map(t => `<span class="tag">#${t}</span>`).join('')}
-            </div>
+                  <div class="tags">
+                      ${(s.tags || []).map(t => `<span class="tag">#${t}</span>`).join('')}
+                  </div>
 
-            <div class="actions">
-                <div class="status ${s.status === 'ready_escalate' ? 'escalate' : s.status === 'action_plan' ? 'action' : 'seeking'}">
-                    ${s.status === 'ready_escalate' ? '<i class="fa-solid fa-shield-halved"></i> Ready to Escalate' :
+                  <div class="actions">
+                      <div class="status ${s.status === 'ready_escalate' ? 'escalate' : s.status === 'action_plan' ? 'action' : 'seeking'}">
+                          ${s.status === 'ready_escalate' ? '<i class="fa-solid fa-shield-halved"></i> Ready to Escalate' :
             s.status === 'action_plan' ? '<i class="fa-solid fa-circle-check"></i> Action Plan' :
               '<i class="fa-solid fa-circle-info"></i> Seeking Guidance'}
-                </div>
-                <div style="display:flex; gap:20px;">
-                    <div class="action-btn" onclick="event.stopPropagation(); toggleLike('${s.story_id}', this)">
-                        <i class="${likeIcon}" style="color:${likeColor}"></i> <span>${s.likes_count || 0}</span>
-                    </div>
-                    <div class="action-btn" onclick="event.stopPropagation(); showDetail('${s.story_id}')">
-                        <i class="fa-solid fa-message"></i> <span>${s.comments_count || 0}</span>
-                    </div>
-                </div>
-            </div>
+                      </div>
+                      <div style="display:flex; gap:20px;">
+                          <div class="action-btn" onclick="event.stopPropagation(); toggleLike('${s.story_id}', this)">
+                              <i class="${likeIcon}" style="color:${likeColor}"></i> <span>${s.likes_count || 0}</span>
+                          </div>
+                          <div class="action-btn" onclick="event.stopPropagation(); showDetail('${s.story_id}')">
+                              <i class="fa-solid fa-message"></i> <span>${s.comments_count || 0}</span>
+                          </div>
+                      </div>
+                  </div>
 
-            <button class="generate-btn" onclick="event.stopPropagation(); window.location.href='legal-notice.html?story_id=${s.story_id}'">
-                Generate Legal Notice
-            </button>
-        </div>`;
+                  <button class="generate-btn" onclick="event.stopPropagation(); window.location.href='legal-notice.html?story_id=${s.story_id}'">
+                      Generate Legal Notice
+                  </button>
+              </div>`;
       }).join('');
     }
 
-    /* -------------------------------------------------
-       LOAD STORIES – Now sends real user_id from session
-       ------------------------------------------------- */
     async function loadFeed(filter = CURRENT_FILTER) {
-      if (!USER_ID) return;
       try {
-        const url = filter === 'all'
-          ? `${API}/api/stories`
-          : `${API}/api/stories/filter?filter=${filter}`;
+        let url = filter === 'all' ? `${API}/api/stories` : `${API}/api/stories/filter?filter=${filter}`;
+        if (!USER_ID) url += (url.includes('?') ? '&' : '?') + 'public=1'; // allow guest view
 
-        const res = await fetch(url, {
-          headers: {
-            'user-id': USER_ID
-          }
-        });
+        const headers = USER_ID ? { 'user-id': USER_ID } : {};
+        const res = await fetch(url, { headers });
         const data = await res.json();
         if (data.success) {
-          renderFeed(data.stories);
+          const stories = data.stories || [];
+          originalStories = stories;  // Save full list
+          renderFeed(stories);
         }
       } catch (e) { console.error(e); }
     }
 
     function setFilter(filter) {
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      event.target.classList.add('active');
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+        if (tab.textContent.includes(
+          filter === 'all' ? 'All' :
+            filter === 'trending' ? 'Trending' : 'Recent'
+        )) {
+          tab.classList.add('active');
+        }
+      });
       CURRENT_FILTER = filter;
       loadFeed(filter);
     }
 
-    /* -------------------------------------------------
-       LIKE TOGGLE – Protected
-       ------------------------------------------------- */
+    // === LIKE ===
     async function toggleLike(storyId, btn) {
-      if (!USER_ID) {
-        alert('Please log in to like stories');
-        window.location.href = 'login.html';
-        return;
-      }
-
+      if (!USER_ID) return requireLogin();
+      if (!USER_ID) { alert('Login required'); window.location.href = 'login.html'; return; }
       try {
         const res = await fetch(`${API}/api/story/${storyId}/like`, {
           method: 'POST',
@@ -723,110 +703,213 @@
             icon.style.color = '';
             count.textContent = (parseInt(count.textContent) - 1);
           }
-          const story = STORIES.find(s => s.story_id === storyId);
-          if (story) story.likes_count = parseInt(count.textContent);
         }
       } catch (e) { console.error(e); }
     }
 
-    /* -------------------------------------------------
-       POST STORY – Protected
-       ------------------------------------------------- */
-    document.querySelector('.submit-btn')?.addEventListener('click', async () => {
-      if (!USER_ID) {
-        alert('Please log in to share your story');
-        window.location.href = 'login.html';
-        return;
-      }
+    // === COMMENTS ===
+    async function loadComments(storyId) {
+      const res = await fetch(`${API}/api/story/${storyId}/comments`);
+      const data = await res.json();
+      return data.success ? data.comments : [];
+    }
 
-      const original_text = document.getElementById('postText').value.trim();
-      if (!original_text) return alert('Please write your story.');
-
-      const payload = { user_id: USER_ID, original_lang: 'english', original_text };
-      const res = await fetch(`${API}/api/story`, {
+    async function postComment(storyId, content, parentId = null) {
+      const res = await fetch(`${API}/api/story/${storyId}/comment`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({ user_id: USER_ID, content, parent_id: parentId })
       });
       const json = await res.json();
-      if (json.success) {
-        closeShareModal();
-        document.getElementById('postText').value = '';
-        document.querySelector('.char-count').textContent = '0 characters';
-        loadFeed();
-      } else {
-        alert(json.error || 'Failed to post');
-      }
-    });
+      return json.success ? json.comment : null;
+    }
 
-    /* -------------------------------------------------
-       PROFILE – Show real name
-       ------------------------------------------------- */
-    async function showProfile() {
-      const res = await fetch(`${API}/api/user/${USER_ID}/stories`);
-      const data = await res.json();
+    function renderComment(c, depth = 0) {
+      const indent = depth * 30;
+      const displayName = c.user_name ? `${c.user_salutation || 'Mr.'} ${c.user_name.split(' ')[0]}` : 'Anonymous';
+      return `
+          <div style="margin-left:${indent}px; padding-left:12px; border-left:2px solid var(--border); margin-top:12px;">
+              <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:4px;">
+                  ${displayName} • ${timeAgo(c.created_at)}
+              </div>
+              <p style="margin:6px 0; font-size:0.95rem;">${escapeHtml(c.content)}</p>
+              <a href="javascript:void(0)" onclick="showReplyBox('${c.comment_id}', this)" style="font-size:0.8rem; color:var(--amber);">Reply</a>
+              <div id="reply-${c.comment_id}"></div>
+          </div>`;
+    }
+
+    function renderComments(comments) {
+      const tree = {}; const roots = [];
+      comments.forEach(c => c.parent_id ? (tree[c.parent_id] || (tree[c.parent_id] = [])).push(c) : roots.push(c));
+      const build = node => renderComment(node) + (tree[node.comment_id] || []).map(build).join('');
+      return roots.map(build).join('');
+    }
+
+    // === SHOW DETAIL (THIS WAS MISSING!) ===
+    async function showDetail(story_id) {
+      CURRENT_STORY_ID = story_id;
+      const story = STORIES.find(s => s.story_id === story_id);
+      if (!story) return;
+
+      const comments = await loadComments(story_id);
+      const displayName = story.user_name ? `${story.user_salutation || 'Mr.'} ${story.user_name.split(' ')[0]}` : 'Anonymous';
 
       document.getElementById('detailContent').innerHTML = `
-        <div class="card" style="text-align:center; padding:30px;">
-            <div class="avatar" style="width:80px; height:80px; font-size:2rem; margin:0 auto 16px;">
-                <i class="fa-solid fa-user"></i>
-            </div>
-            <h2>${USER.salutation} ${USER.name}</h2>
-            <p style="color:var(--text-muted); margin:16px 0;">Welcome back!</p>
-            <div style="display:flex; justify-content:center; gap:30px; margin:20px 0;">
-                <div>
-                    <div style="font-size:1.5rem; font-weight:bold;">${data.stories?.length || 0}</div>
-                    <div style="color:var(--text-muted); font-size:0.8rem;">Your Stories</div>
-                </div>
-            </div>
-            <button onclick="logout()" style="background:var(--red); color:white; padding:12px 24px; border:none; border-radius:12px; margin-top:20px;">
-                Logout
-            </button>
-            <h3 style="margin:40px 0 12px; text-align:left;">Your Stories</h3>
-            <div id="profileStories">
-                ${data.stories?.length ? '' : '<p style="color:var(--text-muted);">No stories yet.</p>'}
-            </div>
-        </div>`;
+          <div class="card">
+              <div class="user-row">
+                  <div class="user-info">
+                      <div class="avatar"><i class="fa-solid fa-user"></i></div>
+                      <div>
+                          <div style="font-weight:600;">${displayName}</div>
+                          <div class="user-meta">${story.original_lang} • ${timeAgo(story.created_at)}</div>
+                      </div>
+                  </div>
+              </div>
 
-      if (data.stories?.length) {
-        document.getElementById('profileStories').innerHTML = data.stories.map(s => `
-            <div class="card" style="margin:12px 0; padding:16px;" onclick="showDetail('${s.story_id}')">
-                <p style="font-weight:600; margin-bottom:8px;">${escapeHtml(s.ai_summary.substring(0, 80))}...</p>
-                <p style="font-size:0.8rem; color:var(--text-muted);">${timeAgo(s.created_at)}</p>
-            </div>
-        `).join('');
-      }
+              <div class="ai-summary"><i class="fa-solid fa-sparkles"></i> AI Summary</div>
+              <p style="margin:16px 0; line-height:1.7;">${escapeHtml(story.ai_summary)}</p>
+
+              <p style="color:var(--text-muted); margin:20px 0 8px;">Original Story</p>
+              <div style="background:var(--bg); padding:16px; border-radius:12px; white-space:pre-wrap; font-size:0.95rem;">
+                  ${escapeHtml(story.original_text)}
+              </div>
+
+              <div style="margin:30px 0; display:flex; gap:12px;">
+                  <button class="generate-btn" onclick="window.location.href='legal-notice.html?story_id=${story_id}'">
+                      Generate Legal Notice
+                  </button>
+                  <button style="flex:1; background:var(--card); color:var(--text); border:1px solid var(--border); border-radius:12px; padding:14px;"
+                          onclick="window.location.href='consultation.html?story_id=${story_id}'">
+                      Consult Advocate
+                  </button>
+              </div>
+
+              <div style="border-top:1px solid var(--border); padding-top:20px;">
+                  <h3 style="margin-bottom:12px;">Comments (${comments.length})</h3>
+                  <textarea id="commentInput" placeholder="Write a supportive comment..." style="height:90px; margin-bottom:8px;"></textarea>
+                  <button class="submit-btn" style="padding:10px;" onclick="submitComment('${story_id}')">Post Comment</button>
+                  <div id="commentsContainer" style="margin-top:20px;">
+                      ${renderComments(comments)}
+                  </div>
+              </div>
+          </div>`;
 
       document.getElementById('feedScreen').style.display = 'none';
       document.getElementById('detailScreen').style.display = 'block';
     }
-
-    // Keep your existing comment functions unchanged (they already use USER_ID)
-    // ... [keep loadComments, postComment, renderComment, etc. as-is]
 
     function showFeed() {
       document.getElementById('detailScreen').style.display = 'none';
       document.getElementById('feedScreen').style.display = 'block';
     }
 
-    function openShareModal() {
-      if (!USER_ID) {
-        alert('Please log in to share your story');
-        window.location.href = 'login.html';
-        return;
+    function showReplyBox(parentId, el) {
+      if (document.getElementById(`reply-box-${parentId}`)) return;
+      const box = `<div id="reply-box-${parentId}" style="margin:12px 0;">
+              <textarea id="reply-input-${parentId}" placeholder="Write your reply..." style="height:70px;"></textarea>
+              <div style="margin-top:8px; display:flex; gap:8px;">
+                  <button class="submit-btn" style="padding:8px 16px; font-size:0.9rem;" onclick="submitReply('${parentId}')">Reply</button>
+                  <button onclick="document.getElementById('reply-box-${parentId}').remove()" style="background:transparent; color:var(--text-muted); border:none;">Cancel</button>
+              </div>
+          </div>`;
+      el.parentElement.insertAdjacentHTML('afterend', box);
+    }
+
+    async function submitComment(storyId) {
+      if (!USER_ID) return requireLogin();
+      const input = document.getElementById('commentInput');
+      const content = input.value.trim();
+      if (!content) return;
+      const comment = await postComment(storyId, content);
+      if (comment) { input.value = ''; showDetail(storyId); }
+    }
+
+    async function submitReply(parentId) {
+      const input = document.getElementById(`reply-input-${parentId}`);
+      const content = input.value.trim();
+      if (!content) return;
+      const comment = await postComment(CURRENT_STORY_ID, content, parentId);
+      if (comment) {
+        document.getElementById(`reply-box-${parentId}`).remove();
+        showDetail(CURRENT_STORY_ID);
       }
+    }
+
+    // === MODAL & POST ===
+    function openShareModal() {
+      if (!USER_ID) return requireLogin();
       document.getElementById('shareModal').classList.add('active');
+    }
+    function updateBottomNav(activeItem) {
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      if (activeItem === 'feed') {
+        document.querySelector('.bottom-nav .nav-item:nth-child(1)').classList.add('active');
+      } else if (activeItem === 'profile') {
+        document.querySelector('.bottom-nav .nav-item:nth-child(3)').classList.add('active');
+      }
     }
     function closeShareModal() { document.getElementById('shareModal').classList.remove('active'); }
 
-    /* -------------------------------------------------
-       INIT – Check login first
-       ------------------------------------------------- */
-    document.addEventListener('DOMContentLoaded', () => {
-      if (!checkAuth()) return;
+    document.querySelector('.submit-btn')?.addEventListener('click', async () => {
+      if (!USER_ID) return alert('Login required');
+      const text = document.getElementById('postText').value.trim();
+      if (!text) return alert('Write your story');
+      const res = await fetch(`${API}/api/story`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: USER_ID, original_lang: 'english', original_text: text })
+      });
+      const json = await res.json();
+      if (json.success) {
+        closeShareModal();
+        document.getElementById('postText').value = '';
+        loadFeed();
+      }
+    });
 
+    // === PROFILE (already good) ===
+    async function showProfile() {
+      if (!USER_ID) {
+        location.href = 'signup.html';
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API}/api/user/${USER_ID}/stories`);
+        const data = await res.json();
+
+        document.getElementById('detailContent').innerHTML = `
+      <div class="card" style="text-align:center;padding:40px;">
+        <div class="avatar" style="width:90px;height:90px;font-size:2.5rem;margin:0 auto 20px;">
+          <i class="fa-solid fa-user"></i>
+        </div>
+        <h2>${USER.salutation} ${USER.name}</h2>
+        <p style="color:var(--text-muted);margin:20px 0;">${data.stories?.length || 0} stories shared</p>
+        <button onclick="logout()" style="background:var(--red);color:white;padding:12px 24px;border:none;border-radius:12px;">Logout</button>
+
+        <h3 style="margin:40px 0 16px;text-align:left;">Your Stories</h3>
+        ${data.stories?.length ? data.stories.map(s => `
+          <div class="card" style="margin:12px 0;padding:16px;cursor:pointer;" onclick="showDetail('${s.story_id}')">
+            <p style="font-weight:600;">${escapeHtml((s.ai_summary || '').substring(0, 100))}...</p>
+            <p style="font-size:0.8rem;color:var(--text-muted);">${timeAgo(s.created_at)}</p>
+          </div>
+        `).join('') : '<p style="color:var(--text-muted);">You haven\'t shared any story yet.</p>'}
+      </div>`;
+
+        document.getElementById('feedScreen').style.display = 'none';
+        document.getElementById('detailScreen').style.display = 'block';
+        updateBottomNav('profile');
+      } catch (e) { console.error(e); }
+    }
+
+    // === INIT ===
+    document.addEventListener('DOMContentLoaded', () => {
+      checkAuth();
       loadFeed();
 
+      // Make functions global so onclick works
       window.setFilter = setFilter;
       window.showFeed = showFeed;
       window.showDetail = showDetail;
@@ -834,7 +917,70 @@
       window.showReplyBox = showReplyBox;
       window.submitComment = submitComment;
       window.submitReply = submitReply;
+      window.showProfile = showProfile;
     });
+    function requireLogin() {
+      sessionStorage.setItem('redirect_after_login', location.href);
+      location.href = 'signup.html';
+    }
+
+    // Reminder after scrolling
+    let scrolled = 0;
+    window.addEventListener('scroll', () => {
+      if (USER_ID) return;
+      scrolled++;
+      if (scrolled > 6 && !document.getElementById('guestHint')) {
+        const hint = document.createElement('div');
+        hint.id = 'guestHint';
+        hint.innerHTML = `You are not alone — <a href="signup.html" style="color:var(--amber);font-weight:600;">Join community</a> to support others`;
+        hint.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--amber);padding:12px 20px;border-radius:50px;z-index:100;font-size:0.9rem;';
+        document.body.appendChild(hint);
+        setTimeout(() => hint.remove(), 7000);
+      }
+    });
+    let originalStories = []; // Will store all stories for filtering
+
+    function toggleSearch() {
+      const input = document.getElementById('searchInput');
+      const icon = document.getElementById('searchIcon');
+
+      if (input.style.display === 'none' || !input.style.display) {
+        input.style.display = 'block';
+        input.style.width = '200px';
+        input.focus();
+        icon.style.opacity = '0.6';
+      }
+    }
+
+    function hideSearchIfEmpty() {
+      const input = document.getElementById('searchInput');
+      const icon = document.getElementById('searchIcon');
+      setTimeout(() => {
+        if (!input.value.trim()) {
+          input.style.width = '0';
+          input.style.padding = '0 12px';
+          setTimeout(() => { input.style.display = 'none'; }, 300);
+          icon.style.opacity = '1';
+        }
+      }, 200);
+    }
+
+    function performSearch() {
+      const query = document.getElementById('searchInput').value.trim().toLowerCase();
+      if (!query) {
+        renderFeed(originalStories);
+        return;
+      }
+
+      const filtered = originalStories.filter(story => {
+        const summary = (story.ai_summary || '').toLowerCase();
+        const original = (story.original_text || '').toLowerCase();
+        const tags = (story.tags || []).join(' ').toLowerCase();
+        return summary.includes(query) || original.includes(query) || tags.includes(query);
+      });
+
+      renderFeed(filtered);
+    }
   </script>
 </body>
 

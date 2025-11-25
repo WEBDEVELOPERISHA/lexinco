@@ -183,22 +183,25 @@ app.post('/api/story/:id/comment', async (req, res) => {
 });
 
 
-/* -------------------------------------------------
-   FILTERED STORIES
-   ------------------------------------------------- */
 app.get('/api/stories/filter', async (req, res) => {
     const { filter = 'all', limit = 20, offset = 0 } = req.query;
     const userId = req.headers['user-id'] || req.query.user_id || null;
 
-    let orderBy = 's.created_at DESC';
+    let orderBy;
+
     if (filter === 'trending') {
-        orderBy = 's.likes_count DESC, s.created_at DESC';
+        // True trending: likes + 2×comments (comments are stronger signal), only last 30 days
+        orderBy = `(COALESCE(s.likes_count,0) + COALESCE(s.comments_count,0) * 2) DESC, s.created_at DESC`;
     } else if (filter === 'recent') {
-        orderBy = 's.created_at DESC';
+        // Pure newest first
+        orderBy = `s.created_at DESC`;
+    } else {
+        // Default = recent
+        orderBy = `s.created_at DESC`;
     }
 
     try {
-        const result = await pool.query(`
+        const query = `
             SELECT 
                 s.*,
                 COALESCE(s.likes_count, 0) AS likes_count,
@@ -208,10 +211,12 @@ app.get('/api/stories/filter', async (req, res) => {
                     WHERE sl.story_id = s.story_id AND sl.user_id = $1
                 ) AS liked_by_user
             FROM stories s
+            ${filter === 'trending' ? 'WHERE s.created_at > NOW() - INTERVAL \'30 days\'' : ''}
             ORDER BY ${orderBy}
             LIMIT $2 OFFSET $3
-        `, [userId, limit, offset]);
+        `;
 
+        const result = await pool.query(query, [userId || null, limit, offset]);
         res.json({ success: true, stories: result.rows });
     } catch (err) {
         console.error('Filter error:', err);
