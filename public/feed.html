@@ -115,6 +115,50 @@
       border-color: #333;
     }
 
+    .detail-actions {
+      margin: 30px 0;
+      display: flex;
+      gap: 12px;
+      flex-direction: column;
+    }
+
+    .detail-actions button {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all .2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .consult-btn {
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .consult-btn:hover {
+      background: #222;
+      border-color: var(--amber);
+      color: var(--amber);
+    }
+
+    @media (min-width: 480px) {
+      .detail-actions {
+        flex-direction: row;
+      }
+
+      .detail-actions button {
+        flex: 1;
+      }
+    }
+
     .user-row {
       display: flex;
       align-items: center;
@@ -774,15 +818,14 @@
                   ${escapeHtml(story.original_text)}
               </div>
 
-              <div style="margin:30px 0; display:flex; gap:12px;">
-                  <button class="generate-btn" onclick="window.location.href='legal-notice.html?story_id=${story_id}'">
-                      Generate Legal Notice
-                  </button>
-                  <button style="flex:1; background:var(--card); color:var(--text); border:1px solid var(--border); border-radius:12px; padding:14px;"
-                          onclick="window.location.href='consultation.html?story_id=${story_id}'">
-                      Consult Advocate
-                  </button>
-              </div>
+<div class="detail-actions">
+    <button class="generate-btn" onclick="window.location.href='legal-notice.html?story_id=${story_id}'">
+        <i class="fa-solid fa-file-lines"></i> Generate Legal Notice
+    </button>
+    <button class="consult-btn" onclick="window.location.href='consultation.html?story_id=${story_id}'">
+        <i class="fa-solid fa-phone"></i> Consult Advocate
+    </button>
+</div>
 
               <div style="border-top:1px solid var(--border); padding-top:20px;">
                   <h3 style="margin-bottom:12px;">Comments (${comments.length})</h3>
