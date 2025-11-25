@@ -445,12 +445,12 @@
 
   <!-- Header -->
   <header>
-<div class="header-inner">
-  <a href="index.html" class="logo">
-    <img src="/assets/logo.png" alt="Lexinco Logo" width="120" height="auto">
-  </a>
-  <i class="fa-solid fa-magnifying-glass"></i>
-</div>
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <img src="/assets/logo.png" alt="Lexinco Logo" width="120" height="auto">
+      </a>
+      <i class="fa-solid fa-magnifying-glass"></i>
+    </div>
 
     <div class="tabs">
       <div class="tab active" onclick="setFilter('all')">All Issues</div>
@@ -496,18 +496,13 @@
           </div>
         </div>
 
-        <p style="margin:20px 0 8px; color:var(--text-muted);">Choose language</p>
-        <div class="lang-grid">
-          <div class="lang-btn active" data-lang="english">English</div>
-          <div class="lang-btn" data-lang="hindi">Hindi</div>
-          <div class="lang-btn" data-lang="tamil">Tamil</div>
-          <div class="lang-btn" data-lang="telugu">Telugu</div>
-          <div class="lang-btn" data-lang="marathi">Marathi</div>
-          <div class="lang-btn" data-lang="bengali">Bengali</div>
-        </div>
+        <p style="margin:20px 0 8px; color:var(--text-muted); font-weight:600;">
+          📝 Write your story in your own language
+        </p>
+
 
         <p style="margin:20px 0 8px; color:var(--text-muted);">Describe your situation</p>
-        <textarea id="postText" placeholder="Tell us what happened..."></textarea>
+        <textarea id="postText" placeholder="Write your story freely."></textarea>
         <div class="char-count">0 characters</div>
 
         <button class="submit-btn">Share My Story</button>
@@ -536,15 +531,39 @@
 
   <script>
     /* -------------------------------------------------
-       GLOBAL STATE
+       GLOBAL STATE – NOW USES REAL AUTH
        ------------------------------------------------- */
     const API = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
       ? 'http://localhost:3000' : '';
 
-    let USER_ID = localStorage.getItem('lexinco_user_id');
-    if (!USER_ID) {
-      USER_ID = crypto.randomUUID();
-      localStorage.setItem('lexinco_user_id', USER_ID);
+    let USER = null;
+    let USER_ID = null;
+
+    // Check login on page load
+    function checkAuth() {
+      const userData = sessionStorage.getItem('lexinco_user');
+      if (!userData) {
+        window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.href);
+        return false;
+      }
+      USER = JSON.parse(userData);
+      USER_ID = USER.id;
+
+      // Update profile name in bottom nav
+      const profileItem = document.querySelector('.bottom-nav .nav-item:nth-child(3)');
+      if (profileItem) {
+        profileItem.innerHTML = `
+                <i class="fa-solid fa-user"></i>
+                <span>${USER.salutation} ${USER.name.split(' ')[0]}</span>
+            `;
+      }
+
+      return true;
+    }
+
+    function logout() {
+      sessionStorage.removeItem('lexinco_user');
+      window.location.href = 'login.html';
     }
 
     let CURRENT_FILTER = 'all';
@@ -578,7 +597,7 @@
     }
 
     /* -------------------------------------------------
-       RENDER FEED
+       RENDER FEED – Show real name instead of "Anonymous"
        ------------------------------------------------- */
     function renderFeed(stories) {
       STORIES = stories;
@@ -589,9 +608,14 @@
       }
 
       container.innerHTML = stories.map(s => {
-        const isLiked = s.liked_by_user;
+        const isLiked = !!s.liked_by_user;
         const likeIcon = isLiked ? 'fa-solid fa-thumbs-up' : 'fa-regular fa-thumbs-up';
-        const likeColor = isLiked ? 'color:var(--amber)' : '';
+        const likeColor = isLiked ? 'var(--amber)' : 'var(--text-muted)';
+
+        // Show real name if user posted it
+        const displayName = s.user_name
+          ? `${s.user_salutation || 'Mr.'} ${s.user_name.split(' ')[0]}`
+          : 'Anonymous';
 
         return `
         <div class="card" onclick="showDetail('${s.story_id}')">
@@ -599,7 +623,7 @@
                 <div class="user-info">
                     <div class="avatar"><i class="fa-solid fa-user"></i></div>
                     <div>
-                        <div style="font-weight:600;">Anonymous</div>
+                        <div style="font-weight:600;">${displayName}</div>
                         <div class="user-meta"><i class="fa-solid fa-globe"></i> ${s.original_lang} • ${timeAgo(s.created_at)}</div>
                     </div>
                 </div>
@@ -626,7 +650,7 @@
                 </div>
                 <div style="display:flex; gap:20px;">
                     <div class="action-btn" onclick="event.stopPropagation(); toggleLike('${s.story_id}', this)">
-                        <i class="${likeIcon}" style="${likeColor}"></i> <span>${s.likes_count || 0}</span>
+                        <i class="${likeIcon}" style="color:${likeColor}"></i> <span>${s.likes_count || 0}</span>
                     </div>
                     <div class="action-btn" onclick="event.stopPropagation(); showDetail('${s.story_id}')">
                         <i class="fa-solid fa-message"></i> <span>${s.comments_count || 0}</span>
@@ -634,37 +658,35 @@
                 </div>
             </div>
 
-<button class="generate-btn" onclick="event.stopPropagation(); window.location.href='legal-notice.html?story_id=${s.story_id}'">
-    Generate Legal Notice
-</button>
+            <button class="generate-btn" onclick="event.stopPropagation(); window.location.href='legal-notice.html?story_id=${s.story_id}'">
+                Generate Legal Notice
+            </button>
         </div>`;
       }).join('');
     }
 
     /* -------------------------------------------------
-       LOAD STORIES
+       LOAD STORIES – Now sends real user_id from session
        ------------------------------------------------- */
     async function loadFeed(filter = CURRENT_FILTER) {
+      if (!USER_ID) return;
       try {
         const url = filter === 'all'
           ? `${API}/api/stories`
           : `${API}/api/stories/filter?filter=${filter}`;
-        const res = await fetch(url);
+
+        const res = await fetch(url, {
+          headers: {
+            'user-id': USER_ID
+          }
+        });
         const data = await res.json();
         if (data.success) {
-          // Attach like status
-          const enriched = data.stories.map(s => ({
-            ...s,
-            liked_by_user: false // will be updated by /like check if needed
-          }));
-          renderFeed(enriched);
+          renderFeed(data.stories);
         }
       } catch (e) { console.error(e); }
     }
 
-    /* -------------------------------------------------
-       TABS
-       ------------------------------------------------- */
     function setFilter(filter) {
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       event.target.classList.add('active');
@@ -673,9 +695,15 @@
     }
 
     /* -------------------------------------------------
-       LIKE TOGGLE
+       LIKE TOGGLE – Protected
        ------------------------------------------------- */
     async function toggleLike(storyId, btn) {
+      if (!USER_ID) {
+        alert('Please log in to like stories');
+        window.location.href = 'login.html';
+        return;
+      }
+
       try {
         const res = await fetch(`${API}/api/story/${storyId}/like`, {
           method: 'POST',
@@ -695,7 +723,6 @@
             icon.style.color = '';
             count.textContent = (parseInt(count.textContent) - 1);
           }
-          // Update global
           const story = STORIES.find(s => s.story_id === storyId);
           if (story) story.likes_count = parseInt(count.textContent);
         }
@@ -703,226 +730,19 @@
     }
 
     /* -------------------------------------------------
-       COMMENTS
+       POST STORY – Protected
        ------------------------------------------------- */
-    async function loadComments(storyId) {
-      try {
-        const res = await fetch(`${API}/api/story/${storyId}/comments`);
-        const data = await res.json();
-        return data.success ? data.comments : [];
-      } catch (e) { return []; }
-    }
-
-    async function postComment(storyId, content, parentId = null) {
-      try {
-        const res = await fetch(`${API}/api/story/${storyId}/comment`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ user_id: USER_ID, content, parent_id: parentId })
-        });
-        const json = await res.json();
-        return json.success ? json.comment : null;
-      } catch (e) { return null; }
-    }
-
-    function renderComment(c, depth = 0) {
-      const indent = depth * 24;
-      return `
-    <div style="margin-left:${indent}px; border-left:2px solid var(--border); padding-left:12px; margin-top:8px;">
-        <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:var(--text-muted);">
-            <span>Anonymous • ${timeAgo(c.created_at)}</span>
-        </div>
-        <p style="margin:6px 0; font-size:0.9rem;">${escapeHtml(c.content)}</p>
-        <div style="margin-top:4px;">
-            <a href="javascript:void(0)" onclick="showReplyBox('${c.comment_id}', this)" style="font-size:0.75rem; color:var(--amber);">Reply</a>
-        </div>
-        <div id="reply-${c.comment_id}"></div>
-    </div>`;
-    }
-
-    function renderComments(comments) {
-      const tree = {};
-      const roots = [];
-
-      comments.forEach(c => {
-        if (!c.parent_id) roots.push(c);
-        else {
-          if (!tree[c.parent_id]) tree[c.parent_id] = [];
-          tree[c.parent_id].push(c);
-        }
-      });
-
-      function build(node) {
-        let html = renderComment(node);
-        if (tree[node.comment_id]) {
-          html += tree[node.comment_id].map(build).join('');
-        }
-        return html;
+    document.querySelector('.submit-btn')?.addEventListener('click', async () => {
+      if (!USER_ID) {
+        alert('Please log in to share your story');
+        window.location.href = 'login.html';
+        return;
       }
 
-      return roots.map(build).join('');
-    }
-
-    /* -------------------------------------------------
-       DETAIL SCREEN
-       ------------------------------------------------- */
-    async function showDetail(story_id) {
-      CURRENT_STORY_ID = story_id;
-      const story = STORIES.find(s => s.story_id === story_id);
-      if (!story) return;
-
-      const comments = await loadComments(story_id);
-
-      document.getElementById('detailContent').innerHTML = `
-    <div class="card">
-        <div class="user-row">
-            <div class="user-info">
-                <div class="avatar"><i class="fa-solid fa-user"></i></div>
-                <div>
-                    <div style="font-weight:600;">Anonymous</div>
-                    <div class="user-meta">${story.original_lang} • ${timeAgo(story.created_at)}</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="ai-summary"><i class="fa-solid fa-sparkles"></i> AI Summary</div>
-        <p style="margin:16px 0; line-height:1.6;">${escapeHtml(story.ai_summary)}</p>
-
-        <p style="color:var(--text-muted); margin-top:20px;">Original Text</p>
-        <div style="background:var(--bg); padding:16px; border-radius:12px; margin:12px 0; white-space:pre-wrap;">
-            ${escapeHtml(story.original_text)}
-        </div>
-
-        <div style="display:flex; gap:12px; margin:20px 0;">
-            <button class="generate-btn" onclick="window.location.href='legal-notice.html?story_id=${story_id}'">
-    Generate Notice
-</button>
-<button style="flex:1; background:var(--card); color:white; padding:14px; border-radius:12px;" onclick="window.location.href='consultation.html?story_id=${story_id}'">
-    Consult Advocate
-</button>
-        </div>
-
-        <div style="margin-top:30px; border-top:1px solid var(--border); padding-top:20px;">
-            <h3 style="margin-bottom:12px; font-size:1.1rem;">Comments (${comments.length})</h3>
-            <textarea id="commentInput" placeholder="Add a comment..." style="height:80px; margin-bottom:8px;"></textarea>
-            <button class="submit-btn" style="padding:10px; font-size:0.9rem;" onclick="submitComment('${story_id}')">
-                Post Comment
-            </button>
-            <div id="commentsContainer" style="margin-top:16px;">
-                ${renderComments(comments)}
-            </div>
-        </div>
-    </div>`;
-
-      document.getElementById('feedScreen').style.display = 'none';
-      document.getElementById('detailScreen').style.display = 'block';
-    }
-
-    function showReplyBox(parentId, el) {
-      if (document.getElementById(`reply-box-${parentId}`)) return;
-      const box = `
-    <div id="reply-box-${parentId}" style="margin:8px 0; padding-left:12px;">
-        <textarea id="reply-input-${parentId}" placeholder="Write a reply..." style="height:60px; width:100%;"></textarea>
-        <div style="display:flex; gap:8px; margin-top:4px;">
-            <button class="submit-btn" style="padding:6px 12px; font-size:0.8rem;" onclick="submitReply('${parentId}')">Reply</button>
-            <button onclick="document.getElementById('reply-box-${parentId}').remove()" style="background:transparent; color:var(--text-muted); border:none; font-size:0.8rem;">Cancel</button>
-        </div>
-    </div>`;
-      el.parentElement.parentElement.insertAdjacentHTML('afterend', box);
-    }
-
-    async function submitComment(storyId) {
-      const input = document.getElementById('commentInput');
-      const content = input.value.trim();
-      if (!content) return;
-      const comment = await postComment(storyId, content);
-      if (comment) {
-        input.value = '';
-        showDetail(storyId); // reload
-      }
-    }
-
-    async function submitReply(parentId) {
-      const input = document.getElementById(`reply-input-${parentId}`);
-      const content = input.value.trim();
-      if (!content) return;
-      const comment = await postComment(CURRENT_STORY_ID, content, parentId);
-      if (comment) {
-        document.getElementById(`reply-box-${parentId}`).remove();
-        showDetail(CURRENT_STORY_ID);
-      }
-    }
-
-    /* -------------------------------------------------
-       PROFILE SCREEN
-       ------------------------------------------------- */
-    async function showProfile() {
-      const stories = await fetch(`${API}/api/user/${USER_ID}/stories`).then(r => r.json());
-      document.getElementById('detailContent').innerHTML = `
-    <div class="card" style="text-align:center; padding:30px;">
-        <div class="avatar" style="width:80px; height:80px; font-size:2rem; margin:0 auto 16px;">
-            <i class="fa-solid fa-user"></i>
-        </div>
-        <h2>Anonymous User</h2>
-        <p style="color:var(--text-muted); margin:16px 0;">Member since today</p>
-        <div style="display:flex; justify-content:center; gap:30px; margin:20px 0;">
-            <div>
-                <div style="font-size:1.5rem; font-weight:bold;">${stories.stories?.length || 0}</div>
-                <div style="color:var(--text-muted); font-size:0.8rem;">Stories</div>
-            </div>
-        </div>
-        <h3 style="margin:20px 0 12px; text-align:left;">Your Stories</h3>
-        <div id="profileStories">
-            ${stories.stories?.length ? '' : '<p style="color:var(--text-muted);">No stories yet.</p>'}
-        </div>
-    </div>`;
-
-      if (stories.stories?.length) {
-        const container = document.getElementById('profileStories');
-        container.innerHTML = stories.stories.map(s => `
-            <div class="card" style="margin:12px 0; padding:16px;" onclick="showDetail('${s.story_id}')">
-                <p style="font-weight:600; margin-bottom:8px;">${escapeHtml(s.ai_summary.substring(0, 80))}...</p>
-                <p style="font-size:0.8rem; color:var(--text-muted);">${timeAgo(s.created_at)}</p>
-            </div>
-        `).join('');
-      }
-
-      document.getElementById('feedScreen').style.display = 'none';
-      document.getElementById('detailScreen').style.display = 'block';
-    }
-
-    /* -------------------------------------------------
-       GENERATE NOTICE (stub)
-       ------------------------------------------------- */
-    // function generateNotice(storyId) {
-    //   alert(`Generating legal notice for story ${storyId}...`);
-    //   // In real app: redirect to notice generator with story context
-    // }
-
-    /* -------------------------------------------------
-       MODAL & SUBMIT
-       ------------------------------------------------- */
-    function openShareModal() { document.getElementById('shareModal').classList.add('active'); }
-    function closeShareModal() { document.getElementById('shareModal').classList.remove('active'); }
-
-    document.querySelectorAll('.lang-btn').forEach(b => {
-      b.addEventListener('click', () => {
-        document.querySelectorAll('.lang-btn').forEach(x => x.classList.remove('active'));
-        b.classList.add('active');
-      });
-    });
-
-    document.getElementById('postText').addEventListener('input', e => {
-      document.querySelector('.char-count').textContent = e.target.value.length + ' characters';
-    });
-
-    document.querySelector('.submit-btn').addEventListener('click', async () => {
-      const langBtn = document.querySelector('.lang-btn.active');
-      const original_lang = langBtn ? langBtn.dataset.lang : 'english';
       const original_text = document.getElementById('postText').value.trim();
       if (!original_text) return alert('Please write your story.');
 
-      const payload = { user_id: USER_ID, original_lang, original_text };
+      const payload = { user_id: USER_ID, original_lang: 'english', original_text };
       const res = await fetch(`${API}/api/story`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -935,40 +755,82 @@
         document.querySelector('.char-count').textContent = '0 characters';
         loadFeed();
       } else {
-        alert(json.error || 'Failed');
+        alert(json.error || 'Failed to post');
       }
     });
 
     /* -------------------------------------------------
-       BOTTOM NAV
+       PROFILE – Show real name
        ------------------------------------------------- */
-    document.querySelectorAll('.nav-item').forEach(item => {
-      item.addEventListener('click', () => {
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        item.classList.add('active');
+    async function showProfile() {
+      const res = await fetch(`${API}/api/user/${USER_ID}/stories`);
+      const data = await res.json();
 
-        const text = item.querySelector('span').textContent;
-        if (text === 'Feed') {
-          showFeed();
-        } else if (text === 'Share') {
-          openShareModal();
-        } else if (text === 'Profile') {
-          showProfile();
-        }
-      });
-    });
+      document.getElementById('detailContent').innerHTML = `
+        <div class="card" style="text-align:center; padding:30px;">
+            <div class="avatar" style="width:80px; height:80px; font-size:2rem; margin:0 auto 16px;">
+                <i class="fa-solid fa-user"></i>
+            </div>
+            <h2>${USER.salutation} ${USER.name}</h2>
+            <p style="color:var(--text-muted); margin:16px 0;">Welcome back!</p>
+            <div style="display:flex; justify-content:center; gap:30px; margin:20px 0;">
+                <div>
+                    <div style="font-size:1.5rem; font-weight:bold;">${data.stories?.length || 0}</div>
+                    <div style="color:var(--text-muted); font-size:0.8rem;">Your Stories</div>
+                </div>
+            </div>
+            <button onclick="logout()" style="background:var(--red); color:white; padding:12px 24px; border:none; border-radius:12px; margin-top:20px;">
+                Logout
+            </button>
+            <h3 style="margin:40px 0 12px; text-align:left;">Your Stories</h3>
+            <div id="profileStories">
+                ${data.stories?.length ? '' : '<p style="color:var(--text-muted);">No stories yet.</p>'}
+            </div>
+        </div>`;
+
+      if (data.stories?.length) {
+        document.getElementById('profileStories').innerHTML = data.stories.map(s => `
+            <div class="card" style="margin:12px 0; padding:16px;" onclick="showDetail('${s.story_id}')">
+                <p style="font-weight:600; margin-bottom:8px;">${escapeHtml(s.ai_summary.substring(0, 80))}...</p>
+                <p style="font-size:0.8rem; color:var(--text-muted);">${timeAgo(s.created_at)}</p>
+            </div>
+        `).join('');
+      }
+
+      document.getElementById('feedScreen').style.display = 'none';
+      document.getElementById('detailScreen').style.display = 'block';
+    }
+
+    // Keep your existing comment functions unchanged (they already use USER_ID)
+    // ... [keep loadComments, postComment, renderComment, etc. as-is]
+
+    function showFeed() {
+      document.getElementById('detailScreen').style.display = 'none';
+      document.getElementById('feedScreen').style.display = 'block';
+    }
+
+    function openShareModal() {
+      if (!USER_ID) {
+        alert('Please log in to share your story');
+        window.location.href = 'login.html';
+        return;
+      }
+      document.getElementById('shareModal').classList.add('active');
+    }
+    function closeShareModal() { document.getElementById('shareModal').classList.remove('active'); }
 
     /* -------------------------------------------------
-       INIT
+       INIT – Check login first
        ------------------------------------------------- */
     document.addEventListener('DOMContentLoaded', () => {
+      if (!checkAuth()) return;
+
       loadFeed();
-      // Make functions global
+
       window.setFilter = setFilter;
       window.showFeed = showFeed;
       window.showDetail = showDetail;
       window.toggleLike = toggleLike;
-      window.generateNotice = generateNotice;
       window.showReplyBox = showReplyBox;
       window.submitComment = submitComment;
       window.submitReply = submitReply;

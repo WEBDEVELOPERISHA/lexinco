@@ -188,31 +188,30 @@ app.post('/api/story/:id/comment', async (req, res) => {
    ------------------------------------------------- */
 app.get('/api/stories/filter', async (req, res) => {
     const { filter = 'all', limit = 20, offset = 0 } = req.query;
-    let query = '';
-    let values = [limit, offset];
+    const userId = req.headers['user-id'] || req.query.user_id || null;
 
+    let orderBy = 's.created_at DESC';
     if (filter === 'trending') {
-        query = `
-            SELECT * FROM stories 
-            ORDER BY likes_count DESC, created_at DESC 
-            LIMIT $1 OFFSET $2
-        `;
+        orderBy = 's.likes_count DESC, s.created_at DESC';
     } else if (filter === 'recent') {
-        query = `
-            SELECT * FROM stories 
-            ORDER BY created_at DESC 
-            LIMIT $1 OFFSET $2
-        `;
-    } else {
-        query = `
-            SELECT * FROM stories 
-            ORDER BY created_at DESC 
-            LIMIT $1 OFFSET $2
-        `;
+        orderBy = 's.created_at DESC';
     }
 
     try {
-        const result = await pool.query(query, values);
+        const result = await pool.query(`
+            SELECT 
+                s.*,
+                COALESCE(s.likes_count, 0) AS likes_count,
+                COALESCE(s.comments_count, 0) AS comments_count,
+                EXISTS (
+                    SELECT 1 FROM story_likes sl 
+                    WHERE sl.story_id = s.story_id AND sl.user_id = $1
+                ) AS liked_by_user
+            FROM stories s
+            ORDER BY ${orderBy}
+            LIMIT $2 OFFSET $3
+        `, [userId, limit, offset]);
+
         res.json({ success: true, stories: result.rows });
     } catch (err) {
         console.error('Filter error:', err);
@@ -275,15 +274,22 @@ app.get('/api/config', (req, res) => {
     res.json({});
 });
 app.get('/api/stories', async (req, res) => {
+    const userId = req.headers['user-id'] || req.query.user_id || null;
+
     try {
         const result = await pool.query(`
             SELECT 
-                story_id, user_id, original_lang, original_text,
-                ai_summary, amount, evidence_count, tags,
-                type, status, created_at
-            FROM stories
-            ORDER BY created_at DESC
-        `);
+                s.*,
+                COALESCE(s.likes_count, 0) AS likes_count,
+                COALESCE(s.comments_count, 0) AS comments_count,
+                EXISTS (
+                    SELECT 1 FROM story_likes sl 
+                    WHERE sl.story_id = s.story_id AND sl.user_id = $1
+                ) AS liked_by_user
+            FROM stories s
+            ORDER BY s.created_at DESC
+        `, [userId]);
+
         res.json({ success: true, stories: result.rows });
     } catch (err) {
         console.error('GET /api/stories error:', err);
@@ -1099,32 +1105,43 @@ app.post('/api/send-otp', async (req, res) => {
 });
 
 app.post('/api/signup', async (req, res) => {
-    const { name, email, password, otp } = req.body;
+    const { name, email, password, otp, salutation = 'Mr.' } = req.body;
 
     try {
+        // Verify OTP
         const otpResult = await pool.query(
             'SELECT * FROM otps WHERE email = $1 AND otp = $2 AND expires_at > NOW()',
             [email, otp]
         );
         if (otpResult.rows.length === 0) {
-            return res.status(400).json({ error: 'Invalid/expired OTP. Please request a new one.' });
+            return res.status(400).json({ error: 'Invalid or expired OTP' });
         }
 
+        // Check if user exists
         const userResult = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
         if (userResult.rows.length > 0) {
             return res.status(400).json({ error: 'User already exists' });
         }
 
+        // Hash password
         const passwordHash = await bcrypt.hash(password, 10);
         const userId = uuidv4();
+
+        // Insert user with salutation
         const insertResult = await pool.query(
-            'INSERT INTO users (user_id, name, email, password_hash, is_verified) VALUES ($1, $2, $3, $4, $5) RETURNING user_id, name, email',
-            [userId, name, email, passwordHash, true]
+            `INSERT INTO users (user_id, name, email, password_hash, salutation, is_verified, created_at) 
+             VALUES ($1, $2, $3, $4, $5, true, NOW()) 
+             RETURNING user_id, name, email, salutation`,
+            [userId, name, email, passwordHash, salutation]
         );
 
+        // Clean up OTP
         await pool.query('DELETE FROM otps WHERE email = $1', [email]);
 
-        res.json({ success: true, user: insertResult.rows[0] });
+        res.json({
+            success: true,
+            user: insertResult.rows[0]
+        });
     } catch (error) {
         console.error('Signup Error:', error);
         res.status(500).json({ error: 'Signup failed', details: error.message });
@@ -1148,11 +1165,16 @@ app.post('/api/login', async (req, res) => {
 
         res.json({
             success: true,
-            user: { id: user.user_id, name: user.name, email: user.email }
+            user: {
+                id: user.user_id,
+                name: user.name,
+                email: user.email,
+                salutation: user.salutation || 'Mr.'
+            }
         });
     } catch (error) {
         console.error('Login Error:', error);
-        res.status(500).json({ error: 'Login failed', details: error.message });
+        res.status(500).json({ error: 'Login failed' });
     }
 });
 

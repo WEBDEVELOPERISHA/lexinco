@@ -1,0 +1,245 @@
+/* =============================================
+   AUTH PAGES – DARK MODE (Matches feed.html perfectly)
+   ============================================= */
+
+:root {
+  --bg: #0f0f0f;
+  --card: #111111;
+  --border: #222222;
+  --text: #e5e5e5;
+  --text-muted: #888888;
+  --amber: #f59e0b;
+  --orange: #f97316;
+  --white: #ffffff;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* Header (same as feed) */
+header {
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  z-index: 10;
+  backdrop-filter: blur(12px);
+}
+
+.header-inner {
+  max-width: 540px;
+  margin: 0 auto;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo img {
+  height: 40px;
+}
+
+/* Main Auth Section */
+.auth-section {
+  padding: 100px 20px 140px;
+  display: flex;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.auth-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 40px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.auth-card h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, var(--amber), var(--orange));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.price {
+  text-align: center;
+  color: var(--amber);
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 16px;
+}
+
+.testimonial {
+  text-align: center;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-bottom: 30px;
+  font-size: 0.95rem;
+}
+
+/* Form */
+.auth-form {
+  margin-top: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text);
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--amber);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+}
+
+.form-group input::placeholder {
+  color: var(--text-muted);
+}
+
+.hint {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 6px;
+  display: block;
+}
+
+/* Salutation + Name Row */
+.form-group .flex-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.form-group .flex-row select {
+  width: 110px;
+}
+
+.form-group .flex-row input {
+  flex: 1;
+}
+
+/* Buttons */
+.btn {
+  padding: 14px 20px;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-align: center;
+  display: block;
+  width: 100%;
+}
+
+.btn.primary {
+  background: linear-gradient(135deg, var(--amber), var(--orange));
+  color: white;
+  margin-top: 10px;
+}
+
+.btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(245, 158, 11, 0.4);
+}
+
+.disclaimer {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin: 20px 0;
+  line-height: 1.5;
+}
+
+/* Footer Links */
+.auth-footer {
+  text-align: center;
+  margin-top: 30px;
+  font-size: 0.95rem;
+}
+
+.auth-footer a {
+  color: var(--amber);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.auth-footer a:hover {
+  text-decoration: underline;
+}
+
+.terms {
+  margin-top: 16px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* OTP Card */
+#otp-verification {
+  margin-top: 20px;
+}
+
+/* Resend Link */
+.resend-otp a {
+  color: var(--amber);
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .auth-card {
+    padding: 30px 20px;
+    border-radius: 16px;
+  }
+  
+  .auth-section {
+    padding: 80px 16px 120px;
+  }
+  
+  .form-group .flex-row {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .form-group .flex-row select {
+    width: 100%;
+  }
+}
