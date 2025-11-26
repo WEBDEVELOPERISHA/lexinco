@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lexinco Admin Panel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f4f6f9;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        input,
+        button {
+            padding: 12px;
+            margin: 10px 0;
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+        }
+
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #2980b9;
+        }
+
+        button.danger {
+            background: #e74c3c;
+        }
+
+        button.danger:hover {
+            background: #c0392b;
+        }
+
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            background: #ecf0f1;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+
+        .success {
+            background: #d5efde;
+            color: #27ae60;
+        }
+
+        .error {
+            background: #fadbd8;
+            color: #c0392b;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Lexinco Admin Panel</h1>
+
+    <!-- Reset Password -->
+    <div class="card">
+        <h2>Reset User Password</h2>
+        <input type="email" id="resetEmail" placeholder="User email" />
+        <input type="text" id="newPass" placeholder="New password (will be shown once)" />
+        <button onclick="resetPassword()">Reset Password</button>
+        <div id="resetResult" class="result"></div>
+    </div>
+
+    <!-- Login as User -->
+    <!-- <div class="card">
+        <h2>Login as Any User</h2>
+        <input type="email" id="loginEmail" placeholder="User email" />
+        <button class="danger" onclick="loginAsUser()">Login as This User</button>
+        <div id="loginResult" class="result"></div>
+    </div> -->
+
+    <script>
+        const API_BASE = ""; // ← works on same domain (your app)
+        const ADMIN_SECRET = "8f4e9c2a7d5b3e1f9a6c8d0e2f4g6h8j1k3m5n7p9r2t4v6x8z0admin2025"; // ← CHANGE THIS TO MATCH YOUR .env !!
+
+        async function resetPassword() {
+            const email = document.getElementById("resetEmail").value.trim();
+            const newPass = document.getElementById("newPass").value;
+            const resultDiv = document.getElementById("resetResult");
+            resultDiv.className = "result";
+            resultDiv.textContent = "Working...";
+
+            if (!email || !newPass) return showError(resultDiv, "Fill both fields");
+
+            try {
+                const res = await fetch(API_BASE + "/api/admin/reset-password", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "x-admin-secret": ADMIN_SECRET },
+                    body: JSON.stringify({ email, newPassword: newPass })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showSuccess(resultDiv, `Password reset successfully!\nNew password: ${newPass}\n\nTell the user to change it immediately!`);
+                } else {
+                    showError(resultDiv, data.error || "Failed");
+                }
+            } catch (err) {
+                showError(resultDiv, "Network error: " + err.message);
+            }
+        }
+
+        async function loginAsUser() {
+            const email = document.getElementById("loginEmail").value.trim();
+            const resultDiv = document.getElementById("loginResult");
+            resultDiv.className = "result";
+            resultDiv.textContent = "Working...";
+
+            if (!email) return showError(resultDiv, "Enter email");
+
+            try {
+                const res = await fetch(API_BASE + "/api/admin/login-as-user", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "x-admin-secret": ADMIN_SECRET },
+                    body: JSON.stringify({ email })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showSuccess(resultDiv, `You are now logged in as:\n${data.user.name} (${data.user.email})\n\nCopy this user object for frontend testing:\n` + JSON.stringify(data.user, null, 2));
+                } else {
+                    showError(resultDiv, data.error || "Failed");
+                }
+            } catch (err) {
+                showError(resultDiv, "Network error: " + err.message);
+            }
+        }
+
+        function showSuccess(div, msg) { div.className = "result success"; div.textContent = msg; }
+        function showError(div, msg) { div.className = "result error"; div.textContent = msg; }
+    </script>
+    <script>
+        // ←←← THIS IS THE ONLY PART YOU NEED TO CHANGE ←←←
+        const CORRECT_PANEL_PASSWORD = "lexinco2025admin";  // ← Change this to whatever you want
+
+        // Optional: different redirect for localhost vs production
+        const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+        const redirectUrl = isLocalhost ? "http://localhost:3000" : "https://lexinco.com";
+
+        // Ask for password
+        const userInput = prompt("Enter Admin Panel Password:") || "";
+
+        // Wrong or cancelled → kick them out immediately
+        if (userInput !== CORRECT_PANEL_PASSWORD) {
+            alert("Incorrect password. Access denied.");
+            window.location.href = redirectUrl;
+        }
+
+        // If correct → do nothing (page loads normally)
+    </script>
+</body>
+
+</html>

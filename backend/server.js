@@ -1529,6 +1529,88 @@ app.post('/api/proxy/blog-access', async (req, res) => {
         res.status(500).json({ error: 'Failed to submit blog access request', details: error.message });
     }
 });
+app.post('/api/admin/reset-password', async (req, res) => {
+  const { email, newPassword } = req.body;
+
+  // ←←← PROTECT THIS ENDPOINT! Only you should know this secret
+  const adminSecret = req.headers['x-admin-secret'] || req.body.adminSecret;
+  if (adminSecret !== process.env.ADMIN_SECRET) {
+    return res.status(403).json({ error: 'Forbidden – Invalid admin secret' });
+  }
+
+  if (!email || !newPassword) {
+    return res.status(400).json({ error: 'email and newPassword are required' });
+  }
+
+  try {
+    // Check if user exists
+    const userCheck = await pool.query('SELECT user_id FROM users WHERE email = $1', [email]);
+    if (userCheck.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const newHash = await bcrypt.hash(newPassword, 10);
+
+    await pool.query(
+      'UPDATE users SET password_hash = $1 WHERE email = $2',
+      [newHash, email]
+    );
+
+    // Optional: Log the action (for audit)
+    console.log(`ADMIN PASSWORD RESET → User: ${email} | Time: ${new Date().toISOString()}`);
+
+    res.json({ 
+      success: true, 
+      message: `Password successfully reset for ${email}`,
+      tip: `User can now login with the new password: ${newPassword}`
+    });
+  } catch (err) {
+    console.error('Admin reset error:', err);
+    res.status(500).json({ error: 'Failed to reset password' });
+  }
+});
+// 2. ADMIN: Login as any user (instant impersonation – no password needed)
+app.post('/api/admin/login-as-user', async (req, res) => {
+  const { email } = req.body;
+  const adminSecret = req.headers['x-admin-secret'] || req.body.adminSecret;
+
+  if (adminSecret !== process.env.ADMIN_SECRET) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+
+  if (!email) {
+    return res.status(400).json({ error: 'email required' });
+  }
+
+  try {
+    const result = await pool.query(
+      'SELECT user_id, name, email, salutation FROM users WHERE email = $1',
+      [email]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const user = result.rows[0];
+
+    console.log(`ADMIN IMPERSONATION → Logged in as: ${email}`);
+
+    res.json({
+      success: true,
+      message: `You are now logged in as ${user.name}`,
+      user: {
+        id: user.user_id,
+        name: user.name,
+        email: user.email,
+        salutation: user.salutation || 'Mr.'
+      }
+    });
+  } catch (err) {
+    console.error('Admin login-as-user error:', err);
+    res.status(500).json({ error: 'Failed' });
+  }
+});
 
 // Static Middleware (moved after API routes)
 app.use(express.static(path.join(__dirname, '..', 'public')));
