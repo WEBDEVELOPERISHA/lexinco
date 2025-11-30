@@ -262,6 +262,49 @@
       color: #34d399;
     }
 
+    /* Global Loader Overlay */
+    .global-loader {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      color: white;
+      font-size: 1.1rem;
+    }
+
+    .loader-spinner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .loader-spinner i {
+      font-size: 3rem;
+      color: var(--amber);
+      animation: spin 1.2s linear infinite;
+    }
+
+    .loader-spinner span {
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
     .status.escalate {
       background: #f59e0b10;
       color: #fbbf24;
@@ -704,19 +747,25 @@
     }
 
     async function loadFeed(filter = CURRENT_FILTER) {
+      showLoader("Loading stories...");
       try {
         let url = filter === 'all' ? `${API}/api/stories` : `${API}/api/stories/filter?filter=${filter}`;
-        if (!USER_ID) url += (url.includes('?') ? '&' : '?') + 'public=1'; // allow guest view
+        if (!USER_ID) url += (url.includes('?') ? '&' : '?') + 'public=1';
 
         const headers = USER_ID ? { 'user-id': USER_ID } : {};
         const res = await fetch(url, { headers });
         const data = await res.json();
         if (data.success) {
           const stories = data.stories || [];
-          originalStories = stories;  // Save full list
+          originalStories = stories;
           renderFeed(stories);
         }
-      } catch (e) { console.error(e); }
+      } catch (e) {
+        console.error(e);
+        alert("Failed to load stories");
+      } finally {
+        hideLoader();
+      }
     }
 
     function setFilter(filter) {
@@ -731,6 +780,20 @@
       });
       CURRENT_FILTER = filter;
       loadFeed(filter);
+    }
+    function showLoader(text = "Loading...") {
+      const loader = document.getElementById('globalLoader');
+      const span = loader.querySelector('span');
+      span.textContent = text;
+      loader.style.display = 'flex';
+      document.body.style.overflow = 'hidden'; // prevent scroll
+    }
+
+    // Hide loader
+    function hideLoader() {
+      const loader = document.getElementById('globalLoader');
+      loader.style.display = 'none';
+      document.body.style.overflow = '';
     }
 
     // === LIKE ===
@@ -904,7 +967,7 @@
     }
     function closeShareModal() { document.getElementById('shareModal').classList.remove('active'); }
 
-    document.querySelector('.submit-btn')?.addEventListener('click', async () => {
+    document.querySelector('#shareModal .submit-btn').addEventListener('click', async () => {
       if (!USER_ID) return alert('Login required');
 
       const text = document.getElementById('postText').value.trim();
@@ -912,26 +975,35 @@
 
       const isAnonymous = document.getElementById('anonymousCheckbox').checked;
 
-      const res = await fetch(`${API}/api/story`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          user_id: USER_ID,
-          original_lang: 'english',
-          original_text: text,
-          is_anonymous: isAnonymous
-        })
-      });
+      showLoader("Posting your story...");
 
-      const json = await res.json();
-      if (json.success) {
-        closeShareModal();
-        document.getElementById('postText').value = '';
-        document.getElementById('anonymousCheckbox').checked = false;
-        alert('Story posted successfully!');
-        loadFeed();
-      } else {
-        alert('Failed to post story');
+      try {
+        const res = await fetch(`${API}/api/story`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: USER_ID,
+            original_lang: 'english',
+            original_text: text,
+            is_anonymous: isAnonymous
+          })
+        });
+
+        const json = await res.json();
+        if (json.success) {
+          closeShareModal();
+          document.getElementById('postText').value = '';
+          document.getElementById('anonymousCheckbox').checked = false;
+          alert('Story posted successfully!');
+          loadFeed();
+        } else {
+          alert('Failed to post story: ' + (json.message || 'Try again'));
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Network error. Please try again.');
+      } finally {
+        hideLoader();
       }
     });
 
@@ -1048,6 +1120,12 @@
       renderFeed(filtered);
     }
   </script>
+  <div id="globalLoader" class="global-loader" style="display:none;">
+    <div class="loader-spinner">
+      <i class="fa-solid fa-spinner fa-spin"></i>
+      <span>Loading...</span>
+    </div>
+  </div>
 </body>
 
 </html>
