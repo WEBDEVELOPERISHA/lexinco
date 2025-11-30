@@ -202,19 +202,19 @@ app.get('/api/stories/filter', async (req, res) => {
 
     try {
         const query = `
-            SELECT 
-                s.*,
-                COALESCE(s.likes_count, 0) AS likes_count,
-                COALESCE(s.comments_count, 0) AS comments_count,
-                EXISTS (
-                    SELECT 1 FROM story_likes sl 
-                    WHERE sl.story_id = s.story_id AND sl.user_id = $1
-                ) AS liked_by_user
-            FROM stories s
-            ${filter === 'trending' ? 'WHERE s.created_at > NOW() - INTERVAL \'30 days\'' : ''}
-            ORDER BY ${orderBy}
-            LIMIT $2 OFFSET $3
-        `;
+    SELECT 
+        s.*,
+        COALESCE(s.likes_count, 0) AS likes_count,
+        COALESCE(s.comments_count, 0) AS comments_count,
+        s.is_anonymous,
+        s.user_name,
+        s.user_salutation,
+        EXISTS (SELECT 1 FROM story_likes sl WHERE sl.story_id = s.story_id AND sl.user_id = $1) AS liked_by_user
+    FROM stories s
+    ${filter === 'trending' ? 'WHERE s.created_at > NOW() - INTERVAL \'30 days\'' : ''}
+    ORDER BY ${orderBy}
+    LIMIT $2 OFFSET $3
+`;
 
         const result = await pool.query(query, [userId || null, limit, offset]);
         res.json({ success: true, stories: result.rows });
@@ -283,17 +283,17 @@ app.get('/api/stories', async (req, res) => {
 
     try {
         const result = await pool.query(`
-            SELECT 
-                s.*,
-                COALESCE(s.likes_count, 0) AS likes_count,
-                COALESCE(s.comments_count, 0) AS comments_count,
-                EXISTS (
-                    SELECT 1 FROM story_likes sl 
-                    WHERE sl.story_id = s.story_id AND sl.user_id = $1
-                ) AS liked_by_user
-            FROM stories s
-            ORDER BY s.created_at DESC
-        `, [userId]);
+    SELECT 
+        s.*,
+        COALESCE(s.likes_count, 0) AS likes_count,
+        COALESCE(s.comments_count, 0) AS comments_count,
+        s.is_anonymous,
+        s.user_name,
+        s.user_salutation,
+        EXISTS (SELECT 1 FROM story_likes sl WHERE sl.story_id = s.story_id AND sl.user_id = $1) AS liked_by_user
+    FROM stories s
+    ORDER BY s.created_at DESC
+`, [userId || null]);
 
         res.json({ success: true, stories: result.rows });
     } catch (err) {
@@ -311,7 +311,8 @@ app.post('/api/story', async (req, res) => {
         amount,
         evidence_count = 0,
         tags = [],
-        type
+        type,
+        is_anonymous = false   // ← NEW FIELD FROM FRONTEND
     } = req.body;
 
     if (!user_id || !original_lang || !original_text) {
@@ -335,23 +336,62 @@ Story: """${original_text}"""
             max_tokens: 60
         });
         const ai_summary = (aiRes.choices[0].message.content || original_text).trim();
+        // ALWAYS fetch user details (even if anonymous, we just won't use them)
+        let userName = null;
+        let userSalutation = 'Mr.';
 
-        // ---------- SAVE TO DB ----------
+        const userRes = await pool.query(
+            'SELECT name, salutation FROM users WHERE user_id = $1',
+            [user_id]
+        );
+
+        if (userRes.rows.length > 0) {
+            userName = userRes.rows[0].name;
+            userSalutation = userRes.rows[0].salutation || 'Mr.';
+        }
+
+        // ONLY override with null if user explicitly wants to be anonymous
+        if (is_anonymous) {
+            userName = null;
+            userSalutation = 'Mr.'; // doesn't matter, will be ignored
+        }
+
+        // Now insert
         const q = `
             INSERT INTO stories (
                 user_id, original_lang, original_text, ai_summary,
-                amount, evidence_count, tags, type
-            ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
-            RETURNING story_id
+                amount, evidence_count, tags, type,
+                is_anonymous, user_name, user_salutation
+            ) VALUES (
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
+            )
+            RETURNING story_id, created_at
         `;
-        const vals = [
-            user_id, original_lang, original_text, ai_summary,
-            amount, evidence_count, tags, type
-        ];
-        const { rows } = await pool.query(q, vals);
-        const story_id = rows[0].story_id;
 
-        res.json({ success: true, story_id, ai_summary });
+        const vals = [
+            user_id,
+            original_lang,
+            original_text,
+            ai_summary,
+            amount || null,
+            evidence_count,
+            tags,
+            type || null,
+            is_anonymous,
+            userName,        // ← now correct: real name if not anonymous
+            userSalutation
+        ];
+
+        const { rows } = await pool.query(q, vals);
+        const newStory = rows[0];
+
+        res.json({
+            success: true,
+            story_id: newStory.story_id,
+            created_at: newStory.created_at,
+            ai_summary
+        });
+
     } catch (err) {
         console.error('POST /api/story error:', err);
         res.status(500).json({ error: 'Failed to save story' });
@@ -1530,86 +1570,86 @@ app.post('/api/proxy/blog-access', async (req, res) => {
     }
 });
 app.post('/api/admin/reset-password', async (req, res) => {
-  const { email, newPassword } = req.body;
+    const { email, newPassword } = req.body;
 
-  // ←←← PROTECT THIS ENDPOINT! Only you should know this secret
-  const adminSecret = req.headers['x-admin-secret'] || req.body.adminSecret;
-  if (adminSecret !== process.env.ADMIN_SECRET) {
-    return res.status(403).json({ error: 'Forbidden – Invalid admin secret' });
-  }
-
-  if (!email || !newPassword) {
-    return res.status(400).json({ error: 'email and newPassword are required' });
-  }
-
-  try {
-    // Check if user exists
-    const userCheck = await pool.query('SELECT user_id FROM users WHERE email = $1', [email]);
-    if (userCheck.rows.length === 0) {
-      return res.status(404).json({ error: 'User not found' });
+    // ←←← PROTECT THIS ENDPOINT! Only you should know this secret
+    const adminSecret = req.headers['x-admin-secret'] || req.body.adminSecret;
+    if (adminSecret !== process.env.ADMIN_SECRET) {
+        return res.status(403).json({ error: 'Forbidden – Invalid admin secret' });
     }
 
-    const newHash = await bcrypt.hash(newPassword, 10);
+    if (!email || !newPassword) {
+        return res.status(400).json({ error: 'email and newPassword are required' });
+    }
 
-    await pool.query(
-      'UPDATE users SET password_hash = $1 WHERE email = $2',
-      [newHash, email]
-    );
+    try {
+        // Check if user exists
+        const userCheck = await pool.query('SELECT user_id FROM users WHERE email = $1', [email]);
+        if (userCheck.rows.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
 
-    // Optional: Log the action (for audit)
-    console.log(`ADMIN PASSWORD RESET → User: ${email} | Time: ${new Date().toISOString()}`);
+        const newHash = await bcrypt.hash(newPassword, 10);
 
-    res.json({ 
-      success: true, 
-      message: `Password successfully reset for ${email}`,
-      tip: `User can now login with the new password: ${newPassword}`
-    });
-  } catch (err) {
-    console.error('Admin reset error:', err);
-    res.status(500).json({ error: 'Failed to reset password' });
-  }
+        await pool.query(
+            'UPDATE users SET password_hash = $1 WHERE email = $2',
+            [newHash, email]
+        );
+
+        // Optional: Log the action (for audit)
+        console.log(`ADMIN PASSWORD RESET → User: ${email} | Time: ${new Date().toISOString()}`);
+
+        res.json({
+            success: true,
+            message: `Password successfully reset for ${email}`,
+            tip: `User can now login with the new password: ${newPassword}`
+        });
+    } catch (err) {
+        console.error('Admin reset error:', err);
+        res.status(500).json({ error: 'Failed to reset password' });
+    }
 });
 // 2. ADMIN: Login as any user (instant impersonation – no password needed)
 app.post('/api/admin/login-as-user', async (req, res) => {
-  const { email } = req.body;
-  const adminSecret = req.headers['x-admin-secret'] || req.body.adminSecret;
+    const { email } = req.body;
+    const adminSecret = req.headers['x-admin-secret'] || req.body.adminSecret;
 
-  if (adminSecret !== process.env.ADMIN_SECRET) {
-    return res.status(403).json({ error: 'Forbidden' });
-  }
-
-  if (!email) {
-    return res.status(400).json({ error: 'email required' });
-  }
-
-  try {
-    const result = await pool.query(
-      'SELECT user_id, name, email, salutation FROM users WHERE email = $1',
-      [email]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'User not found' });
+    if (adminSecret !== process.env.ADMIN_SECRET) {
+        return res.status(403).json({ error: 'Forbidden' });
     }
 
-    const user = result.rows[0];
+    if (!email) {
+        return res.status(400).json({ error: 'email required' });
+    }
 
-    console.log(`ADMIN IMPERSONATION → Logged in as: ${email}`);
+    try {
+        const result = await pool.query(
+            'SELECT user_id, name, email, salutation FROM users WHERE email = $1',
+            [email]
+        );
 
-    res.json({
-      success: true,
-      message: `You are now logged in as ${user.name}`,
-      user: {
-        id: user.user_id,
-        name: user.name,
-        email: user.email,
-        salutation: user.salutation || 'Mr.'
-      }
-    });
-  } catch (err) {
-    console.error('Admin login-as-user error:', err);
-    res.status(500).json({ error: 'Failed' });
-  }
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const user = result.rows[0];
+
+        console.log(`ADMIN IMPERSONATION → Logged in as: ${email}`);
+
+        res.json({
+            success: true,
+            message: `You are now logged in as ${user.name}`,
+            user: {
+                id: user.user_id,
+                name: user.name,
+                email: user.email,
+                salutation: user.salutation || 'Mr.'
+            }
+        });
+    } catch (err) {
+        console.error('Admin login-as-user error:', err);
+        res.status(500).json({ error: 'Failed' });
+    }
 });
 
 // Static Middleware (moved after API routes)

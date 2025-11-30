@@ -553,6 +553,15 @@
         <p style="margin:20px 0 8px; color:var(--text-muted);">Describe your situation</p>
         <textarea id="postText" placeholder="Write your story freely."></textarea>
         <div class="char-count">0 characters</div>
+        <div
+          style="margin: 20px 0; padding: 16px; background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); border-radius: 12px; display: flex; align-items: center; gap: 12px;">
+          <input type="checkbox" id="anonymousCheckbox"
+            style="width:20px; height:20px; cursor:pointer; accent-color:var(--amber);">
+          <label for="anonymousCheckbox" style="cursor:pointer; font-size:0.95rem; color:var(--text);">
+            <strong>Post anonymously</strong><br>
+            <span style="font-size:0.85rem; color:var(--text-muted);">Your name will not appear on the story</span>
+          </label>
+        </div>
 
         <button class="submit-btn">Share My Story</button>
         <p style="text-align:center; margin-top:16px; color:var(--text-muted); font-size:0.85rem;">
@@ -897,18 +906,32 @@
 
     document.querySelector('.submit-btn')?.addEventListener('click', async () => {
       if (!USER_ID) return alert('Login required');
+
       const text = document.getElementById('postText').value.trim();
-      if (!text) return alert('Write your story');
+      if (!text) return alert('Please write your story');
+
+      const isAnonymous = document.getElementById('anonymousCheckbox').checked;
+
       const res = await fetch(`${API}/api/story`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: USER_ID, original_lang: 'english', original_text: text })
+        body: JSON.stringify({
+          user_id: USER_ID,
+          original_lang: 'english',
+          original_text: text,
+          is_anonymous: isAnonymous
+        })
       });
+
       const json = await res.json();
       if (json.success) {
         closeShareModal();
         document.getElementById('postText').value = '';
+        document.getElementById('anonymousCheckbox').checked = false;
+        alert('Story posted successfully!');
         loadFeed();
+      } else {
+        alert('Failed to post story');
       }
     });
 
