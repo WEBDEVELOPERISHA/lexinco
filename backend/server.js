@@ -397,6 +397,37 @@ Story: """${original_text}"""
         res.status(500).json({ error: 'Failed to save story' });
     }
 });
+app.get('/api/user/:userId/public-stories', async (req, res) => {
+    const { userId } = req.params;
+
+    try {
+        const result = await pool.query(`
+      SELECT 
+        story_id,
+        ai_summary,
+        created_at,
+        comments_count,
+        original_lang,
+        user_name,
+        user_salutation
+      FROM stories 
+      WHERE user_id = $1 
+        AND is_anonymous = false
+      ORDER BY created_at DESC
+    `, [userId]);
+
+        res.json({
+            success: true,
+            stories: result.rows
+        });
+    } catch (err) {
+        console.error('Public stories error:', err);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to load public stories'
+        });
+    }
+});
 
 app.post('/api/generate-sale-agreement', upload.none(), async (req, res) => {
     const { seller, buyer, product, delivery, paymentMode, executionPlace, jurisdiction } = req.body;

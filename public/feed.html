@@ -465,6 +465,18 @@
       box-shadow: 0 2px 8px rgba(96, 165, 250, 0.1);
     }
 
+    .avatar {
+      cursor: pointer !important;
+      pointer-events: auto !important;
+      z-index: 2;
+    }
+
+    /* Ensure the whole user-info area stays clickable */
+    .user-info {
+      position: relative;
+      z-index: 1;
+    }
+
     .status.action {
       background: linear-gradient(135deg, rgba(52, 211, 153, 0.15), rgba(16, 185, 129, 0.15));
       color: var(--green);
@@ -1687,13 +1699,13 @@
               <div class="snap-card">
               <div class="card" onclick="showDetail('${s.story_id}')">
                   <div class="user-row">
-                      <div class="user-info">
-                          <div class="avatar"><i class="fa-solid fa-user"></i></div>
-                          <div>
-                              <div style="font-weight:600;">${displayName}</div>
-                              <div class="user-meta"><i class="fa-solid fa-globe"></i> ${s.original_lang} • ${timeAgo(s.created_at)}</div>
-                          </div>
-                      </div>
+<div class="user-info" onclick="event.stopPropagation(); showUserProfile('${s.posted_by_user_id || s.user_id || ''}', '${escapeHtml(displayName)}')" style="cursor:pointer;">
+    <div class="avatar"><i class="fa-solid fa-user"></i></div>
+    <div>
+        <div style="font-weight:600;">${displayName}</div>
+        <div class="user-meta">Globe ${s.original_lang || 'English'} • ${timeAgo(s.created_at)}</div>
+    </div>
+</div>
                       ${s.type ? `<div class="type-badge">${s.type}</div>` : ''}
                   </div>
 
@@ -1878,15 +1890,24 @@
 
     function renderComment(c, depth = 0) {
       const displayName = c.user_name ? `${c.user_salutation || 'Mr.'} ${c.user_name.split(' ')[0]}` : 'Anonymous';
+      const userId = c.user_id || ''; // This is critical – comes from your backend comment response
       const hasReplies = c.replies && c.replies.length > 0;
       const indent = Math.min(depth, 3) * 16;
       const border = depth > 0 ? 'border-left: 1px solid var(--border); padding-left: 12px;' : '';
 
       return `
     <div class="comment ${hasReplies ? 'replies' : ''}" data-depth="${depth}" style="margin-left:${indent}px; ${border}">
-      <div class="comment-avatar"><i class="fa-solid fa-user"></i></div>
+      <div class="comment-avatar" 
+           onclick="event.stopPropagation(); if('${userId}') showUserProfile('${userId}', '${escapeHtml(displayName)}')"
+           style="cursor:${userId ? 'pointer' : 'default'};">
+        <i class="fa-solid fa-user"></i>
+      </div>
       <div class="comment-body">
-        <div class="comment-meta">${displayName} • ${timeAgo(c.created_at)}</div>
+        <div class="comment-meta" 
+             onclick="event.stopPropagation(); if('${userId}') showUserProfile('${userId}', '${escapeHtml(displayName)}')"
+             style="cursor:${userId ? 'pointer' : 'default'};">
+          ${displayName} • ${timeAgo(c.created_at)}
+        </div>
         <div class="comment-content">${escapeHtml(c.content)}</div>
         <div class="comment-actions">
           <a onclick="showReplyBox('${c.comment_id}', this)">Reply</a>
@@ -1926,15 +1947,13 @@
 
       document.getElementById('detailContent').innerHTML = `
           <div class="card">
-              <div class="user-row">
-                  <div class="user-info">
-                      <div class="avatar"><i class="fa-solid fa-user"></i></div>
-                      <div>
-                          <div style="font-weight:600;">${displayName}</div>
-                          <div class="user-meta">${story.original_lang} • ${timeAgo(story.created_at)}</div>
-                      </div>
-                  </div>
-              </div>
+<div class="user-info" onclick="event.stopPropagation(); showUserProfile('${story.posted_by_user_id || story.user_id || ''}', '${escapeHtml(displayName)}')" style="cursor:pointer;">
+    <div class="avatar"><i class="fa-solid fa-user"></i></div>
+    <div>
+        <div style="font-weight:600;">${displayName}</div>
+        <div class="user-meta"><i class="fa-solid fa-globe"></i> ${story.original_lang || 'English'} • ${timeAgo(story.created_at)}</div>
+    </div>
+</div>
 
               <div class="ai-summary"><i class="fa-solid fa-sparkles"></i> AI Summary</div>
               <p style="margin:16px 0; line-height:1.7;">${escapeHtml(story.ai_summary)}</p>
@@ -2295,6 +2314,67 @@
       });
 
       renderFeed(filtered);
+    }
+    async function showUserProfile(targetUserId, displayName) {
+      if (!targetUserId) {
+        showToast("Cannot view profile (anonymous post)", "info");
+        return;
+      }
+
+      showLoader("Loading profile...");
+
+      try {
+        const res = await fetch(`${API}/api/user/${targetUserId}/public-stories`);
+        const data = await res.json();
+
+        if (!data.success) {
+          hideLoader();
+          showToast("Profile not found or private", "error");
+          return;
+        }
+
+        const stories = data.stories || [];
+
+        document.getElementById('detailContent').innerHTML = `
+      <div class="card" style="text-align:center;padding:40px;">
+        <div class="avatar" style="width:100px;height:100px;font-size:3rem;margin:0 auto 20px;">
+          <i class="fa-solid fa-user"></i>
+        </div>
+        <h2 style="margin:16px 0;">${escapeHtml(displayName)}</h2>
+        <p style="color:var(--text-muted);margin-bottom:30px;">
+          ${stories.length} ${stories.length === 1 ? 'story' : 'stories'} shared
+        </p>
+
+        ${stories.length === 0 ? `
+          <p style="color:var(--text-muted);font-style:italic;">No public stories yet.</p>
+        ` : ''}
+
+        <div style="margin-top:20px;">
+          ${stories.map(s => `
+            <div class="card" style="margin:16px 0;padding:20px;cursor:pointer;text-align:left;background:var(--card-hover);"
+                 onclick="showDetail('${s.story_id}')">
+              <div style="font-weight:600;margin-bottom:8px;">
+                ${escapeHtml(s.ai_summary || 'No summary').substring(0, 120)}...
+              </div>
+              <div style="font-size:0.85rem;color:var(--text-muted);">
+                ${timeAgo(s.created_at)} • ${s.comments_count || 0} comments
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+
+        document.getElementById('feedScreen').style.display = 'none';
+        document.getElementById('detailScreen').style.display = 'block';
+        document.querySelector('.back-btn').onclick = showFeed;
+
+        hideLoader();
+      } catch (e) {
+        console.error(e);
+        hideLoader();
+        showToast("Failed to load profile", "error");
+      }
     }
 
     // === NEW FEATURES ===
