@@ -11,16 +11,23 @@
 
   <style>
     :root {
-      --bg: #0f0f0f;
-      --card: #111111;
-      --border: #222222;
-      --text: #e5e5e5;
-      --text-muted: #888888;
-      --amber: #f59e0b;
-      --orange: #f97316;
-      --blue: #3b82f6;
-      --green: #10b981;
-      --red: #ef4444;
+      --bg: #0a0a0f;
+      --bg-gradient: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
+      --card: #16162a;
+      --card-hover: #1e1e38;
+      --border: #2a2a4a;
+      --text: #f0f0f5;
+      --text-muted: #9ca3af;
+      --primary: #6366f1;
+      --primary-light: #818cf8;
+      --amber: #fbbf24;
+      --orange: #fb923c;
+      --blue: #60a5fa;
+      --green: #34d399;
+      --red: #f87171;
+      --purple: #a78bfa;
+      --pink: #f472b6;
+      --glow: rgba(99, 102, 241, 0.3);
     }
 
     * {
@@ -30,26 +37,61 @@
     }
 
     body {
-      font-family: system-ui, sans-serif;
-      background: var(--bg);
+      font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+      background: var(--bg-gradient);
+      background-attachment: fixed;
       color: var(--text);
       min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 30% 50%, rgba(99, 102, 241, 0.08), transparent 50%),
+        radial-gradient(circle at 70% 80%, rgba(251, 191, 36, 0.06), transparent 50%);
+      pointer-events: none;
+      animation: floatBackground 20s ease-in-out infinite;
+    }
+
+    @keyframes floatBackground {
+
+      0%,
+      100% {
+        transform: translate(0, 0) rotate(0deg);
+      }
+
+      50% {
+        transform: translate(-50px, 50px) rotate(5deg);
+      }
     }
 
     .snap-container {
       height: 100vh;
-      /* each card section uses full screen */
       overflow-y: scroll;
-      /* scrolls vertically */
       scroll-snap-type: y mandatory;
       scroll-behavior: smooth;
     }
 
     .snap-card {
-      height: 100dvh;
-      /* Fixes mobile spacing */
+      height: 90vh;
+      min-height: 90vh;
       scroll-snap-align: start;
+      scroll-snap-stop: always;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      position: sticky;
+      top: 0;
+      padding-top: 60px;
+      justify-content: center;
       padding: 0;
+      position: relative;
     }
 
 
@@ -63,10 +105,17 @@
     header {
       position: sticky;
       top: 0;
-      background: var(--bg);
+      background: rgba(10, 10, 15, 0.85);
       border-bottom: 1px solid var(--border);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
       z-index: 10;
-      backdrop-filter: blur(12px);
+      backdrop-filter: blur(20px) saturate(180%);
+      transition: all 0.3s ease;
+    }
+
+    header.scrolled {
+      box-shadow: 0 8px 32px rgba(99, 102, 241, 0.15);
+      border-bottom-color: var(--primary);
     }
 
     .header-inner {
@@ -90,9 +139,23 @@
     }
 
     .logo span {
-      background: linear-gradient(135deg, var(--amber), var(--orange));
+      background: linear-gradient(135deg, var(--primary), var(--amber));
       -webkit-background-clip: text;
+      background-clip: text;
       -webkit-text-fill-color: transparent;
+      animation: shimmer 3s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+
+      0%,
+      100% {
+        filter: brightness(1);
+      }
+
+      50% {
+        filter: brightness(1.3);
+      }
     }
 
     /* Tabs */
@@ -110,30 +173,64 @@
       white-space: nowrap;
       background: var(--card);
       color: var(--text-muted);
-      transition: all .2s;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .tab:hover {
+      background: var(--card-hover);
+      border-color: var(--primary-light);
+      color: var(--text);
+      transform: translateY(-2px);
     }
 
     .tab.active {
-      background: var(--amber);
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
       color: white;
+      box-shadow: 0 4px 15px var(--glow);
+      border-color: var(--primary-light);
     }
 
     /* Feed Card */
     .card {
-      background: var(--card);
+      background: rgba(22, 22, 42, 0.95);
+      backdrop-filter: blur(20px);
       border: 1px solid var(--border);
-      border-radius: 16px;
+      border-radius: 24px;
       margin: 0;
-      height: auto !important;
-      min-height: 90dvh;
-      /* full screen */
-      border-radius: 0;
-      padding: 20px;
-      transition: all .2s;
+      width: 80%;
+      max-width: 800px;
+      height: calc(90vh - 120px);
+      max-height: calc(90vh - 120px);
+      padding: 24px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow-y: auto;
+      transform-style: preserve-3d;
+      display: flex;
+      flex-direction: column;
+      transform-origin: top center;
     }
 
-    .card:hover {
-      border-color: #333;
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 20px;
+      padding: 1px;
+      background: linear-gradient(135deg, var(--primary), var(--purple), var(--pink));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .card:hover::before {
+      opacity: 0.6;
     }
 
     .detail-actions {
@@ -159,15 +256,18 @@
     }
 
     .consult-btn {
-      background: var(--card);
+      background: linear-gradient(135deg, rgba(22, 22, 42, 0.8), rgba(30, 30, 56, 0.8));
       color: var(--text);
-      border: 1px solid var(--border);
+      border: 2px solid var(--primary);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .consult-btn:hover {
-      background: #222;
-      border-color: var(--amber);
-      color: var(--amber);
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      border-color: var(--primary-light);
+      color: white;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px var(--glow);
     }
 
     @media (min-width: 480px) {
@@ -197,12 +297,20 @@
       width: 48px;
       height: 48px;
       border-radius: 50%;
-      background: linear-gradient(135deg, var(--amber), var(--orange));
+      background: linear-gradient(135deg, var(--primary), var(--purple));
       display: flex;
       align-items: center;
       justify-content: center;
       color: white;
       font-size: 1.5rem;
+      box-shadow: 0 4px 12px var(--glow);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .avatar:hover {
+      transform: scale(1.1) rotate(5deg);
+      box-shadow: 0 6px 20px var(--glow);
     }
 
     .user-meta {
@@ -211,36 +319,96 @@
     }
 
     .type-badge {
-      background: #ff980030;
-      border: 1px solid #ff980050;
-      color: var(--amber);
-      padding: 4px 12px;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(167, 139, 250, 0.2));
+      border: 1px solid var(--primary-light);
+      color: var(--primary-light);
+      padding: 6px 14px;
       border-radius: 50px;
       font-size: 0.75rem;
       font-weight: 600;
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .type-badge:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
     }
 
     .ai-summary {
-      background: #3b82f620;
-      border: 1px solid #3b82f630;
-      color: #60a5fa;
-      padding: 8px 12px;
-      border-radius: 8px;
-      font-size: 0.8rem;
+      background: linear-gradient(135deg, rgba(96, 165, 250, 0.15), rgba(52, 211, 153, 0.15));
+      border: 1px solid rgba(96, 165, 250, 0.4);
+      color: var(--blue);
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 0.85rem;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       margin: 12px 0;
+      box-shadow: 0 4px 12px rgba(96, 165, 250, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .ai-summary:hover {
+      transform: translateX(4px);
+      box-shadow: 0 6px 16px rgba(96, 165, 250, 0.2);
     }
 
     .amount {
-      background: #ef444420;
-      border: 1px solid #ef444440;
-      color: #f87171;
-      padding: 6px 12px;
+      background: linear-gradient(135deg, rgba(248, 113, 113, 0.2), rgba(239, 68, 68, 0.2));
+      border: 1px solid rgba(248, 113, 113, 0.4);
+      color: var(--red);
+      padding: 8px 16px;
       border-radius: 50px;
       font-weight: bold;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
+      box-shadow: 0 2px 8px rgba(248, 113, 113, 0.15);
+      transition: all 0.3s ease;
+    }
+
+    .amount:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(248, 113, 113, 0.25);
+    }
+
+    /* Toast Notification System */
+    .toast {
+      position: fixed;
+      bottom: 100px;
+      right: 20px;
+      background: linear-gradient(135deg, var(--primary), var(--purple));
+      color: white;
+      padding: 16px 24px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      z-index: 1000;
+      animation: slideInRight 0.4s ease, slideOutRight 0.4s ease 2.6s;
+      pointer-events: none;
+    }
+
+    @keyframes slideInRight {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideOutRight {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+
+      to {
+        transform: translateX(400px);
+        opacity: 0;
+      }
     }
 
     .evidence {
@@ -256,31 +424,59 @@
     }
 
     .tag {
-      background: var(--border);
+      background: linear-gradient(135deg, rgba(42, 42, 74, 0.6), rgba(30, 30, 56, 0.6));
       color: var(--text-muted);
-      padding: 4px 10px;
-      border-radius: 8px;
+      padding: 6px 14px;
+      border-radius: 20px;
       font-size: 0.75rem;
+      border: 1px solid var(--border);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .tag:hover {
+      background: linear-gradient(135deg, var(--primary), var(--purple));
+      color: white;
+      border-color: var(--primary-light);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px var(--glow);
     }
 
     .status {
       display: flex;
       align-items: center;
       gap: 6px;
-      padding: 4px 10px;
+      padding: 6px 12px;
       border-radius: 50px;
       font-size: 0.75rem;
       margin-top: 8px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .status:hover {
+      transform: translateX(4px);
     }
 
     .status.seeking {
-      background: #3b82f610;
-      color: #60a5fa;
+      background: linear-gradient(135deg, rgba(96, 165, 250, 0.15), rgba(59, 130, 246, 0.15));
+      color: var(--blue);
+      border: 1px solid rgba(96, 165, 250, 0.3);
+      box-shadow: 0 2px 8px rgba(96, 165, 250, 0.1);
     }
 
     .status.action {
-      background: #10b98110;
-      color: #34d399;
+      background: linear-gradient(135deg, rgba(52, 211, 153, 0.15), rgba(16, 185, 129, 0.15));
+      color: var(--green);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      box-shadow: 0 2px 8px rgba(52, 211, 153, 0.1);
+    }
+
+    .status.escalate {
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(245, 158, 11, 0.15));
+      color: var(--amber);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      box-shadow: 0 2px 8px rgba(251, 191, 36, 0.1);
     }
 
     /* Global Loader Overlay */
@@ -307,8 +503,9 @@
 
     .loader-spinner i {
       font-size: 3rem;
-      color: var(--amber);
+      color: var(--primary-light);
       animation: spin 1.2s linear infinite;
+      filter: drop-shadow(0 0 20px var(--glow));
     }
 
     .loader-spinner span {
@@ -347,29 +544,54 @@
       color: var(--text-muted);
       font-size: 0.9rem;
       cursor: pointer;
-      transition: color .2s;
+      padding: 8px 12px;
+      border-radius: 8px;
+      transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .action-btn:hover {
-      color: var(--amber);
+      color: var(--primary-light);
+      background: rgba(99, 102, 241, 0.1);
+      transform: scale(1.05);
     }
 
     .generate-btn {
       margin-top: 16px;
       width: 100%;
-      padding: 14px;
+      padding: 16px;
       border: none;
       border-radius: 12px;
-      background: linear-gradient(135deg, var(--amber), var(--orange));
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
       color: white;
       font-weight: 600;
+      font-size: 1rem;
       cursor: pointer;
-      transition: all .3s;
+      position: relative;
+      overflow: hidden;
+      transition: all .4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .generate-btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    .generate-btn:hover::before {
+      width: 300px;
+      height: 300px;
     }
 
     .generate-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 20px rgba(245, 158, 11, 0.3);
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 12px 28px var(--glow);
     }
 
     /* Bottom Nav */
@@ -378,12 +600,14 @@
       bottom: 0;
       left: 0;
       right: 0;
-      background: var(--card);
+      background: rgba(22, 22, 42, 0.8);
+      backdrop-filter: blur(20px) saturate(180%);
       border-top: 1px solid var(--border);
       display: flex;
       justify-content: space-around;
       padding: 12px 0;
       z-index: 100;
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
     }
 
     .nav-item {
@@ -394,14 +618,45 @@
       color: var(--text-muted);
       font-size: 0.75rem;
       cursor: pointer;
+      padding: 8px 16px;
+      border-radius: 12px;
+      transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+
+    .nav-item::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%) scaleX(0);
+      width: 40px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--purple));
+      border-radius: 3px 3px 0 0;
+      transition: transform 0.3s ease;
     }
 
     .nav-item.active {
-      color: var(--amber);
+      color: var(--primary-light);
+    }
+
+    .nav-item.active::before {
+      transform: translateX(-50%) scaleX(1);
+    }
+
+    .nav-item:hover {
+      color: var(--primary-light);
+      background: rgba(99, 102, 241, 0.1);
     }
 
     .nav-item i {
       font-size: 1.4rem;
+      transition: transform 0.3s ease;
+    }
+
+    .nav-item.active i {
+      transform: scale(1.1);
     }
 
     /* Floating + button */
@@ -409,35 +664,65 @@
       position: fixed;
       bottom: 80px;
       right: 20px;
-      width: 60px;
-      height: 60px;
-      background: linear-gradient(135deg, var(--amber), var(--orange));
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, var(--primary), var(--purple));
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       color: white;
       font-size: 1.8rem;
-      box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4);
+      box-shadow: 0 8px 24px var(--glow);
       cursor: pointer;
       z-index: 99;
-      transition: transform .3s;
+      transition: all .4s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        box-shadow: 0 8px 24px var(--glow);
+      }
+
+      50% {
+        box-shadow: 0 8px 32px rgba(99, 102, 241, 0.6);
+      }
     }
 
     .fab:hover {
-      transform: scale(1.1);
+      transform: scale(1.15) rotate(90deg);
+      box-shadow: 0 12px 36px rgba(99, 102, 241, 0.5);
+    }
+
+    .fab:active {
+      transform: scale(1.05) rotate(90deg);
     }
 
     /* Modal */
     .modal {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.9);
+      background: rgba(0, 0, 0, 0.92);
+      backdrop-filter: blur(10px);
       z-index: 200;
       display: none;
       align-items: center;
       justify-content: center;
       padding: 20px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
     }
 
     .modal.active {
@@ -445,30 +730,211 @@
     }
 
     .modal-content {
-      background: var(--card);
-      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(22, 22, 42, 0.95), rgba(30, 30, 56, 0.95));
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 24px;
       width: 100%;
       max-width: 500px;
       max-height: 95vh;
       overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(50px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .comments-section {
+      margin-top: 30px;
+      border-top: 1px solid var(--border);
+      padding-top: 20px;
+    }
+
+    .comments-header {
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .comment {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 0;
+      position: relative;
+    }
+
+    .comment[data-depth="0"] {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .comment-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--purple));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 0.95rem;
+      flex-shrink: 0;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 2px 8px var(--glow);
+    }
+
+    .comment-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .comment-meta {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+
+    .comment-content {
+      font-size: 0.95rem;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
+    .comment-actions {
+      margin-top: 6px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .comment-actions a {
+      font-size: 0.85rem;
+      color: var(--primary-light);
+      cursor: pointer;
+    }
+
+    .comment-actions a:hover {
+      text-decoration: underline;
+    }
+
+    /* Nested replies indentation */
+    .comment-replies {
+      margin-left: 16px;
+      padding-left: 12px;
+      border-left: 1px solid var(--border);
+      position: relative;
+    }
+
+    /* Inline posting loader */
+    .comment-loader {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--amber);
+      font-size: 0.9rem;
+      margin-top: 8px;
+    }
+
+    .comment-loader i {
+      animation: spin 1s linear infinite;
+    }
+
+    /* Unified reply composer (YouTube-like) */
+    .reply-composer {
+      position: sticky;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(10, 10, 15, 0.9);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      margin-top: 16px;
+      box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.35);
+      z-index: 5;
+    }
+
+    .reply-composer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+    }
+
+    .reply-composer textarea {
+      height: 80px;
+      resize: vertical;
+      margin: 6px 0 8px 0;
+    }
+
+    .reply-composer .actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      align-items: center;
+    }
+
+    .reply-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--text);
+      font-size: 0.85rem;
     }
 
     .modal-header {
-      padding: 20px;
+      padding: 24px;
       border-bottom: 1px solid var(--border);
       display: flex;
       justify-content: space-between;
       align-items: center;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), transparent);
     }
 
     .modal-header h2 {
-      font-size: 1.4rem;
+      font-size: 1.5rem;
+      background: linear-gradient(135deg, var(--primary-light), var(--purple));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .close {
-      font-size: 1.8rem;
+      font-size: 2rem;
       cursor: pointer;
       color: var(--text-muted);
+      transition: all 0.3s ease;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+    }
+
+    .close:hover {
+      color: var(--red);
+      background: rgba(248, 113, 113, 0.1);
+      transform: rotate(90deg);
     }
 
     .modal-body {
@@ -500,13 +966,21 @@
     textarea {
       width: 100%;
       height: 200px;
-      background: var(--bg);
-      border: 1px solid var(--border);
+      background: rgba(10, 10, 15, 0.6);
+      border: 2px solid var(--border);
       border-radius: 12px;
       padding: 16px;
-      color: white;
+      color: var(--text);
       font-size: 1rem;
       resize: none;
+      transition: all 0.3s ease;
+      outline: none;
+    }
+
+    textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px var(--glow);
+      background: rgba(10, 10, 15, 0.8);
     }
 
     .char-count {
@@ -522,11 +996,36 @@
       margin-top: 20px;
       border: none;
       border-radius: 12px;
-      background: linear-gradient(135deg, var(--amber), var(--orange));
+      background: linear-gradient(135deg, var(--primary), var(--purple));
       color: white;
       font-weight: 600;
       font-size: 1.1rem;
       cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .submit-btn::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.2);
+      transform: translate(-50%, -50%) scale(0);
+      border-radius: 50%;
+      transition: transform 0.5s ease;
+    }
+
+    .submit-btn:hover::after {
+      transform: translate(-50%, -50%) scale(2);
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px var(--glow);
     }
 
     /* Detail screen (simple) */
@@ -553,21 +1052,57 @@
 
     /* Nice scroll bar */
     ::-webkit-scrollbar {
-      width: 8px;
+      width: 10px;
     }
 
     ::-webkit-scrollbar-track {
-      background: #0f0f0f;
+      background: rgba(10, 10, 15, 0.5);
     }
 
     ::-webkit-scrollbar-thumb {
-      background: linear-gradient(135deg, var(--amber), var(--orange));
+      background: linear-gradient(180deg, var(--primary), var(--purple));
       border-radius: 10px;
+      border: 2px solid rgba(10, 10, 15, 0.5);
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, var(--primary-light), var(--pink));
     }
 
     /* Parallax Card Float on Scroll */
     .card {
       will-change: transform;
+    }
+
+    /* Floating particles */
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0px);
+      }
+
+      50% {
+        transform: translateY(-20px);
+      }
+    }
+
+    /* Smooth scroll behavior */
+    .snap-container {
+      scroll-behavior: smooth;
+    }
+
+    /* Add glow effect on hover for interactive elements */
+    button,
+    .tab,
+    .nav-item,
+    .action-btn {
+      position: relative;
+    }
+
+    button:active,
+    .tab:active {
+      transform: scale(0.98);
     }
 
     /* Upload Loader */
@@ -624,13 +1159,325 @@
 
     /* Fix spacing in mobile view */
     @media (max-width: 768px) {
-
-      .snap-card,
-      .card {
-        height: auto !important;
-        min-height: 60dvh;
-        padding: 16px;
+      .snap-card {
+        height: 90vh;
+        min-height: 90vh;
+        padding-top: 30px;
       }
+
+      .card {
+        width: 90% !important;
+        max-width: 90% !important;
+        height: calc(90vh - 200px) !important;
+        max-height: calc(90vh - 200px) !important;
+        padding: 16px;
+        margin: 0 auto;
+      }
+    }
+
+    /* Search Container Styles */
+    #searchContainer {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #searchInput {
+      display: none;
+      width: 0;
+      padding: 8px 14px;
+      border: 2px solid var(--border);
+      border-radius: 20px;
+      background: rgba(22, 22, 42, 0.8);
+      color: var(--text);
+      font-size: 0.9rem;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      outline: none;
+    }
+
+    #searchInput:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--glow);
+    }
+
+    #searchIcon {
+      color: var(--text-muted);
+      font-size: 1.2rem;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    #searchIcon:hover {
+      color: var(--primary-light);
+      transform: scale(1.1);
+    }
+
+    /* Card entrance animation */
+    @keyframes cardFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .card {
+      animation: cardFadeIn 0.6s ease-out;
+    }
+
+    /* Parallax depth effect */
+    .card-content {
+      transition: transform 0.1s ease-out;
+    }
+
+    /* Reaction Picker */
+    .reaction-picker {
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%) translateY(-10px);
+      background: rgba(22, 22, 42, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 8px 12px;
+      display: none;
+      gap: 8px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      z-index: 100;
+      animation: popUp 0.3s ease;
+    }
+
+    @keyframes popUp {
+      from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(10px) scale(0.8);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(-10px) scale(1);
+      }
+    }
+
+    .reaction-picker.active {
+      display: flex;
+    }
+
+    .reaction-emoji {
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      padding: 4px;
+    }
+
+    .reaction-emoji:hover {
+      transform: scale(1.3) rotate(10deg);
+    }
+
+    /* Reaction bar */
+    .reaction-bar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .reaction-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(99, 102, 241, 0.12);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 0.9rem;
+      cursor: default;
+      min-width: 48px;
+      justify-content: center;
+    }
+
+    .reaction-pill.active {
+      border-color: var(--primary);
+      background: rgba(99, 102, 241, 0.2);
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.25);
+    }
+
+    /* Share Menu */
+    .share-menu {
+      position: absolute;
+      bottom: 100%;
+      right: 0;
+      background: rgba(22, 22, 42, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 8px;
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 180px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      z-index: 100;
+      animation: slideUp 0.3s ease;
+    }
+
+    .share-menu.active {
+      display: flex;
+    }
+
+    .share-option {
+      padding: 10px 12px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .share-option:hover {
+      background: rgba(99, 102, 241, 0.2);
+      color: var(--primary-light);
+      transform: translateX(4px);
+    }
+
+    .share-option i {
+      width: 20px;
+      text-align: center;
+    }
+
+    /* Bookmark Animation */
+    .bookmark-icon.bookmarked {
+      animation: bookmarkPop 0.4s ease;
+    }
+
+    @keyframes bookmarkPop {
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.3) rotate(10deg);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    /* Story Stats Overlay */
+    .story-stats {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 8px 0;
+      margin-top: 12px;
+      border-top: 1px solid var(--border);
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .stat-item:hover {
+      color: var(--primary-light);
+      cursor: pointer;
+    }
+
+    .stat-item i {
+      font-size: 0.9rem;
+    }
+
+    /* Swipe Indicator */
+    .swipe-indicator {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(22, 22, 42, 0.9);
+      backdrop-filter: blur(10px);
+      padding: 12px 20px;
+      border-radius: 50px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 90;
+    }
+
+    .swipe-indicator.show {
+      opacity: 1;
+    }
+
+    .swipe-indicator i {
+      animation: bounce 1s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-5px);
+      }
+    }
+
+    /* Filter Chips */
+    .filter-chips {
+      display: flex;
+      gap: 8px;
+      padding: 0 16px 12px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .filter-chips::-webkit-scrollbar {
+      display: none;
+    }
+
+    .filter-chip {
+      padding: 6px 14px;
+      border-radius: 20px;
+      background: rgba(42, 42, 74, 0.6);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .filter-chip.active {
+      background: linear-gradient(135deg, var(--primary), var(--purple));
+      color: white;
+      border-color: var(--primary-light);
+      box-shadow: 0 2px 8px var(--glow);
+    }
+
+    .filter-chip:hover:not(.active) {
+      background: rgba(99, 102, 241, 0.2);
+      border-color: var(--primary);
+      color: var(--text);
     }
   </style>
 </head>
@@ -656,7 +1503,24 @@
       <div class="tab" onclick="setFilter('trending')">Trending</div>
       <div class="tab" onclick="setFilter('recent')">Recent</div>
     </div>
+
+    <!-- Filter Chips -->
+    <div class="filter-chips">
+      <div class="filter-chip active" data-category="all" onclick="filterByCategory('all')">All</div>
+      <div class="filter-chip" data-category="legal" onclick="filterByCategory('legal')">⚖️ Legal</div>
+      <div class="filter-chip" data-category="financial" onclick="filterByCategory('financial')">💰 Financial</div>
+      <div class="filter-chip" data-category="family" onclick="filterByCategory('family')">👨‍👩‍👧 Family</div>
+      <div class="filter-chip" data-category="workplace" onclick="filterByCategory('workplace')">💼 Workplace</div>
+      <div class="filter-chip" data-category="consumer" onclick="filterByCategory('consumer')">🛒 Consumer</div>
+      <div class="filter-chip" data-category="property" onclick="filterByCategory('property')">🏠 Property</div>
+    </div>
   </header>
+
+  <!-- Swipe Indicator -->
+  <div class="swipe-indicator" id="swipeIndicator">
+    <i class="fa-solid fa-chevron-down"></i>
+    <span>Swipe for more stories</span>
+  </div>
 
   <!-- Feed -->
   <div id="feedScreen" class="snap-container"></div>
@@ -788,6 +1652,22 @@
       return div.innerHTML;
     }
 
+    // Toast notification function
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = message;
+
+      if (type === 'error') {
+        toast.style.background = 'linear-gradient(135deg, var(--red), #dc2626)';
+      } else if (type === 'info') {
+        toast.style.background = 'linear-gradient(135deg, var(--blue), var(--primary))';
+      }
+
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
     // === RENDER FEED ===
     function renderFeed(stories) {
       STORIES = stories;
@@ -804,6 +1684,7 @@
         const displayName = s.user_name ? `${s.user_salutation || 'Mr.'} ${s.user_name.split(' ')[0]}` : 'Anonymous';
 
         return `
+              <div class="snap-card">
               <div class="card" onclick="showDetail('${s.story_id}')">
                   <div class="user-row">
                       <div class="user-info">
@@ -834,19 +1715,63 @@
             s.status === 'action_plan' ? '<i class="fa-solid fa-circle-check"></i> Action Plan' :
               '<i class="fa-solid fa-circle-info"></i> Seeking Guidance'}
                       </div>
-                      <div style="display:flex; gap:20px;">
-                          <div class="action-btn" onclick="event.stopPropagation(); toggleLike('${s.story_id}', this)">
+                      <div style="display:flex; gap:20px; position:relative;">
+                          <div class="action-btn" onclick="event.stopPropagation(); toggleReactionPicker('${s.story_id}', this)" onmouseenter="event.stopPropagation();">
                               <i class="${likeIcon}" style="color:${likeColor}"></i> <span>${s.likes_count || 0}</span>
+                              <div class="reaction-picker" id="reaction-${s.story_id}">
+                                  <span class="reaction-emoji" onclick="event.stopPropagation(); reactToStory('${s.story_id}', '👍', this)">👍</span>
+                                  <span class="reaction-emoji" onclick="event.stopPropagation(); reactToStory('${s.story_id}', '❤️', this)">❤️</span>
+                                  <span class="reaction-emoji" onclick="event.stopPropagation(); reactToStory('${s.story_id}', '💪', this)">💪</span>
+                                  <span class="reaction-emoji" onclick="event.stopPropagation(); reactToStory('${s.story_id}', '🙏', this)">🙏</span>
+                                  <span class="reaction-emoji" onclick="event.stopPropagation(); reactToStory('${s.story_id}', '😢', this)">😢</span>
+                              </div>
                           </div>
                           <div class="action-btn" onclick="event.stopPropagation(); showDetail('${s.story_id}')">
                               <i class="fa-solid fa-message"></i> <span>${s.comments_count || 0}</span>
                           </div>
+                          <div class="action-btn" onclick="event.stopPropagation(); toggleBookmark('${s.story_id}', this)">
+                              <i class="fa-regular fa-bookmark bookmark-icon"></i>
+                          </div>
+                          <div class="action-btn" onclick="event.stopPropagation(); toggleShareMenu('${s.story_id}', this)" style="position:relative;">
+                              <i class="fa-solid fa-share-nodes"></i>
+                              <div class="share-menu" id="share-${s.story_id}">
+                                  <div class="share-option" onclick="event.stopPropagation(); shareStory('${s.story_id}', 'copy')">
+                                      <i class="fa-solid fa-link"></i> Copy Link
+                                  </div>
+                                  <div class="share-option" onclick="event.stopPropagation(); shareStory('${s.story_id}', 'whatsapp')">
+                                      <i class="fa-brands fa-whatsapp"></i> WhatsApp
+                                  </div>
+                                  <div class="share-option" onclick="event.stopPropagation(); shareStory('${s.story_id}', 'twitter')">
+                                      <i class="fa-brands fa-twitter"></i> Twitter
+                                  </div>
+                                  <div class="share-option" onclick="event.stopPropagation(); shareStory('${s.story_id}', 'email')">
+                                      <i class="fa-solid fa-envelope"></i> Email
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+
+                  <!-- Story Stats -->
+                  <div class="story-stats">
+                      <div class="stat-item" onclick="event.stopPropagation();">
+                          <i class="fa-solid fa-eye"></i>
+                          <span>${Math.floor(Math.random() * 500) + 50}</span>
+                      </div>
+                      <div class="stat-item" onclick="event.stopPropagation();">
+                          <i class="fa-solid fa-fire"></i>
+                          <span>${s.likes_count > 10 ? 'Trending' : 'Hot'}</span>
+                      </div>
+                      <div class="stat-item" onclick="event.stopPropagation();">
+                          <i class="fa-solid fa-clock"></i>
+                          <span>${timeAgo(s.created_at)}</span>
                       </div>
                   </div>
 
                   <button class="generate-btn" onclick="event.stopPropagation(); window.location.href='legal-notice.html?story_id=${s.story_id}'">
-                      Generate Legal Notice
+                      <i class="fa-solid fa-gavel"></i> Generate Legal Notice
                   </button>
+              </div>
               </div>`;
       }).join('');
     }
@@ -864,6 +1789,12 @@
           const stories = data.stories || [];
           originalStories = stories;
           renderFeed(stories);
+
+          // Initialize parallax after rendering
+          setTimeout(() => {
+            initParallax();
+            initSwipeGestures();
+          }, 100);
         }
       } catch (e) {
         console.error(e);
@@ -946,24 +1877,42 @@
     }
 
     function renderComment(c, depth = 0) {
-      const indent = depth * 30;
       const displayName = c.user_name ? `${c.user_salutation || 'Mr.'} ${c.user_name.split(' ')[0]}` : 'Anonymous';
+      const hasReplies = c.replies && c.replies.length > 0;
+      const indent = Math.min(depth, 3) * 16;
+      const border = depth > 0 ? 'border-left: 1px solid var(--border); padding-left: 12px;' : '';
+
       return `
-          <div style="margin-left:${indent}px; padding-left:12px; border-left:2px solid var(--border); margin-top:12px;">
-              <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:4px;">
-                  ${displayName} • ${timeAgo(c.created_at)}
-              </div>
-              <p style="margin:6px 0; font-size:0.95rem;">${escapeHtml(c.content)}</p>
-              <a href="javascript:void(0)" onclick="showReplyBox('${c.comment_id}', this)" style="font-size:0.8rem; color:var(--amber);">Reply</a>
-              <div id="reply-${c.comment_id}"></div>
-          </div>`;
+    <div class="comment ${hasReplies ? 'replies' : ''}" data-depth="${depth}" style="margin-left:${indent}px; ${border}">
+      <div class="comment-avatar"><i class="fa-solid fa-user"></i></div>
+      <div class="comment-body">
+        <div class="comment-meta">${displayName} • ${timeAgo(c.created_at)}</div>
+        <div class="comment-content">${escapeHtml(c.content)}</div>
+        <div class="comment-actions">
+          <a onclick="showReplyBox('${c.comment_id}', this)">Reply</a>
+        </div>
+        <div id="reply-box-${c.comment_id}"></div>
+      </div>
+    </div>
+    ${hasReplies ? '<div class="comment-replies">' + c.replies.map(r => renderComment(r, depth + 1)).join('') + '</div>' : ''}
+  `;
     }
 
-    function renderComments(comments) {
-      const tree = {}; const roots = [];
-      comments.forEach(c => c.parent_id ? (tree[c.parent_id] || (tree[c.parent_id] = [])).push(c) : roots.push(c));
-      const build = node => renderComment(node) + (tree[node.comment_id] || []).map(build).join('');
-      return roots.map(build).join('');
+    function renderCommentsTree(comments) {
+      const map = {};
+      const roots = [];
+
+      comments.forEach(c => {
+        c.replies = [];
+        map[c.comment_id] = c;
+        if (c.parent_id && map[c.parent_id]) {
+          map[c.parent_id].replies.push(c);
+        } else {
+          roots.push(c);
+        }
+      });
+
+      return roots.map(root => renderComment(root)).join('');
     }
 
     // === SHOW DETAIL (THIS WAS MISSING!) ===
@@ -1004,15 +1953,34 @@
     </button>
 </div>
 
-              <div style="border-top:1px solid var(--border); padding-top:20px;">
-                  <h3 style="margin-bottom:12px;">Comments (${comments.length})</h3>
-                  <textarea id="commentInput" placeholder="Write a supportive comment..." style="height:90px; margin-bottom:8px;"></textarea>
-                  <button class="submit-btn" style="padding:10px;" onclick="submitComment('${story_id}')">Post Comment</button>
-                  <div id="commentsContainer" style="margin-top:20px;">
-                      ${renderComments(comments)}
-                  </div>
-              </div>
-          </div>`;
+<div class="comments-section">
+  <div class="comments-header">
+    <i class="fa-solid fa-message"></i> Comments (${comments.length})
+  </div>
+
+  <textarea id="commentInput" placeholder="Write a supportive comment..." style="height:90px; margin-bottom:8px;"></textarea>
+  <button class="submit-btn" style="padding:10px;" onclick="submitComment('${story_id}')">Post Comment</button>
+
+  <div id="commentPostingLoader" class="comment-loader" style="display:none;">
+    <i class="fa-solid fa-spinner"></i> Posting your comment...
+  </div>
+
+  <div id="commentsContainer" style="margin-top:20px;">
+    ${renderCommentsTree(comments)}
+  </div>
+
+  <div id="replyComposer" class="reply-composer" style="display:none;">
+    <div class="reply-composer-header">
+      <span class="reply-pill" id="replyTarget">Replying</span>
+      <button onclick="closeReplyComposer()" style="background:none;border:none;color:var(--text-muted);font-size:0.95rem;">Cancel</button>
+    </div>
+    <textarea id="replyComposerInput" placeholder="Add a public reply..."></textarea>
+    <div class="actions">
+      <button class="submit-btn" style="padding:10px 18px;width:auto;min-width:120px;" onclick="submitReply()">Reply</button>
+    </div>
+  </div>
+</div>
+`;
 
       document.getElementById('feedScreen').style.display = 'none';
       document.getElementById('detailScreen').style.display = 'block';
@@ -1023,16 +1991,48 @@
       document.getElementById('feedScreen').style.display = 'block';
     }
 
+    let ACTIVE_REPLY_ID = null;
+    let LAST_REPLY_BUTTON = null;
+
     function showReplyBox(parentId, el) {
-      if (document.getElementById(`reply-box-${parentId}`)) return;
-      const box = `<div id="reply-box-${parentId}" style="margin:12px 0;">
-              <textarea id="reply-input-${parentId}" placeholder="Write your reply..." style="height:70px;"></textarea>
-              <div style="margin-top:8px; display:flex; gap:8px;">
-                  <button class="submit-btn" style="padding:8px 16px; font-size:0.9rem;" onclick="submitReply('${parentId}')">Reply</button>
-                  <button onclick="document.getElementById('reply-box-${parentId}').remove()" style="background:transparent; color:var(--text-muted); border:none;">Cancel</button>
-              </div>
-          </div>`;
-      el.parentElement.insertAdjacentHTML('afterend', box);
+      const composer = document.getElementById('replyComposer');
+      const target = document.getElementById('replyTarget');
+      const input = document.getElementById('replyComposerInput');
+
+      // Restore previous button if switching targets
+      if (LAST_REPLY_BUTTON && LAST_REPLY_BUTTON !== el) {
+        LAST_REPLY_BUTTON.style.visibility = '';
+      }
+
+      // Toggle off if same target
+      if (composer.style.display === 'block' && ACTIVE_REPLY_ID === parentId) {
+        closeReplyComposer();
+        return;
+      }
+
+      ACTIVE_REPLY_ID = parentId;
+      LAST_REPLY_BUTTON = el;
+      if (LAST_REPLY_BUTTON) LAST_REPLY_BUTTON.style.visibility = 'hidden';
+
+      target.textContent = 'Replying to comment';
+      composer.style.display = 'block';
+      input.value = '';
+      input.focus();
+
+      // Scroll the composer into view on mobile
+      composer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function closeReplyComposer() {
+      const composer = document.getElementById('replyComposer');
+      const input = document.getElementById('replyComposerInput');
+      composer.style.display = 'none';
+      input.value = '';
+      if (LAST_REPLY_BUTTON) {
+        LAST_REPLY_BUTTON.style.visibility = '';
+      }
+      ACTIVE_REPLY_ID = null;
+      LAST_REPLY_BUTTON = null;
     }
 
     async function submitComment(storyId) {
@@ -1040,17 +2040,41 @@
       const input = document.getElementById('commentInput');
       const content = input.value.trim();
       if (!content) return;
+
+      document.getElementById('commentPostingLoader').style.display = 'inline-flex';
+      input.disabled = true;
+
       const comment = await postComment(storyId, content);
-      if (comment) { input.value = ''; showDetail(storyId); }
+
+      document.getElementById('commentPostingLoader').style.display = 'none';
+      input.disabled = false;
+
+      if (comment) {
+        input.value = '';
+        showDetail(storyId); // refreshes with new comment
+      }
     }
 
-    async function submitReply(parentId) {
-      const input = document.getElementById(`reply-input-${parentId}`);
+    async function submitReply() {
+      if (!USER_ID) return requireLogin();
+      if (!ACTIVE_REPLY_ID) return;
+      const input = document.getElementById('replyComposerInput');
       const content = input.value.trim();
       if (!content) return;
-      const comment = await postComment(CURRENT_STORY_ID, content, parentId);
+
+      input.disabled = true;
+      const loader = document.createElement('div');
+      loader.className = 'comment-loader';
+      loader.innerHTML = '<i class="fa-solid fa-spinner"></i> Posting reply...';
+      input.parentNode.appendChild(loader);
+
+      const comment = await postComment(CURRENT_STORY_ID, content, ACTIVE_REPLY_ID);
+
+      loader.remove();
+      input.disabled = false;
+
       if (comment) {
-        document.getElementById(`reply-box-${parentId}`).remove();
+        closeReplyComposer();
         showDetail(CURRENT_STORY_ID);
       }
     }
@@ -1161,6 +2185,54 @@
       window.submitComment = submitComment;
       window.submitReply = submitReply;
       window.showProfile = showProfile;
+      window.toggleReactionPicker = toggleReactionPicker;
+      window.reactToStory = reactToStory;
+      window.toggleBookmark = toggleBookmark;
+      window.toggleShareMenu = toggleShareMenu;
+      window.shareStory = shareStory;
+      window.filterByCategory = filterByCategory;
+
+      // Add ripple effect to buttons
+      document.addEventListener('click', function (e) {
+        if (e.target.matches('.generate-btn, .submit-btn, .fab')) {
+          const ripple = document.createElement('span');
+          const rect = e.target.getBoundingClientRect();
+          const size = Math.max(rect.width, rect.height);
+          const x = e.clientX - rect.left - size / 2;
+          const y = e.clientY - rect.top - size / 2;
+
+          ripple.style.cssText = `
+            position: absolute;
+            width: ${size}px;
+            height: ${size}px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            left: ${x}px;
+            top: ${y}px;
+            pointer-events: none;
+            animation: ripple 0.6s ease-out;
+          `;
+
+          e.target.appendChild(ripple);
+          setTimeout(() => ripple.remove(), 600);
+        }
+      });
+
+      // Add CSS for ripple animation
+      const style = document.createElement('style');
+      style.textContent = `
+        @keyframes ripple {
+          from {
+            transform: scale(0);
+            opacity: 1;
+          }
+          to {
+            transform: scale(4);
+            opacity: 0;
+          }
+        }
+      `;
+      document.head.appendChild(style);
     });
     function requireLogin() {
       sessionStorage.setItem('redirect_after_login', location.href);
@@ -1224,13 +2296,365 @@
 
       renderFeed(filtered);
     }
-    window.addEventListener("scroll", () => {
-      document.querySelectorAll(".card").forEach((card) => {
-        const rect = card.getBoundingClientRect();
-        const offset = rect.top * 0.05;
-        card.style.transform = `translateY(${offset}px)`;
+
+    // === NEW FEATURES ===
+
+    // Story Progress Indicator
+    function updateProgressIndicator() {
+      const container = document.getElementById('storyProgress');
+      const cards = document.querySelectorAll('.snap-card');
+
+      container.innerHTML = '';
+      cards.forEach((card, index) => {
+        const dot = document.createElement('div');
+        dot.className = 'progress-dot';
+        dot.setAttribute('data-index', index);
+        dot.onclick = () => scrollToStory(index);
+        container.appendChild(dot);
       });
+
+      updateActiveProgressDot();
+    }
+
+    function updateActiveProgressDot() {
+      const feedContainer = document.getElementById('feedScreen');
+      const cards = document.querySelectorAll('.snap-card');
+      const dots = document.querySelectorAll('.progress-dot');
+      const cardStep = window.innerHeight * 0.9;
+
+      const activeIndex = Math.min(
+        cards.length - 1,
+        Math.round(feedContainer.scrollTop / cardStep)
+      );
+
+      dots.forEach((dot, index) => {
+        dot.classList.toggle('active', index === activeIndex);
+      });
+
+      // Show swipe indicator on first story
+      if (activeIndex === 0 && cards.length > 1) {
+        const indicator = document.getElementById('swipeIndicator');
+        indicator.classList.add('show');
+        setTimeout(() => indicator.classList.remove('show'), 3000);
+      }
+    }
+
+    function scrollToStory(index) {
+      const feedContainer = document.getElementById('feedScreen');
+      const cardStep = window.innerHeight * 0.9;
+      feedContainer.scrollTo({
+        top: index * cardStep,
+        behavior: 'smooth'
+      });
+    }
+
+    // Reaction System
+    function toggleReactionPicker(storyId, btn) {
+      const picker = document.getElementById(`reaction-${storyId}`);
+      const allPickers = document.querySelectorAll('.reaction-picker');
+
+      allPickers.forEach(p => {
+        if (p !== picker) p.classList.remove('active');
+      });
+
+      picker.classList.toggle('active');
+    }
+
+    async function reactToStory(storyId, emoji, btn) {
+      if (!USER_ID) return requireLogin();
+
+      // Close picker
+      const picker = document.getElementById(`reaction-${storyId}`);
+      picker.classList.remove('active');
+
+      // Animate emoji
+      const emojiEl = document.createElement('div');
+      emojiEl.textContent = emoji;
+      emojiEl.style.cssText = `
+        position: fixed;
+        font-size: 3rem;
+        pointer-events: none;
+        z-index: 1000;
+        animation: floatUp 1s ease-out forwards;
+      `;
+
+      const rect = btn.getBoundingClientRect();
+      emojiEl.style.left = rect.left + 'px';
+      emojiEl.style.top = rect.top + 'px';
+      document.body.appendChild(emojiEl);
+
+      // Add animation CSS
+      if (!document.getElementById('floatUpAnimation')) {
+        const style = document.createElement('style');
+        style.id = 'floatUpAnimation';
+        style.textContent = `
+          @keyframes floatUp {
+            to {
+              transform: translateY(-100px) scale(1.5);
+              opacity: 0;
+            }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+
+      setTimeout(() => emojiEl.remove(), 1000);
+
+      // Send to server (reuse like endpoint for now)
+      try {
+        const res = await fetch(`${API}/api/story/${storyId}/like`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: USER_ID })
+        });
+        const json = await res.json();
+
+        // Mirror toggleLike UI update so state persists on screen
+        const likeBtn = picker?.parentElement; // action-btn wrapping the picker
+        const icon = likeBtn?.querySelector('i');
+        const countEl = likeBtn?.querySelector('span');
+
+        if (json?.success && icon && countEl) {
+          if (json.liked) {
+            icon.className = 'fa-solid fa-thumbs-up';
+            icon.style.color = 'var(--amber)';
+            countEl.textContent = (parseInt(countEl.textContent) + 1);
+          } else {
+            icon.className = 'fa-regular fa-thumbs-up';
+            icon.style.color = '';
+            countEl.textContent = Math.max(0, parseInt(countEl.textContent) - 1);
+          }
+        }
+
+        showToast(`Reacted with ${emoji}`, json?.success ? 'success' : 'error');
+      } catch (e) {
+        console.error(e);
+        showToast('Could not save reaction', 'error');
+      }
+    }
+
+    // Bookmark System
+    let bookmarkedStories = JSON.parse(localStorage.getItem('bookmarked_stories') || '[]');
+
+    function toggleBookmark(storyId, btn) {
+      const icon = btn.querySelector('.bookmark-icon');
+      const isBookmarked = bookmarkedStories.includes(storyId);
+
+      if (isBookmarked) {
+        bookmarkedStories = bookmarkedStories.filter(id => id !== storyId);
+        icon.classList.remove('fa-solid', 'bookmarked');
+        icon.classList.add('fa-regular');
+        showToast('Removed from bookmarks', 'info');
+      } else {
+        bookmarkedStories.push(storyId);
+        icon.classList.remove('fa-regular');
+        icon.classList.add('fa-solid', 'bookmarked');
+        showToast('Added to bookmarks', 'success');
+      }
+
+      localStorage.setItem('bookmarked_stories', JSON.stringify(bookmarkedStories));
+    }
+
+    // Share System
+    function toggleShareMenu(storyId, btn) {
+      const menu = document.getElementById(`share-${storyId}`);
+      const allMenus = document.querySelectorAll('.share-menu');
+
+      allMenus.forEach(m => {
+        if (m !== menu) m.classList.remove('active');
+      });
+
+      menu.classList.toggle('active');
+    }
+
+    function shareStory(storyId, platform) {
+      const url = `${window.location.origin}${window.location.pathname}?story=${storyId}`;
+      const text = 'Check out this story on Lexinco';
+
+      switch (platform) {
+        case 'copy':
+          navigator.clipboard.writeText(url);
+          showToast('Link copied to clipboard!', 'success');
+          break;
+        case 'whatsapp':
+          window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`, '_blank');
+          break;
+        case 'twitter':
+          window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+          break;
+        case 'email':
+          window.location.href = `mailto:?subject=${encodeURIComponent(text)}&body=${encodeURIComponent(url)}`;
+          break;
+      }
+
+      // Close menu
+      document.querySelectorAll('.share-menu').forEach(m => m.classList.remove('active'));
+    }
+
+    // Category Filter
+    let currentCategory = 'all';
+
+    function filterByCategory(category) {
+      currentCategory = category;
+
+      // Update UI
+      document.querySelectorAll('.filter-chip').forEach(chip => {
+        chip.classList.toggle('active', chip.dataset.category === category);
+      });
+
+      // Filter stories (simple client-side for now)
+      if (category === 'all') {
+        renderFeed(originalStories);
+      } else {
+        const filtered = originalStories.filter(story => {
+          // You can enhance this with actual category tags from backend
+          const text = (story.ai_summary + story.original_text).toLowerCase();
+          switch (category) {
+            case 'legal': return text.includes('legal') || text.includes('court') || text.includes('law');
+            case 'financial': return text.includes('money') || text.includes('payment') || text.includes('loan');
+            case 'family': return text.includes('family') || text.includes('divorce') || text.includes('marriage');
+            case 'workplace': return text.includes('work') || text.includes('job') || text.includes('employer');
+            case 'consumer': return text.includes('product') || text.includes('service') || text.includes('refund');
+            case 'property': return text.includes('property') || text.includes('house') || text.includes('land');
+            default: return true;
+          }
+        });
+        renderFeed(filtered);
+      }
+
+      setTimeout(() => {
+        updateProgressIndicator();
+        initSwipeGestures();
+      }, 100);
+    }
+
+    // Swipe Gestures
+    function initSwipeGestures() {
+      const feedContainer = document.getElementById('feedScreen');
+      let startY = 0;
+      let startTime = 0;
+
+      feedContainer.addEventListener('touchstart', (e) => {
+        startY = e.touches[0].clientY;
+        startTime = Date.now();
+      });
+
+      feedContainer.addEventListener('touchend', (e) => {
+        const endY = e.changedTouches[0].clientY;
+        const endTime = Date.now();
+        const diff = startY - endY;
+        const timeDiff = endTime - startTime;
+
+        // Quick swipe detection
+        if (Math.abs(diff) > 50 && timeDiff < 300) {
+          const cardStep = window.innerHeight * 0.9;
+          const currentScroll = feedContainer.scrollTop;
+          const currentIndex = Math.round(currentScroll / cardStep);
+          const cards = document.querySelectorAll('.snap-card');
+
+          if (diff > 0 && currentIndex < cards.length - 1) {
+            // Swipe up - next card
+            feedContainer.scrollTo({
+              top: (currentIndex + 1) * cardStep,
+              behavior: 'smooth'
+            });
+          } else if (diff < 0 && currentIndex > 0) {
+            // Swipe down - previous card
+            feedContainer.scrollTo({
+              top: (currentIndex - 1) * cardStep,
+              behavior: 'smooth'
+            });
+          }
+        }
+      });
+    }
+
+    // Close menus when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.action-btn')) {
+        document.querySelectorAll('.reaction-picker, .share-menu').forEach(el => {
+          el.classList.remove('active');
+        });
+      }
     });
+
+    // === END NEW FEATURES ===
+
+    // Initialize card stacking scroll (boundless-style)
+    function initParallax() {
+      const feedContainer = document.getElementById('feedScreen');
+      if (!feedContainer) return;
+
+      feedContainer.addEventListener('scroll', () => {
+        const cards = document.querySelectorAll('.snap-card');
+
+        cards.forEach((snapCard, index) => {
+          const card = snapCard.querySelector('.card');
+          if (!card) return;
+
+          const rect = snapCard.getBoundingClientRect();
+          const viewportHeight = window.innerHeight;
+
+          // Set z-index so cards stack in order
+          snapCard.style.zIndex = cards.length - index;
+
+          // Card is at top (already scrolled past)
+          if (rect.top <= 0) {
+            const scrollDepth = Math.abs(rect.top);
+            const scaleAmount = Math.max(0.92, 1 - scrollDepth / (viewportHeight * 3));
+            card.style.transform = `scale(${scaleAmount})`;
+            card.style.width = '100%';
+            card.style.maxWidth = '100%';
+            card.style.borderRadius = '0';
+          }
+          // Card is coming into view (scrolling up)
+          else if (rect.top > 0 && rect.top < viewportHeight * 0.8) {
+            const progress = rect.top / (viewportHeight * 0.8);
+            card.style.transform = 'scale(1)';
+            card.style.width = '80%';
+            card.style.maxWidth = '800px';
+            card.style.borderRadius = '24px';
+          }
+          // Card is below viewport
+          else {
+            card.style.transform = 'scale(1)';
+            card.style.width = '80%';
+            card.style.maxWidth = '800px';
+            card.style.borderRadius = '24px';
+          }
+        });
+
+        // Header scroll effect
+        const header = document.querySelector('header');
+        if (feedContainer.scrollTop > 50) {
+          header.classList.add('scrolled');
+        } else {
+          header.classList.remove('scrolled');
+        }
+      });
+    }
+
+    // Observe snap-cards for intersection
+    const observerOptions = {
+      threshold: 0.3,
+      rootMargin: '0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        const card = entry.target.querySelector('.card');
+        if (entry.isIntersecting && card) {
+          card.style.animation = 'cardFadeIn 0.6s ease-out forwards';
+        }
+      });
+    }, observerOptions);
+
+    // Observe all snap-cards after rendering
+    function observeCards() {
+      document.querySelectorAll('.snap-card').forEach(snapCard => {
+        observer.observe(snapCard);
+      });
+    }
   </script>
   <div id="globalLoader" class="global-loader" style="display:none;">
     <div class="loader-spinner">
